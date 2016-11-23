@@ -1,0 +1,20 @@
+<?php
+/**
+ * @package KetShop
+ * @copyright Copyright (c) 2016 Lucas Sanner
+ * @license GNU General Public License version 3, or later
+ */
+
+defined('_JEXEC') or die;
+?>
+
+
+<ol class="nav nav-tabs nav-stacked">
+<?php foreach ($this->link_items as &$item) : ?>
+	<li>
+	  <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->catid)); ?>">
+		      <?php echo $item->name; ?></a>
+	</li>
+<?php endforeach; ?>
+</ol>
+

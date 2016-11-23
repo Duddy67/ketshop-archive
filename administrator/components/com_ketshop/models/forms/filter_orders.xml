@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field
+			name="search"
+			type="text"
+			label="COM_KETSHOP_SEARCH_IN_TITLE"
+			hint="JSEARCH_FILTER"
+			class="js-stools-search-string"
+		/>
+		<field
+			name="published"
+			type="status"
+			label="JOPTION_SELECT_PUBLISHED"
+			description="JOPTION_SELECT_PUBLISHED_DESC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+		<field
+			name="order_status"
+			type="list"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_SELECT_ORDER_STATUS</option>
+			<option value="completed">COM_KETSHOP_OPTION_COMPLETED_STATUS</option>
+			<option value="pending">COM_KETSHOP_OPTION_PENDING_STATUS</option>
+			<option value="other">COM_KETSHOP_OPTION_OTHER_STATUS</option>
+			<option value="error">COM_KETSHOP_OPTION_ERROR_STATUS</option>
+			<option value="cancelled">COM_KETSHOP_OPTION_CANCELLED_STATUS</option>
+		</field>
+		<field
+			name="payment_status"
+			type="list"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_SELECT_PAYMENT_STATUS</option>
+			<option value="completed">COM_KETSHOP_OPTION_COMPLETED_STATUS</option>
+			<option value="pending">COM_KETSHOP_OPTION_PENDING_STATUS</option>
+			<option value="error">COM_KETSHOP_OPTION_ERROR_STATUS</option>
+			<option value="unfinished">COM_KETSHOP_OPTION_UNFINISHED_STATUS</option>
+		</field>
+		<field
+			name="shipping_status"
+			type="list"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_SELECT_SHIPPING_STATUS</option>
+			<option value="completed">COM_KETSHOP_OPTION_COMPLETED_STATUS</option>
+			<option value="pending">COM_KETSHOP_OPTION_PENDING_STATUS</option>
+			<option value="cancelled">COM_KETSHOP_OPTION_CANCELLED_STATUS</option>
+			<option value="no_shipping">COM_KETSHOP_OPTION_NO_SHIPPING_STATUS</option>
+		</field>
+		<field
+			name="cart_status"
+			type="list"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_SELECT_CART_STATUS</option>
+			<option value="completed">COM_KETSHOP_OPTION_COMPLETED_STATUS</option>
+			<option value="pending">COM_KETSHOP_OPTION_PENDING_STATUS</option>
+		</field>
+		<field
+			name="user_id"
+			type="customerlist"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_OPTION_SELECT_CUSTOMER</option>
+		</field>
+	</fields>
+	<fields name="list">
+		<field name="fullordering" type="list"
+			label="JGLOBAL_SORT_BY"
+			description="JGLOBAL_SORT_BY"
+			onchange="this.form.submit();" default="" >
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="o.published ASC">JSTATUS_ASC</option>
+			<option value="o.published DESC">JSTATUS_DESC</option>
+			<option value="o.name ASC">COM_KETSHOP_ORDER_NUMBER_ASC</option>
+			<option value="o.name DESC">COM_KETSHOP_ORDER_NUMBER_DESC</option>
+			<option value="customer ASC">COM_KETSHOP_CUSTOMER_ASC</option>
+			<option value="customer DESC">COM_KETSHOP_CUSTOMER_DESC</option>
+			<option value="o.cart_status ASC">COM_KETSHOP_CART_STATUS_ASC</option>
+			<option value="o.cart_status DESC">COM_KETSHOP_CART_STATUS_DESC</option>
+			<option value="o.order_status ASC">COM_KETSHOP_ORDER_STATUS_ASC</option>
+			<option value="o.order_status DESC">COM_KETSHOP_ORDER_STATUS_DESC</option>
+			<option value="payment_status ASC">COM_KETSHOP_PAYMENT_STATUS_ASC</option>
+			<option value="payment_status DESC">COM_KETSHOP_PAYMENT_STATUS_DESC</option>
+			<option value="shipping_status ASC">COM_KETSHOP_SHIPPING_STATUS_ASC</option>
+			<option value="shipping_status DESC">COM_KETSHOP_SHIPPING_STATUS_DESC</option>
+			<option value="o.created ASC">JDATE_ASC</option>
+			<option value="o.created DESC">JDATE_DESC</option>
+			<option value="o.id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="o.id DESC">JGRID_HEADING_ID_DESC</option>
+		</field>
+		<field
+			name="limit"
+			type="limitbox"
+			class="inputbox input-mini"
+			default="25"
+			label="COM_KETSHOP_LIST_LIMIT"
+			description="COM_KETSHOP_LIST_LIMIT_DESC"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>

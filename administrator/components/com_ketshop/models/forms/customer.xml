@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form addrulepath="/administrator/components/com_ketshop/models/rules">
+
+  <fieldset name="details">
+
+	<!-- IMPORTANT: An input field called "id" must exists to set if the element 
+	     is new (id = 0) or in edition. -->
+	<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
+	       description="JGLOBAL_FIELD_ID_DESC"
+	       readonly="true" class="readonly" />
+
+	<!-- Warning: We must set filter as "unset" on the Joomla!
+	users fields to avoid record their values in users table when saving. -->      
+	<field name="name" type="text"
+		label="COM_KETSHOP_CUSTOMER_FIELD_NAME_LABEL"
+		description="COM_KETSHOP_CUSTOMER_FIELD_NAME_DESC"
+		class="input-xxlarge input-large-text readonly"
+		readonly="true" filter="unset" />
+
+	<field name="username" type="text"
+		label="COM_KETSHOP_FIELD_USERNAME_LABEL"
+		description="COM_KETSHOP_FIELD_USERNAME_DESC"
+		class="readonly" readonly="true" filter="unset" />
+
+	<field name="user_id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
+	       description="JGLOBAL_FIELD_ID_DESC"
+	       readonly="true" class="readonly" />
+
+	<field name="email" type="text"
+		label="COM_KETSHOP_FIELD_EMAIL_LABEL"
+		description="COM_KETSHOP_FIELD_EMAIL_DESC"
+		class="readonly" readonly="true" filter="unset" />
+
+	<field name="lastvisitDate" type="calendar"
+		label="COM_KETSHOP_FIELD_LASTVISIT_LABEL"
+		description="COM_KETSHOP_FIELD_LASTVISIT_DESC"
+		class="readonly" readonly="true" format="%Y-%m-%d %H:%M:%S"
+		filter="user_utc,unset" />
+
+	<field name="registerDate" type="calendar"
+		label="COM_KETSHOP_FIELD_REGISTERDATE_LABEL"
+		description="COM_KETSHOP_FIELD_REGISTERDATE_DESC"
+		class="readonly" readonly="true" format="%Y-%m-%d %H:%M:%S"
+		filter="user_utc,unset" />
+
+	<field name="limit_item" type="list"
+		class="inputbox" size="1" default="10" onchange="setLimitItem(this);">
+		<option value="5">5</option>
+		<option value="10">10</option>
+		<option value="15">15</option>
+		<option value="20">20</option>
+		<option value="25">25</option>
+		<option value="30">30</option>
+		<option value="50">50</option>
+		<option value="100">100</option>
+		<option value="0">JALL</option>
+	</field>
+
+
+	<field name="street_sh"
+		type="text"
+		id="street_sh"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_STREET_SH_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_STREET_SH_MESSAGE"
+		size="30" required="true" />
+
+
+	<field name="city_sh"
+		type="text"
+		id="city_sh"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_CITY_SH_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_CITY_SH_MESSAGE"
+		size="30" required="true" />
+
+	<field name="postcode_sh"
+		type="text"
+		id="postcode_sh"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_POSTCODE_SH_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_POSTCODE_SH_MESSAGE"
+		size="30" required="true" />
+
+	<field name="region_code_sh"
+		type="regionlist"
+		id="region_code_sh"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_REGION_SH_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_REGION_SH_MESSAGE"
+		size="30" />
+
+	<field name="country_code_sh"
+		type="countrylist"
+		id="country_code_sh"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_COUNTRY_ID_SH_LABEL"
+		class="inputbox" required="true" >
+	</field>
+
+	<field name="phone_sh"
+		type="tel"
+		id="phone"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_PHONE_SH_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_PHONE_SH_MESSAGE"
+		size="30" />
+
+	<field name="note_sh"
+		type="textarea"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_NOTE_SH_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_NOTE_SH_MESSAGE"
+		rows="5" class="readonly" disabled="true" filter="safehtml" />
+
+
+
+	<field name="street_bi"
+		type="text"
+		id="street_bi"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_STREET_BI_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_STREET_BI_MESSAGE"
+		size="30" />
+
+
+	<field name="city_bi"
+		type="text"
+		id="city_bi"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_CITY_BI_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_CITY_BI_MESSAGE"
+		size="30" />
+
+	<field name="postcode_bi"
+		type="text"
+		id="postcode_bi"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_POSTCODE_BI_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_POSTCODE_BI_MESSAGE"
+		size="30" />
+
+	<field name="region_code_bi"
+		type="regionlist"
+		id="region_code_bi"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_REGION_BI_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_REGION_BI_MESSAGE"
+		size="30" />
+
+	<field name="country_code_bi"
+		type="countrylist"
+		id="country_code_bi"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_COUNTRY_ID_BI_LABEL"
+		class="inputbox" >
+	</field>
+
+	<field name="phone_bi"
+		type="tel"
+		id="phone"
+		filter="string"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_PHONE_BI_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_PHONE_BI_MESSAGE"
+		size="30" />
+
+	<field name="note_bi"
+		type="textarea"
+		label="COM_USER_KETSHOP_CUSTOMER_FIELD_NOTE_BI_LABEL"
+		message="COM_USER_KETSHOP_CUSTOMER_FIELD_NOTE_BI_MESSAGE"
+		rows="5" class="readonly" disabled="true" filter="safehtml" />
+	</fieldset>
+</form>
+
+
+

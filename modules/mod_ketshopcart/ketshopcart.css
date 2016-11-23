@@ -1,0 +1,27 @@
+.moduletable_ketshopcart {
+  overflow: hidden;
+}
+
+#ketshop-cart {
+  float: right;
+  font-family: arial, helvetica, sans-serif;
+  margin: 10px;
+  /*border: 1px solid red;*/
+}
+
+#cart-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+#cart-information {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 12px;
+  font-weight: bold;
+  /*background-color: #606060;*/
+  /*color: #ffffff;*/
+  padding: 3px;
+  margin-left: 5px;
+}

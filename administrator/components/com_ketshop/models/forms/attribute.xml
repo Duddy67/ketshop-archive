@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form addrulepath="/administrator/components/com_ketshop/models/rules">
+
+  <fieldset name="details">
+
+	<!-- IMPORTANT: A input field called "id" must exists to set if the element 
+	     is new (id = 0) or in edition. -->
+	<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
+	       description="JGLOBAL_FIELD_ID_DESC"
+	       readonly="true" class="readonly" />
+
+	<field name="name" type="text"
+		label="COM_KETSHOP_FIELD_NAME_LABEL"
+		description="COM_KETSHOP_FIELD_NAME_DESC"
+		class="input-xxlarge input-large-text"
+		required="true" />
+
+	<field name="field_value_1" type="text"
+		label="COM_KETSHOP_FIELD_FIELD_VALUE_1_LABEL"
+		description="COM_KETSHOP_FIELD_FIELD_VALUE_1_DESC"
+		size="70" />
+
+	<field name="field_text_1" type="text"
+		label="COM_KETSHOP_FIELD_FIELD_TEXT_1_LABEL"
+		description="COM_KETSHOP_FIELD_FIELD_TEXT_1_DESC"
+		size="70" />
+
+	<field name="multiselect" type="radio"
+		class="btn-group btn-group-yesno"
+		label="COM_KETSHOP_FIELD_MULTISELECT_LABEL"
+		description="COM_KETSHOP_FIELD_MULTISELECT_DESC"
+		default="0">
+		<option value="1">JYES</option>
+		<option value="0">JNO</option>
+	</field>
+
+	<field name="field_value_2" type="text"
+		label="COM_KETSHOP_FIELD_FIELD_VALUE_2_LABEL"
+		description="COM_KETSHOP_FIELD_FIELD_VALUE_2_DESC"
+		size="70" />
+
+	<field name="field_text_2" type="text"
+		label="COM_KETSHOP_FIELD_FIELD_TEXT_2_LABEL"
+		description="COM_KETSHOP_FIELD_FIELD_TEXT_2_DESC"
+		size="70" />
+
+	<field name="field_type_1" type="list"
+		label="COM_KETSHOP_FIELD_FIELD_TYPE_1_LABEL"
+		description="COM_KETSHOP_FIELD_FIELD_TYPE_1_DESC"
+		class="inputbox" size="1" default="closed_list">
+		<option value="closed_list">COM_KETSHOP_OPTION_CLOSED_LIST</option>
+		<option value="open_field">COM_KETSHOP_OPTION_OPEN_FIELD</option>
+	</field>
+
+	<field name="value_type" type="list"
+		label="COM_KETSHOP_FIELD_VALUE_TYPE_LABEL"
+		description="COM_KETSHOP_FIELD_VALUE_TYPE_DESC"
+		class="inputbox" size="1" default="string">
+		<option value="string">COM_KETSHOP_OPTION_STRING</option>
+		<option value="int">COM_KETSHOP_OPTION_INT</option>
+		<option value="unsigned_int">COM_KETSHOP_OPTION_UNSIGNED_INT</option>
+		<option value="float">COM_KETSHOP_OPTION_FLOAT</option>
+		<option value="unsigned_float">COM_KETSHOP_OPTION_UNSIGNED_FLOAT</option>
+	</field>
+
+	<field name="field_type_2" type="list"
+		label="COM_KETSHOP_FIELD_FIELD_TYPE_2_LABEL"
+		description="COM_KETSHOP_FIELD_FIELD_TYPE_2_DESC"
+		class="inputbox" size="1" default="none">
+		<option value="none">COM_KETSHOP_OPTION_NONE</option>
+		<option value="closed_list">COM_KETSHOP_OPTION_CLOSED_LIST</option>
+		<option value="open_field">COM_KETSHOP_OPTION_OPEN_FIELD</option>
+		<option value="dimension">COM_KETSHOP_OPTION_DIMENSION</option>
+		<option value="weight">COM_KETSHOP_OPTION_WEIGHT</option>
+		<option value="volume">COM_KETSHOP_OPTION_VOLUME</option>
+		<option value="time">COM_KETSHOP_OPTION_TIME</option>
+		<option value="area">COM_KETSHOP_OPTION_AREA</option>
+		<option value="frequency">COM_KETSHOP_OPTION_FREQUENCY</option>
+		<option value="temperature">COM_KETSHOP_OPTION_TEMPERATURE</option>
+		<option value="watt">COM_KETSHOP_OPTION_WATT</option>
+		<option value="volt">COM_KETSHOP_OPTION_VOLT</option>
+		<option value="ampere">COM_KETSHOP_OPTION_AMPERE</option>
+		<option value="ohm">COM_KETSHOP_OPTION_OHM</option>
+	</field>
+
+	<field name="published" type="list"
+	        label="JSTATUS"
+	        description="JFIELD_PUBLISHED_DESC"
+		class="inputbox"
+		size="1" default="1">
+		<option value="1">JPUBLISHED</option>
+		<option value="0">JUNPUBLISHED</option>
+		<option value="2">JARCHIVED</option>
+		<option value="-2">JTRASHED</option>
+	</field>
+
+	<field name="default_language" type="text" label="COM_KETSHOP_FIELD_LANGUAGE_LABEL"
+		description="COM_KETSHOP_FIELD_LANGUAGE_DESC" readonly="true"
+		class="readonly" />
+
+	<field name="description" type="textarea"
+		label="COM_KETSHOP_FIELD_DESCRIPTION_LABEL"
+		description="COM_KETSHOP_FIELD_DESCRIPTION_DESC"
+		rows="5" cols="10"
+		default=""></field>
+
+	<field name="created_by" type="user"
+		label="COM_KETSHOP_FIELD_CREATED_BY_LABEL" description="COM_KETSHOP_FIELD_CREATED_BY_DESC" />
+
+	<field name="created" type="calendar"
+		label="COM_KETSHOP_FIELD_CREATED_DATE_LABEL" description="COM_KETSHOP_FIELD_CREATED_DATE_DESC"
+		class="readonly" readonly="true" size="22" format="%Y-%m-%d %H:%M:%S"
+		filter="user_utc" />
+
+	<field name="modified" type="calendar" class="readonly"
+		label="JGLOBAL_FIELD_MODIFIED_LABEL" description="COM_KETSHOP_FIELD_MODIFIED_DESC"
+		size="22" readonly="true" format="%Y-%m-%d %H:%M:%S" filter="user_utc" />
+
+	<field name="ordering" type="text" label="JFIELD_ORDERING_LABEL"
+		description="JFIELD_ORDERING_DESC" class="inputbox" size="6"
+		default="0" />
+
+
+	</fieldset>
+</form>
+
+
+

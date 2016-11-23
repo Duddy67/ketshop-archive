@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="user" method="upgrade">
+    <name>Plugin KetShop Profile</name>
+    <author>Lucas Sanner</author>
+    <creationDate>August 2012</creationDate>
+    <copyright> Copyright (C) 2012  2016 Lucas Sanner. All rights reserved.</copyright>
+    <license>GNU General Public License version 2 or later http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>lucas.sanner@gmail.com</authorEmail>
+    <version>1.1</version>
+    <description>PLG_USER_KETSHOP_PROFILE_XML_DESCRIPTION</description>
+	<files>
+	  <filename plugin="ketshopprofile">ketshopprofile.php</filename>
+	  <filename>index.html</filename>
+	  <folder>profiles</folder>
+	  <folder>language</folder>
+	</files>
+
+	<config>
+		<fields name="params">
+
+		    <fieldset name="basic">
+			    <field name="register-require-user" type="spacer" class="text"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_NAME_REGISTER_REQUIRE_USER" />
+
+			    <field name="register-require-shipping" type="spacer" class="text"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_SHIPPING_ADDRESS" />
+
+				<field name="register-require_street_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_city_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_postcode_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_region_code_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_country_code_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_phone_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_note_sh"
+					type="list"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_LABEL"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_DESC" >
+					<option	value="2">JOPTION_REQUIRED</option>
+					<option	value="1">JOPTION_OPTIONAL</option>
+					<option	value="0">JDISABLED</option>
+				</field>
+
+
+			    <field name="spacer1" type="spacer" hr="true" />
+			    <field name="register-require-billing" type="spacer" class="text"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_BILLING_ADDRESS" />
+
+
+				<field name="register-require_street_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_city_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_postcode_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_region code_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_country_code_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_phone_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_note_bi"
+					type="list"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_LABEL"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_DESC" >
+					<option	value="2">JOPTION_REQUIRED</option>
+					<option	value="1">JOPTION_OPTIONAL</option>
+					<option	value="0">JDISABLED</option>
+				</field>
+
+
+
+			    <field name="spacer2" type="spacer" hr="true" />
+			    <field name="profile-require-user" type="spacer" class="text"
+				    label="PLG_USER_KETSHOP_PROFILE_FIELD_NAME_PROFILE_REQUIRE_USER" />
+
+			    <field name="profile-require-shipping" type="spacer" class="text"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_SHIPPING_ADDRESS" />
+
+				<field name="profile-require_street_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_city_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_region_code_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_postcode_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_country_code_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_phone_sh" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_note_sh"
+					type="list"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_LABEL"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_DESC" >
+					<option	value="2">JOPTION_REQUIRED</option>
+					<option	value="1">JOPTION_OPTIONAL</option>
+					<option	value="0">JDISABLED</option>
+				</field>
+
+			    <field name="spacer3" type="spacer" hr="true" />
+			    <field name="profile-require-billing" type="spacer" class="text"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_BILLING_ADDRESS" />
+
+				<field name="profile-require_street_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_city_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_region_code_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_postcode_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_country_code_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_phone_bi" type="list"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_DESC"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_LABEL" >
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_note_bi"
+					type="list"
+					label="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_LABEL"
+					description="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_DESC" >
+					<option	value="2">JOPTION_REQUIRED</option>
+					<option	value="1">JOPTION_OPTIONAL</option>
+					<option	value="0">JDISABLED</option>
+				</field>
+		    </fieldset>
+		</fields>
+	</config>
+</extension>

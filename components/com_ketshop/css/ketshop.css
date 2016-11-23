@@ -1,0 +1,365 @@
+/**
+ * @package KetShop
+ * @copyright Copyright (c) 2016 Lucas Sanner
+ * @license GNU General Public License version 3, or later
+ */
+
+
+/* ///// Product category and product page /////// */
+
+div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-0, leading-1 etc... */
+  overflow: hidden;
+  padding: 10px;
+}
+
+.searching-sorting {
+  /*border: 1px solid red;*/
+}
+
+.dl-horizontal {
+  /*border: 1px solid red;*/
+  width: 60%;
+}
+
+.dl-horizontal dt {
+  width: 100px !important;
+}
+
+.dl-horizontal dd {
+  margin-left: 120px !important;
+}
+
+.cart-icon,
+.stock-icon {
+  vertical-align: bottom;
+}
+
+.price,
+.striked-price,
+.currency {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0066ff;
+}
+
+.price-incl-tax {
+  font-size: 11px;
+  font-weight: bold;
+  color: #808080;
+}
+
+.striked-price {
+  text-decoration: line-through;
+  color: #da4747;
+}
+
+.rule-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff3333;
+}
+
+.rule-description {
+  overflow: hidden;
+}
+
+.space-1 {
+  display: block;
+  height: 8px;
+}
+
+.space-2 {
+  display: block;
+  height: 16px;
+}
+
+.align-right {
+ text-align: right;
+}
+
+/* ///// Cart, summary, endpayment and order pages /////// */
+
+.end-table {
+  border-bottom: 1px solid #d3d3d3;
+  margin-bottom: 40px !important;
+}
+
+.product-row td {
+  vertical-align: middle !important;
+  /*border: 1px solid red;*/
+}
+
+.info-row {
+}
+
+.font-bold {
+  /*border: 1px solid red;*/
+  font-weight: bold;
+}
+
+.quantity {
+  width: 20%;
+  margin-bottom: 0 !important;
+  text-align: center;
+}
+
+.even {
+  background-color: #f8f8f8;
+}
+
+.odd {
+  background-color: #eaeaea;
+}
+
+#cart-button {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+#cart-button span {
+  margin-right: 20px; /* Space between buttons */
+}
+
+#ketshop_save {
+  display: inline;
+}
+
+.product-price,
+.unit-price,
+.shipping-cost, 
+.cart-amount {
+  font-weight: bold;
+  color: #339900;
+}
+
+.total-amount {
+  font-weight: bold;
+  color: #0066ff;
+  font-size: 16px;
+}
+
+.purchase .striked-price, 
+.purchase .striked-amount {
+  font-weight: bold;
+  text-decoration: line-through;
+  font-size: 13px;
+  color: #da4747;
+  margin-right: 10px;
+}
+
+.cart-prl-mod {
+  font-weight: bold;
+  color: #b8b8b8;
+  font-size: 11px;
+}
+
+.tax-method {
+  color: #606060;
+}
+
+.amount-row-bgr {
+  background-color: #9bd79b;
+}
+
+.shipping-row-bgr {
+  background-color: #9bd79b;
+}
+
+.total-row-bgr {
+  background-color: #829be6;
+}
+
+.purchase .rule-name, 
+.shipping-name {
+  font-weight: bold;
+  color: #606060;
+  margin-right: 10px;
+  font-size: 13px;
+}
+
+.text-right { 
+  text-align:right !important;
+}
+
+.btn-link {
+  color: white !important;
+  text-decoration: none !important;
+}
+
+.width-space {
+  margin-left: 20px;
+}
+
+.unavailable-product {
+  font-weight: bold;
+  color: #da4747;
+}
+
+.shipping-cost-state {
+  font-weight: bold;
+  color: #606060;
+}
+
+/* ///// Shipment page /////// */
+
+.shipper {
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid #c0c0c0;
+  border-radius: 6px;
+}
+
+.shipper h1 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.shipping {
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #c0c0c0;
+  border-radius: 6px;
+}
+
+.shipping-delay, 
+.purchase .shipping-cost {
+  font-weight: bold;
+}
+
+.delivery-points {
+  padding: 10px;
+  border: 1px solid #c0c0c0;
+  border-radius: 6px;
+}
+
+.delivery-point {
+  margin-bottom: 30px;
+}
+
+.delivery-point h1 {
+  font-size: 16px;
+}
+
+.shipping-row {
+  margin-bottom: 5px;
+}
+
+
+/* ///// Address tables /////// */
+
+.address-label {
+  width: 15%;
+}
+
+
+@font-face {
+	font-family: 'icomoon';
+	src:url('../../../media/com_ketshop/fonts/icomoon.eot?vcu3dv');
+	src:url('../../../media/com_ketshop/fonts/icomoon.eot?vcu3dv#iefix') format('embedded-opentype'),
+		url('../../../media/com_ketshop/fonts/icomoon.ttf?vcu3dv') format('truetype'),
+		url('../../../media/com_ketshop/fonts/icomoon.woff?vcu3dv') format('woff'),
+		url('../../../media/com_ketshop/fonts/icomoon.svg?vcu3dv#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-shop-home:before {
+	content: "\e900";
+}
+.icon-shop-pencil:before {
+	content: "\e901";
+}
+.icon-shop-paste:before {
+	content: "\e902";
+}
+.icon-shop-price-tag:before {
+	content: "\e903";
+}
+.icon-shop-price-tags:before {
+	content: "\e904";
+}
+.icon-shop-barcode:before {
+	content: "\e905";
+}
+.icon-shop-cart:before {
+	content: "\e906";
+}
+.icon-shop-coin-dollar:before {
+	content: "\e907";
+}
+.icon-shop-coin-euro:before {
+	content: "\e908";
+}
+.icon-shop-coin-pound:before {
+	content: "\e909";
+}
+.icon-shop-credit-card:before {
+	content: "\e90a";
+}
+.icon-shop-calculator:before {
+	content: "\e90b";
+}
+.icon-shop-phone:before {
+	content: "\e918";
+}
+.icon-shop-pushpin:before {
+	content: "\e90c";
+}
+.icon-shop-location:before {
+	content: "\e90d";
+}
+.icon-shop-clock:before {
+	content: "\e90e";
+}
+.icon-shop-user:before {
+	content: "\e90f";
+}
+.icon-shop-users:before {
+	content: "\e910";
+}
+.icon-shop-enlarge:before {
+	content: "\e919";
+}
+.icon-shop-pie-chart:before {
+	content: "\e911";
+}
+.icon-shop-gift:before {
+	content: "\e91b";
+}
+.icon-shop-truck:before {
+	content: "\e912";
+}
+.icon-shop-earth:before {
+	content: "\e913";
+}
+.icon-shop-flag:before {
+	content: "\e914";
+}
+.icon-shop-star-empty:before {
+	content: "\e915";
+}
+.icon-shop-star-half:before {
+	content: "\e916";
+}
+.icon-shop-star-full:before {
+	content: "\e917";
+}
+.icon-shop-move-up:before {
+	content: "\e91a";
+}
+
+

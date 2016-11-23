@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="ketshopprofile" addfieldpath="/administrator/components/com_ketshop/models/fields">
+		<fieldset name="shipping_address"
+			label="PLG_USER_KETSHOP_PROFILE_SLIDER_SHIPPING_LABEL" >
+
+			<field name="street_sh"
+				type="text"
+				id="street_sh"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_SH_MESSAGE"
+				size="30" />
+
+
+			<field name="city_sh"
+				type="text"
+				id="city_sh"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_SH_MESSAGE"
+				size="30" />
+
+			<field name="postcode_sh"
+				type="text"
+				id="postcode_sh"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_SH_MESSAGE"
+				size="30" />
+
+			<field name="region_code_sh"
+				type="regionlist"
+				id="region_code_sh"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_SH_DESC"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_SH_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_SH_MESSAGE" >
+			</field>
+
+			<field name="country_code_sh"
+				type="countrylist"
+				id="country_code_sh"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_SH_LABEL"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_SH_DESC"
+				class="inputbox" >
+			</field>
+
+			<field name="phone_sh"
+				type="text"
+				id="phone"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_SH_MESSAGE"
+				size="30" />
+
+			<field name="note_sh"
+				type="textarea"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_DESC"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_SH_MESSAGE"
+				cols="30"
+				rows="5"
+				filter="safehtml" />
+		</fieldset>
+
+		<fieldset name="billing_address"
+			label="PLG_USER_KETSHOP_PROFILE_SLIDER_BILLING_LABEL" >
+
+			<field name="street_bi"
+				type="text"
+				id="street_bi"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_STREET_BI_MESSAGE"
+				size="30" />
+
+
+			<field name="city_bi"
+				type="text"
+				id="city_bi"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_CITY_BI_MESSAGE"
+				size="30" />
+
+			<field name="postcode_bi"
+				type="text"
+				id="postcode_bi"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_POSTCODE_BI_MESSAGE"
+				size="30" />
+
+			<field name="region_code_bi"
+				type="regionlist"
+				id="region_code_bi"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_BI_DESC"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_CODE_BI_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_REGION_BI_MESSAGE" >
+			</field>
+
+			<field name="country_code_bi"
+				type="countrylist"
+				id="country_code_bi"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_BI_LABEL"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_COUNTRY_CODE_BI_DESC"
+				class="inputbox" >
+			</field>
+
+			<field name="phone_bi"
+				type="text"
+				id="phone_bi"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_DESC"
+				filter="string"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_PHONE_BI_MESSAGE"
+				size="30" />
+
+			<field name="note_bi"
+				type="textarea"
+				description="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_DESC"
+				label="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_LABEL"
+				message="PLG_USER_KETSHOP_PROFILE_FIELD_NOTE_BI_MESSAGE"
+				cols="30"
+				rows="5"
+				filter="safehtml" />
+		</fieldset>
+	</fields>
+</form>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form addrulepath="/administrator/components/com_ketshop/models/rules">
+
+  <fieldset name="details">
+
+	<!-- IMPORTANT: A input field called "id" must exists to set if the element 
+	     is new (id = 0) or in edition. -->
+	<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
+	       description="JGLOBAL_FIELD_ID_DESC"
+	       readonly="true" class="readonly" />
+
+	<field name="name" type="text"
+		label="COM_KETSHOP_FIELD_ORDER_NUMBER_LABEL"
+		description="COM_KETSHOP_FIELD_ORDER_NUMBER_DESC"
+		class="input-xxlarge input-large-text readonly" disabled="true" />
+
+	<field name="customer_name" type="text"
+		label="COM_KETSHOP_FIELD_CUSTOMER_NAME_LABEL"
+		description="COM_KETSHOP_FIELD_CUSTOMER_NAME_DESC"
+		size="25" class="readonly" disabled="true" />
+
+	<field name="published" type="list"
+	        label="JSTATUS"
+	        description="JFIELD_PUBLISHED_DESC"
+		class="inputbox"
+		size="1" default="1">
+		<option value="1">JPUBLISHED</option>
+		<option value="0">JUNPUBLISHED</option>
+		<option value="2">JARCHIVED</option>
+		<option value="-2">JTRASHED</option>
+	</field>
+
+	<field name="order_status" type="list"
+		label="COM_KETSHOP_FIELD_ORDER_STATUS_LABEL"
+		description="COM_KETSHOP_FIELD_ORDER_STATUS_DESC"
+		class="inputbox" size="1">
+		<option value="completed">COM_KETSHOP_OPTION_COMPLETED_STATUS</option>
+		<option value="pending">COM_KETSHOP_OPTION_PENDING_STATUS</option>
+		<option value="error">COM_KETSHOP_OPTION_ERROR_STATUS</option>
+		<option value="cancelled">COM_KETSHOP_OPTION_CANCELLED_STATUS</option>
+		<option value="other">COM_KETSHOP_OPTION_OTHER_STATUS</option>
+	</field>
+
+	<field name="vendor_note" type="textarea"
+		label="COM_KETSHOP_FIELD_VENDOR_NOTE_LABEL"
+		description="COM_KETSHOP_FIELD_VENDOR_NOTE_DESC"
+		rows="5" cols="10"></field>
+
+	<field name="customer_note" type="textarea"
+		label="COM_KETSHOP_FIELD_CUSTOMER_NOTE_LABEL"
+		description="COM_KETSHOP_FIELD_CUSTOMER_NOTE_DESC"
+		rows="5" cols="10" class="readonly" disabled="true"></field>
+
+	<field name="created_by" type="user"
+		label="COM_KETSHOP_FIELD_CREATED_BY_LABEL"
+		description="COM_KETSHOP_FIELD_CREATED_BY_DESC" />
+
+	<field name="created" type="calendar"
+		label="COM_KETSHOP_FIELD_CREATED_DATE_LABEL" description="COM_KETSHOP_FIELD_CREATED_DATE_DESC"
+		class="readonly" readonly="true" size="22" format="%Y-%m-%d %H:%M:%S"
+		filter="user_utc" />
+
+	<field name="modified" type="calendar" class="readonly"
+		label="JGLOBAL_FIELD_MODIFIED_LABEL" description="COM_KETSHOP_FIELD_MODIFIED_DESC"
+		size="22" readonly="true" format="%Y-%m-%d %H:%M:%S" filter="user_utc" />
+
+	<!-- IMPORTANT: The following fields MUST be disabled to prevent the
+			mixed information they're filled in to being stored. -->
+	<field name="order_amount" type="text"
+		label="COM_KETSHOP_FIELD_ORDER_AMOUNT_LABEL"
+		description="COM_KETSHOP_FIELD_ORDER_AMOUNT_DESC"
+		size="25" class="readonly" disabled="true" />
+
+	<field name="cart_status" type="text"
+		label="COM_KETSHOP_FIELD_CART_STATUS_LABEL"
+		description="COM_KETSHOP_FIELD_CART_STATUS_DESC"
+		size="25" class="readonly" disabled="true" />
+	</fieldset>
+</form>
+
+
+

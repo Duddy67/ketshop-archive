@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form addrulepath="/administrator/components/com_ketshop/models/rules">
+
+  <fieldset name="details">
+
+	<!-- IMPORTANT: A input field called "id" must exists to set if the element 
+	     is new (id = 0) or in edition. -->
+	<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
+	       description="JGLOBAL_FIELD_ID_DESC"
+	       readonly="true" class="readonly" />
+
+	<field name="name" type="text"
+		label="COM_KETSHOP_FIELD_NAME_LABEL"
+		description="COM_KETSHOP_FIELD_NAME_DESC"
+		class="input-xxlarge input-large-text"
+		required="true" />
+
+	<field name="alias" type="text" label="JFIELD_ALIAS_LABEL"
+		description="JFIELD_ALIAS_DESC" class="inputbox" size="45" />
+
+	<field name="item_type" type="list"
+		label="COM_KETSHOP_FIELD_ITEM_TYPE_LABEL"
+		description="COM_KETSHOP_FIELD_ITEM_TYPE_DESC"
+		class="inputbox" size="1" default="product">
+		<option value="product">COM_KETSHOP_OPTION_PRODUCT_ITEM_TYPE</option>
+		<option value="attribute">COM_KETSHOP_OPTION_ATTRIBUTE_ITEM_TYPE</option>
+		<option value="tax">COM_KETSHOP_OPTION_TAX_ITEM_TYPE</option>
+		<option value="price_rule">COM_KETSHOP_OPTION_PRICE_RULE_ITEM_TYPE</option>
+		<option value="payment_mode">COM_KETSHOP_OPTION_PAYMENT_MODE_ITEM_TYPE</option>
+		<option value="delivery_point">COM_KETSHOP_OPTION_DELIVERY_POINT_ITEM_TYPE</option>
+		<option value="shipping">COM_KETSHOP_OPTION_SHIPPING_ITEM_TYPE</option>
+		<option value="shipper">COM_KETSHOP_OPTION_SHIPPER_ITEM_TYPE</option>
+	</field>
+
+	<field name="item_id" type="item"
+		label="" description="" />
+
+	<field name="language" type="contentlanguage" label="JFIELD_LANGUAGE_LABEL"
+		description="COM_KETSHOP_FIELD_TRANSLATION_LANGUAGE_DESC" class="inputbox">
+	</field>
+
+	<field name="published" type="list"
+	        label="JSTATUS"
+	        description="JFIELD_PUBLISHED_DESC"
+		class="inputbox"
+		size="1" default="1">
+		<option value="1">JPUBLISHED</option>
+		<option value="0">JUNPUBLISHED</option>
+		<option value="2">JARCHIVED</option>
+		<option value="-2">JTRASHED</option>
+	</field>
+
+	<field name="product_description" type="editor" class="inputbox"
+		label="COM_KETSHOP_FIELD_DESCRIPTION_LABEL"
+		description="COM_KETSHOP_FIELD_DESCRIPTION_DESC"
+		filter="safehtml" buttons="true" />
+
+	<field name="description" type="editor" class="inputbox"
+		label="COM_KETSHOP_FIELD_DESCRIPTION_LABEL"
+		description="COM_KETSHOP_FIELD_DESCRIPTION_DESC"
+		filter="safehtml" buttons="false" />
+
+	<field name="information" type="editor" class="inputbox"
+		label="COM_KETSHOP_FIELD_INFORMATION_LABEL"
+		description="COM_KETSHOP_FIELD_INFORMATION_DESC"
+		filter="safehtml" buttons="false" />
+
+	<field name="created_by" type="user"
+		label="COM_KETSHOP_FIELD_CREATED_BY_LABEL" description="COM_KETSHOP_FIELD_CREATED_BY_DESC" />
+
+	<field name="created" type="calendar"
+		label="COM_KETSHOP_FIELD_CREATED_DATE_LABEL" description="COM_KETSHOP_FIELD_CREATED_DATE_DESC"
+		class="readonly" readonly="true" size="22" format="%Y-%m-%d %H:%M:%S"
+		filter="user_utc" />
+
+	<field name="modified" type="calendar" class="readonly"
+		label="JGLOBAL_FIELD_MODIFIED_LABEL" description="COM_KETSHOP_FIELD_MODIFIED_DESC"
+		size="22" readonly="true" format="%Y-%m-%d %H:%M:%S" filter="user_utc" />
+
+	<field name="metakey" type="textarea"
+		label="JFIELD_META_KEYWORDS_LABEL" description="JFIELD_META_KEYWORDS_DESC"
+		class="inputbox" rows="3" cols="30" />
+
+	<field name="metadesc" type="textarea"
+		label="JFIELD_META_DESCRIPTION_LABEL" description="JFIELD_META_DESCRIPTION_DESC"
+		class="inputbox" rows="3" cols="30" />
+
+	<field name="xreference" type="text"
+		label="JFIELD_XREFERENCE_LABEL" description="JFIELD_XREFERENCE_DESC"
+		class="inputbox" size="20" />
+	</fieldset>
+
+	<fields name="metadata">
+		<fieldset name="jmetadata" label="JGLOBAL_FIELDSET_METADATA_OPTIONS">
+
+		    <field name="robots" type="list"
+		    label="JFIELD_METADATA_ROBOTS_LABEL"
+		    description="JFIELD_METADATA_ROBOTS_DESC" >
+		    <option value="">JGLOBAL_USE_GLOBAL</option>
+		    <option value="index, follow">JGLOBAL_INDEX_FOLLOW</option>
+		    <option value="noindex, follow">JGLOBAL_NOINDEX_FOLLOW</option>
+		    <option value="index, nofollow">JGLOBAL_INDEX_NOFOLLOW</option>
+		    <option value="noindex, nofollow">JGLOBAL_NOINDEX_NOFOLLOW</option>
+		    </field>
+
+		    <field name="rights" type="text"
+			    label="JFIELD_META_RIGHTS_LABEL" description="JFIELD_META_RIGHTS_DESC"
+			    required="false" filter="string" cols="30" rows="2" />
+		</fieldset>
+	</fields>
+
+</form>
+
+
+
