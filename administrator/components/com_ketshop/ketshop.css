@@ -1037,7 +1037,8 @@ a:link.ketshop-link {
   padding: 20px 8px 10px 0 !important;
   margin-right: 20px;
   margin-bottom: 20px;
-  width: 100px;
+  width: 120px;
+  height: 60px;
   overflow: auto;
   text-align: center;
 }
