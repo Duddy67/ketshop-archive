@@ -19,6 +19,7 @@ if($displayData->shop_settings->tax_method == 'excl_tax') {
 ?>
 
 <?php if(!empty($options)) : ?>
+  <div>
   <h2>Product options</h2>
   <select id="product-options-<?php echo $options[0]['prod_id']; ?>"
 	  name="product_options_<?php echo $options[0]['prod_id']; ?>">
@@ -84,6 +85,7 @@ if($displayData->shop_settings->tax_method == 'excl_tax') {
     <?php echo $html; ?>
     </table>
   <?php endif; ?>
+  </div>
 <?php endif; ?>
 
 

@@ -24,6 +24,8 @@ $location = ShopHelper::getLocation();
 //It's also used by the cart view for the link which brings back the customer to
 //his previous location.
 $session->set('location', $location, 'ketshop');
+//Shorcut for product layout path.
+$productLayoutPath = JPATH_SITE.'/components/com_ketshop/layouts/product/';
 ?>
 
 <div class="item-page<?php echo $this->pageclass_sfx; ?>" itemscope itemtype="http://schema.org/Product">
@@ -33,8 +35,7 @@ $session->set('location', $location, 'ketshop');
     </div>
   <?php endif; ?>
 
-  <?php echo JLayoutHelper::render('product_title', array('item' => $item, 'params' => $params, 'now_date' => $this->nowDate),
-				      JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+  <?php echo JLayoutHelper::render('title', array('item' => $item, 'params' => $params, 'now_date' => $this->nowDate), $productLayoutPath); ?>
 
   <?php //echo JLayoutHelper::render('icons', array('item' => $this->item, 'user' => $this->user, 'uri' => $this->uri),
 				    //JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
@@ -43,7 +44,7 @@ $session->set('location', $location, 'ketshop');
 				    JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
 
   <?php if(($params->get('show_tags') == 'ketshop' || $params->get('show_tags') == 'both') && !empty($this->item->tags->itemTags)) : ?>
-    <?php echo JLayoutHelper::render('tags', array('item' => $this->item), JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+    <?php echo JLayoutHelper::render('tags', array('item' => $this->item), $productLayoutPath); ?>
   <?php endif; ?>
 
   <?php if($item->params->get('show_intro')) : ?>
@@ -59,13 +60,12 @@ $session->set('location', $location, 'ketshop');
 	  <?php echo $this->item->tagLayout->render($this->item->tags->itemTags); ?>
   <?php endif; ?>
 
-  <?php echo JLayoutHelper::render('availability', array('item' => $this->item, 'params' => $params), JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
-
-  <?php echo JLayoutHelper::render('price', $this->item, JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
-  <?php echo JLayoutHelper::render('details', $this->item, JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
-  <?php echo JLayoutHelper::render('weight_dimensions', $this->item, JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
-  <?php echo JLayoutHelper::render('attributes', $this->item, JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
-  <?php echo JLayoutHelper::render('options', $this->item, JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>
+  <?php echo JLayoutHelper::render('availability', array('item' => $this->item, 'params' => $params, 'view' => 'product'), $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('price', $this->item, $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('options', $this->item, $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('details', $this->item, $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('weight_dimensions', $this->item, $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('attributes', $this->item, $productLayoutPath); ?>
 </div>
 
 <?php

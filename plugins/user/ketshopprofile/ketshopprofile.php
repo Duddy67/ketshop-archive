@@ -18,7 +18,7 @@ defined('_JEXEC') or die;
 //Note: JPATH_COMPONENT_ADMINISTRATOR variable cannot be used here as it creates
 //problem. It points to com_login component instead of com_ketshop.
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
-/////////////require_once JPATH_ROOT.'/components/com_ketshop/controllers/cart.php';
+require_once JPATH_ROOT.'/components/com_ketshop/controllers/cart.php';
 
 
 
