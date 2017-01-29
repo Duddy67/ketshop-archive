@@ -21,7 +21,7 @@ $session = JFactory::getSession();
 
 //Purchase is done, all previous purchase session data must be deleted.
 if($session->get('end_purchase', 0, 'ketshop'))
-  KetshopHelper::clearPurchaseData();
+  ShopHelper::clearPurchaseData();
 
 //Get the cart amount.
 $cartAmount = $session->get('cart_amount', array(), 'ketshop'); 

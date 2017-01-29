@@ -202,7 +202,7 @@ class KetshopControllerStore extends JControllerForm
 		      'shippable='.$shippable,
 		      'billing_address_id='.$billingAddressId,
 		      'tax_method='.$db->Quote($settings['tax_method']),
-		      'currency_code='.$db->Quote($settings['currency_code']),
+		      'currency_code='.$db->Quote($settings['currency_alpha']),
 		      'rounding_rule='.$db->Quote($settings['rounding_rule']),
 		      'digits_precision='.$settings['digits_precision'],
 		      'created='.$db->Quote($now));
@@ -222,7 +222,7 @@ class KetshopControllerStore extends JControllerForm
       //Build the VALUES clause.
       $values = $db->Quote($orderNb).','.$user->id.','.$db->Quote($cartStatus).','.$db->Quote($orderStatus).','.
 		$crtAmt.','.$crtAmtInclTax.','.$fnlCrtAmt.','.$fnlCrtAmtInclTax.','.$shippable.','. 
-		$billingAddressId.','.$db->Quote($settings['tax_method']).','.$db->Quote($settings['currency_code']).','.
+		$billingAddressId.','.$db->Quote($settings['tax_method']).','.$db->Quote($settings['currency_alpha']).','.
 		$db->Quote($settings['rounding_rule']).','.$settings['digits_precision'].','.$db->Quote($now);
 
       $columns = array('name','user_id','cart_status','order_status',

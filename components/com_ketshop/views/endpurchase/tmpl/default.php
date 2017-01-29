@@ -29,7 +29,7 @@ $data['shipping_data'] = $this->shippingData;
 $data['shippable'] = $this->item->shippable;
 
 //Get some global needed variables.
-$data['tax_method'] = UtilityHelper::getTaxMethod();
+$data['tax_method'] = $this->item->tax_method;
 $data['currency'] = UtilityHelper::getCurrency();
 $data['shippable'] = ShopHelper::isShippable();
 $data['rounding'] = $this->item->rounding_rule;

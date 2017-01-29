@@ -74,6 +74,11 @@ class KetshopControllerFinalize extends JControllerForm
     $session = JFactory::getSession();
     $settings = $session->get('settings', array(), 'ketshop'); 
     $redirectUrl = $settings['redirect_url_1'];
+
+    if(empty($redirectUrl)) {
+      $redirectUrl = JRoute::_('index.php');
+    }
+
     //Delete session variables.
     ShopHelper::clearPurchaseData();
 

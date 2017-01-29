@@ -22,7 +22,7 @@ class ShopHelper
     //Used as first argument of the logEvent function.
     $codeLocation = 'helpers/ketshop.php';
 
-file_put_contents('debog_getproduct.txt', print_r($productId.':'.$optionId, true), FILE_APPEND);
+//file_put_contents('debog_getproduct.txt', print_r($productId.':'.$optionId, true), FILE_APPEND);
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //Get the required product data.
