@@ -248,6 +248,7 @@ class KetshopControllerStore extends JControllerForm
     //If the order is new we get the last insert id
     if($isNew) {
       $orderId = $db->insertid();
+      //TODO: Add the order id to the order number.
     }
 
     //We're saving the final order.
