@@ -11,7 +11,13 @@ JHtml::_('behavior.framework');
 
 // Create a shortcut for products.
 $products = $displayData['products'];
-//var_dump($cart);
+//Get the current layout.
+$layout = $displayData['layout']; 
+
+$canEdit = false;
+if($layout == 'order_admin' && $displayData['can_edit']) {
+  $canEdit = true;
+}
 ?>
 
 
@@ -77,7 +83,7 @@ $products = $displayData['products'];
 	    <?php /////////////////////// END CATALOG RULES DISPLAY ////////////////////////// ?>
 
       </td><td class="center">
-      <?php if($displayData['layout'] == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
+      <?php if(($layout == 'cart' && !$displayData['locked']) || $canEdit) : //Cart (or order) can be updated. ?>
 	<input class="quantity" type="text" name="quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 	       id="quantity_product_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		value="<?php echo $quantity; ?>" />
@@ -85,13 +91,18 @@ $products = $displayData['products'];
 	<span class="muted"><?php echo $quantity; ?></span>
       <?php endif; ?>
 
-      <?php if($displayData['layout'] == 'cart') : //. ?>
+      <?php if($layout == 'cart' || $canEdit) : //Provide data about quantity. ?>
 	<input type="hidden" name="min_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		value="<?php echo $product['min_quantity']; ?>" />
 	<input type="hidden" name="max_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		value="<?php echo $product['max_quantity']; ?>" />
 	<input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		value="<?php echo $product['name']; ?>" />
+      <?php endif; ?>
+
+      <?php if($canEdit) : //Display refresh quantity buttons in admin. ?>
+	  <a class="btn refresh-qty small" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#">
+	   <?php echo JText::_('COM_KETSHOP_REFRESH'); ?></a> 
       <?php endif; ?>
       </td>
 
@@ -135,10 +146,15 @@ $products = $displayData['products'];
       </td><td class="small">
 	<?php echo $taxRate.' %'; ?>
       </td>
-      <?php if($displayData['layout'] == 'cart') : //. ?>
+      <?php if($layout == 'cart' || $canEdit) : //. ?>
 	<td class="center">
-	<?php if($displayData['layout'] == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
-	  <a class="btn" href="<?php echo 'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id']; ?>">
+	<?php if($layout == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
+	  <a class="btn" href="<?php echo 'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&opt_id='.$product['opt_id']; ?>">
+	   <?php echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	<?php endif; ?>
+
+	<?php if($canEdit) : //Order can be updated. ?>
+	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#">
 	   <?php echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
 	<?php endif; ?>
 	</td>
@@ -172,7 +188,7 @@ $products = $displayData['products'];
 	  <span class="cart-rules-impact-currency"><?php echo $displayData['currency']; ?></span>
 	</td>
 	<td class="center">-</td>
-	<?php if($displayData['layout'] == 'cart') : //Add the "Remove" button column. ?>
+	<?php if($layout == 'cart') : //Add the "Remove" button column. ?>
 	  <td class="center">-</td>
 	<?php endif; ?>
 	</tr>

@@ -220,8 +220,9 @@ class KetshopControllerCart extends JControllerForm
 
   public function removeFromCart()
   {
-    //Retrieve the id of the product to remove from the GET url.
+    //Retrieve both the id and option id of the product to remove from the GET url.
     $id = $this->input->get('prod_id', 0, 'uint');
+    $optId = $this->input->get('opt_id', 0, 'uint');
     //Get the cart view url.
 
     //Check if it's a valid id.
@@ -245,7 +246,7 @@ class KetshopControllerCart extends JControllerForm
     //Search for the product id to remove.
     for($i = 0; $i < count($cart); $i++) {
       //Check for the array row to remove.
-      if($cart[$i]['id'] == $id) {
+      if($cart[$i]['id'] == $id && $cart[$i]['opt_id'] == $optId) {
 	unset($cart[$i]);
 	//resort the array keys numericaly.
 	$cart = array_values($cart);

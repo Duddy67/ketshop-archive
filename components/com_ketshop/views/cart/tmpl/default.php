@@ -38,6 +38,9 @@ if(preg_match('#view=summary#', $data['location'])) {
 
 //Get products in the cart and cart amount.
 $data['products'] = $session->get('cart', array(), 'ketshop'); 
+//echo '<pre>';
+//var_dump($data['products']);
+//echo '</pre>';
 
 
 if(!empty($data['products'])) {

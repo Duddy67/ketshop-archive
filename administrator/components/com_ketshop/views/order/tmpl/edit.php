@@ -170,7 +170,13 @@ Joomla.submitbutton = function(task)
       <?php endif; ?>
   </div>
 
+  <input type="hidden" name="customer" id="user_id" value="<?php echo $this->item->user_id; ?>" />
   <input type="hidden" name="task" value="" />
   <?php echo JHtml::_('form.token'); ?>
 </form>
+
+<?php
+$doc = JFactory::getDocument();
+//Load jQuery script.
+$doc->addScript(JURI::base().'components/com_ketshop/js/order.js');
 

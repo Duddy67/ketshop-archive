@@ -12,7 +12,12 @@ defined('_JEXEC') or die;
 //Store all needed data in an array.
 $data = array();
 //Set the layout type.
-$data['layout'] = 'order';
+$data['layout'] = 'order_admin';
+
+$data['can_edit'] = false;
+if($this->item->cart_status == 'completed' && $this->item->order_status != 'completed') {
+  $data['can_edit'] = true;
+}
 
 $data['products'] = $this->products;
 
@@ -45,9 +50,14 @@ $data['currency'] = $currency = $this->item->currency;
 $data['rounding'] = $rounding = $this->item->rounding_rule;
 $data['digits'] = $digits = $this->item->digits_precision;
 
+//Compute the required number of columns.
 $data['col_span_nb'] = 4;
 if($this->item->tax_method == 'excl_tax') {
   $data['col_span_nb'] = 5;
+}
+
+if($data['can_edit']) {
+  $data['col_span_nb'] = $data['col_span_nb'] + 1;
 }
 ?>
 
