@@ -32,9 +32,9 @@
   $.fn.changeQuantity = function(element) {
     var orderId = $('#jform_id').val();
     var userId = $('#user_id').val();
-    var newQty = $('#quantity_product_'+element.id).val();
-    var minQty = $('input[name=min_quantity_'+element.id+']').val();
-    var maxQty = $('input[name=max_quantity_'+element.id+']').val();
+    var newQty = parseInt($('#quantity_product_'+element.id).val());
+    var minQty = parseInt($('input[name=min_quantity_'+element.id+']').val());
+    var maxQty = parseInt($('input[name=max_quantity_'+element.id+']').val());
 
     //Check new quantity number.
     var regex = /^[1-9][0-9]*/;
@@ -49,7 +49,7 @@
     }
 
     if(newQty > maxQty) {
-      alert('qty too hight');
+      alert('qty too hight'+maxQty+':'+newQty);
       return;
     }
 
@@ -66,7 +66,13 @@
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
 	  //alert(newQty+':'+minQty+':'+maxQty);
-	  alert(results.message);
+	  if(results.no_qty_change) {
+	    alert('no qty change');
+	  }
+
+	  if(results.insufficient_stock) {
+	    alert('insufficient stock');
+	  }
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.
