@@ -42,6 +42,18 @@
 		<option value="other">COM_KETSHOP_OPTION_OTHER_STATUS</option>
 	</field>
 
+	<field name="payment_status" type="list"
+		label="COM_KETSHOP_FIELD_PAYMENT_STATUS_LABEL"
+		description="COM_KETSHOP_FIELD_PAYMENT_STATUS_DESC"
+		class="inputbox" size="1">
+		<option value="completed">COM_KETSHOP_OPTION_COMPLETED_STATUS</option>
+		<option value="pending">COM_KETSHOP_OPTION_PENDING_STATUS</option>
+		<option value="error">COM_KETSHOP_OPTION_ERROR_STATUS</option>
+		<option value="cancelled">COM_KETSHOP_OPTION_CANCELLED_STATUS</option>
+		<option value="unfinished">COM_KETSHOP_OPTION_UNFINISHED_STATUS</option>
+		<option value="other">COM_KETSHOP_OPTION_OTHER_STATUS</option>
+	</field>
+
 	<field name="vendor_note" type="textarea"
 		label="COM_KETSHOP_FIELD_VENDOR_NOTE_LABEL"
 		description="COM_KETSHOP_FIELD_VENDOR_NOTE_DESC"

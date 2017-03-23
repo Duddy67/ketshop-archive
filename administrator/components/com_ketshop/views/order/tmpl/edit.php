@@ -84,8 +84,9 @@ Joomla.submitbutton = function(task)
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
       <?php //Don't display transaction item if something wrong occured while the user was about to pay or if cart is still pending. ?>
-      <?php if($this->item->cart_status != 'pending' && $this->transaction->status != 'unfinished') : ?>
+      <?php if($this->item->cart_status != 'pending' && $this->item->payment_status != 'unfinished') : ?>
 	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'transaction', JText::_('COM_KETSHOP_FIELDSET_TRANSACTION_DETAIL', true)); ?>
+        <?php echo $this->form->getControlGroup('payment_status'); ?>
 	    <?php echo JLayoutHelper::render('edit.transaction', $this->transaction, JPATH_COMPONENT.'/layouts/'); ?>
 	<?php echo JHtml::_('bootstrap.endTab'); ?>
       <?php endif; ?>

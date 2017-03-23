@@ -41,7 +41,6 @@ class KetshopViewOrder extends JViewLegacy
       $this->delivery = $this->get('Delivery');
       //Needed for the layouts.
       $this->transaction->currency = $this->item->currency;
-      $this->transaction->status = $this->item->payment_status;
       $this->delivery->currency = $this->item->currency;
     }
 

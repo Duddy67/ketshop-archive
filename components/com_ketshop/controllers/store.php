@@ -303,7 +303,8 @@ class KetshopControllerStore extends JControllerForm
 	      }
 	      else { //Get the id of the delivery point address as well as the id of the delivery_point item.
 		$addressId = $shipping['address_id']; 
-		$delivpntId = $shipping['delivpnt_id']; 
+		//
+		$delivpntId = $shipping['id']; 
 	      }
 
 	      //Get the shipping costs.
