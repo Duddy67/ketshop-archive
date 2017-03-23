@@ -162,12 +162,11 @@ class KetshopModelCustomer extends JModelAdmin
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    $query->select('o.id,o.name,o.final_cart_amount,o.cart_status,o.order_status,'.
+    $query->select('o.id,o.name,o.final_cart_amount,o.cart_status,o.order_status,payment_status,'.
 	           'o.currency_code,o.created,d.final_shipping_cost,'.
-		   'd.status AS shipping_status,t.status AS payment_status');
+		   'd.status AS shipping_status');
     $query->from('#__ketshop_order AS o');
     $query->join('LEFT', '#__ketshop_delivery AS d ON d.order_id=o.id');
-    $query->join('LEFT', '#__ketshop_transaction AS t ON t.order_id=o.id');
     $query->where('o.user_id='.(int)$customer->user_id);
     $query->order('o.created DESC '.$limit);
     $db->setQuery($query);

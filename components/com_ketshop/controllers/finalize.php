@@ -36,28 +36,22 @@ class KetshopControllerFinalize extends JControllerForm
       //Set submit flag right away to prevent the double click effect.
       $session->set('submit', 1, 'ketshop'); 
 
-      //Payment result can only be ok with offline payment method since there's
-      //no web procedure to pass through.
-      if(JFactory::getApplication()->input->get->get('payment', '', 'str') === 'offline') {
-	$utility = $session->get('utility', array(), 'ketshop'); 
-	$utility['payment_result'] = 1;
-	$session->set('utility', $utility, 'ketshop');
-      }
-
+      $utility = ShopHelper::getTemporaryData($orderId, true);
       //Run methods which make the purchase confirmed.
 
-      $this->setOrderStatus();
-      $this->setTransaction();
+      $this->setOrderStatus($utility);
       $this->stockSubtract();
 
       //Update product sales.
       $this->sales();
 
-      $this->sendConfirmationMail();
+      $this->sendConfirmationMail($utility);
 
       //Everything went ok, we can set the flag.
       $session->set('end_purchase', 1, 'ketshop'); 
     }
+
+    ShopHelper::deleteTemporaryData($orderId);
 
     //Redirect the user to the end purchase view in passing the order id value in
     //the url.
@@ -95,11 +89,10 @@ class KetshopControllerFinalize extends JControllerForm
   }
 
 
-  protected function setOrderStatus()
+  protected function setOrderStatus($utility)
   {
     //Get the needed session variables.
     $session = JFactory::getSession();
-    $utility = $session->get('utility', array(), 'ketshop'); 
     $settings = $session->get('settings', array(), 'ketshop'); 
     $orderId = $session->get('order_id', 0, 'ketshop'); 
 
@@ -112,7 +105,8 @@ class KetshopControllerFinalize extends JControllerForm
       //"pending" since it could take some time before the user payment comes to
       //the vendor (postmail etc...).
       //In case the user choose an online payment mode, payment status is completed.
-      if($utility['payment_name'] !== 'offline') {
+      //Note: For now the shop doesn't handle multiple instalment payment but it will in the futur.
+      if($utility['payment_mode'] !== 'offline') {
 	$paymentStatus = 'completed';
       }
     }
@@ -124,67 +118,15 @@ class KetshopControllerFinalize extends JControllerForm
     if($paymentStatus == 'completed' && !ShopHelper::isShippable()) {
       $orderStatus = 'completed';
     }
-
+file_put_contents('debog_status.txt', print_r($paymentStatus.':'.$utility['payment_mode'], true));
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
-    $fields = array('order_status='.$db->Quote($orderStatus));
+    $fields = array('order_status='.$db->Quote($orderStatus), 'payment_status='.$db->Quote($paymentStatus));
     //Set statuses.
     $query->update('#__ketshop_order')
 	  ->set($fields)
 	  ->where('id='.(int)$orderId);
-    $db->setQuery($query);
-    $db->query();
-
-    //Check for errors.
-    if($db->getErrorNum()) {
-      ShopHelper::logEvent($this->codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
-      return false;
-    }
-
-    return true;
-  }
-
-
-  protected function setTransaction()
-  {
-    $user = JFactory::getUser();
-    //Get the needed session variables.
-    $session = JFactory::getSession();
-    $settings = $session->get('settings', array(), 'ketshop'); 
-    $utility = $session->get('utility', array(), 'ketshop'); 
-    //Get the id of the order previously saved by the storeOrder function, (store controller).
-    $orderId = $session->get('order_id', 0, 'ketshop'); 
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-
-    jimport('joomla.utilities.date');
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-
-    $paymentMode = $utility['payment_name'];
-    $paymentResult = (int)$utility['payment_result'];
-
-    $paymentStatus = 'pending';
-    //if payment has been done with an online bank system we set the payment
-    //status according to the online transaction result: 
-    //completed (success) or error (failure). 
-    if($paymentMode != 'offline' && $paymentResult) {
-      $paymentStatus = 'completed';
-    }
-    elseif($paymentMode != 'offline' && !$paymentResult) {
-      $paymentStatus = 'error';
-    }
-
-    //Update the transaction row linked to our order.
-    //Note: The amount of the transaction has already been set in the storeOrder function.
-    $fields = array('payment_mode='.$db->Quote($paymentMode),
-		    'status='.$db->Quote($paymentStatus),
-		    'details='.$db->Quote($utility['payment_details']),
-		    'modified='.$db->Quote($now));
-    $query->update('#__ketshop_transaction')
-	  ->set($fields)
-	  ->where('order_id='.(int)$orderId);
     $db->setQuery($query);
     $db->query();
 
@@ -409,13 +351,12 @@ class KetshopControllerFinalize extends JControllerForm
   }
 
 
-  protected function sendConfirmationMail()
+  protected function sendConfirmationMail($utility)
   {
     //Get all the session variables needed for building the order.
     $session = JFactory::getSession();
     $cart = $session->get('cart', array(), 'ketshop'); 
     $cartAmount = $session->get('cart_amount', 0, 'ketshop'); 
-    $utility = $session->get('utility', array(), 'ketshop'); 
     $settings = $session->get('settings', array(), 'ketshop'); 
     $shippingData = $session->get('shipping_data', array(), 'ketshop'); 
     $billingAddressId = $session->get('billing_address_id', 0, 'ketshop'); 
@@ -425,7 +366,7 @@ class KetshopControllerFinalize extends JControllerForm
     $currency = $settings['currency'];
     $taxMethod = $settings['tax_method'];
     $orderNb = $session->get('order_nb', '', 'ketshop'); 
-    $paymentMode = $utility['payment_name'];
+    $paymentMode = $utility['payment_mode'];
     $rounding = $settings['rounding_rule'];
     $digits = $settings['digits_precision'];
 

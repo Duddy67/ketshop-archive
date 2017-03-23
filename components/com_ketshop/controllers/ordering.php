@@ -31,6 +31,10 @@ class KetshopControllerOrdering extends JControllerForm
       $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view=address'.$Itemid, false));
     }
     else { //The user must login or registrate.
+      $session = JFactory::getSession();
+      //Set the current location so that the user will be redirect to the address view after log in.
+      $session->set('location', 'address', 'ketshop');
+
       $this->setRedirect(JRoute::_('index.php?option=com_users&view=login'.$Itemid, false));
     }
 

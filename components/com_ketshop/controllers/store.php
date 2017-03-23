@@ -83,14 +83,8 @@ class KetshopControllerStore extends JControllerForm
     $db->setQuery($query);
     $db->query();
 
-    //Remove delivery and transaction data linked to this order.
+    //Remove delivery data linked to this order.
     if(ShopHelper::isShippable()) {
-      $query->clear()
-	    ->delete('#__ketshop_transaction')
-	    ->where('order_id='.(int)$orderId);
-      $db->setQuery($query);
-      $db->query();
-
       $query->clear()
 	    ->delete('#__ketshop_delivery')
 	    ->where('order_id='.(int)$orderId);
@@ -195,6 +189,7 @@ class KetshopControllerStore extends JControllerForm
       //Update the order row previously stored by the user as pending cart. 
       $fields = array('cart_status='.$db->Quote($cartStatus),
 		      'order_status='.$db->Quote($orderStatus),
+		      'payment_status='.$db->Quote($paymentStatus),
 		      'cart_amount='.$crtAmt,
 		      'crt_amt_incl_tax='.$crtAmtInclTax,
 		      'final_cart_amount='.$fnlCrtAmt,
@@ -211,21 +206,14 @@ class KetshopControllerStore extends JControllerForm
 	    ->where('id='.(int)$orderId);
     }
     else { //Insert a new order record.
-      //Use current date an time to build the order number (ddmmHHii).
-      $date = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->format('dmyHi');
-      //Create the order number in concatenating date and user id. 
-      $orderNb = $date.$user->id;
-      //Store the order number in the session cause it will be needed later in
-      //sendConfirmationMail function. 
-      $session->set('order_nb', $orderNb, 'ketshop'); 
 
       //Build the VALUES clause.
-      $values = $db->Quote($orderNb).','.$user->id.','.$db->Quote($cartStatus).','.$db->Quote($orderStatus).','.
-		$crtAmt.','.$crtAmtInclTax.','.$fnlCrtAmt.','.$fnlCrtAmtInclTax.','.$shippable.','. 
+      $values = $user->id.','.$db->Quote($cartStatus).','.$db->Quote($orderStatus).','.
+		$db->Quote($paymentStatus).','.$crtAmt.','.$crtAmtInclTax.','.$fnlCrtAmt.','.$fnlCrtAmtInclTax.','.$shippable.','. 
 		$billingAddressId.','.$db->Quote($settings['tax_method']).','.$db->Quote($settings['currency_alpha']).','.
 		$db->Quote($settings['rounding_rule']).','.$settings['digits_precision'].','.$db->Quote($now);
 
-      $columns = array('name','user_id','cart_status','order_status',
+      $columns = array('user_id','cart_status','order_status','payment_status',
 	               'cart_amount','crt_amt_incl_tax','final_cart_amount',
 		       'fnl_crt_amt_incl_tax','shippable','billing_address_id',
 		       'tax_method','currency_code','rounding_rule','digits_precision','created');
@@ -248,7 +236,20 @@ class KetshopControllerStore extends JControllerForm
     //If the order is new we get the last insert id
     if($isNew) {
       $orderId = $db->insertid();
-      //TODO: Add the order id to the order number.
+
+      //Create the order number.
+      $Ymd = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->format('Y-m-d');
+      $orderNb = $orderId.'-'.$Ymd;
+      //Store the order number in the session cause it will be needed later in
+      //sendConfirmationMail function. 
+      $session->set('order_nb', $orderNb, 'ketshop'); 
+
+      $query->clear();
+      $query->update('#__ketshop_order')
+	    ->set('name='.$db->Quote($orderNb))
+	    ->where('id='.(int)$orderId);
+      $db->setQuery($query);
+      $db->execute();
     }
 
     //We're saving the final order.
@@ -257,7 +258,6 @@ class KetshopControllerStore extends JControllerForm
       $finalShippingCost = $this->setDelivery($orderId, $now, $shippable);
       //Compute the total amount of the transaction.
       $totalAmount = $fnlCrtAmtInclTax + $finalShippingCost;
-      $this->prepareTransaction($orderId, $totalAmount, $now);
     }
 
     //Put order id into a session variable cause it is gonna be used later. 
@@ -267,33 +267,6 @@ class KetshopControllerStore extends JControllerForm
     $this->addProductsToOrder($orderId, $cartAmount, $pendingCart, $isNew);
 
     return true;
-  }
-
-
-  protected function prepareTransaction($orderId, $amount, $now)
-  {
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-
-    //Create a new transaction row.
-    //Payment is about to be processed but since we don't know yet how it's gonna
-    //end, payment status is set to "undefined". 
-    $values = (int)$orderId.','.$db->Quote('undefined').','.$amount.','.$db->Quote('undefined').','.$db->Quote($now);
-
-    $columns = array('order_id','payment_mode','amount','status','created');
-    $query->insert('#__ketshop_transaction')
-	  ->columns($columns)
-	  ->values($values);
-    $db->setQuery($query);
-    $db->query();
-
-    //Check for errors.
-    if($db->getErrorNum()) {
-      ShopHelper::logEvent($this->codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
-      return false;
-    }
-
-    return;
   }
 
 
@@ -345,7 +318,8 @@ class KetshopControllerStore extends JControllerForm
       }
     }
     else { // No shipping is required.
-      $status = 'no_shipping';
+      //$status = 'no_shipping';
+      return 0;
     }
 
     //Get the needed data from the order.

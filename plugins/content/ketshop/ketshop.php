@@ -637,34 +637,24 @@ class plgContentKetshop extends JPlugin
     }
     elseif($context == 'com_ketshop.order') { //ORDER
       $post = JFactory::getApplication()->input->post->getArray();
-      $transactionId = $post['transaction_id'];
       $deliveryId = $post['delivery_id'];
 
-      //Update transaction and delivery tables.
+      //Update delivery table.
+      if($deliveryId) {
+	$db = JFactory::getDbo();
+	$query = $db->getQuery(true);
+	$now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
 
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true);
-      $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-
-      $fields = array('status='.$db->quote($post['transaction_status']),
-		      'note='.$db->quote($post['transaction_note']),
-		      'modified='.$db->quote($now));
-      $query->update('#__ketshop_transaction');
-      $query->set($fields);
-      $query->where('id='.(int)$transactionId);
-      $db->setQuery($query);
-      $db->query();
-
-      $fields = array('status='.$db->quote($post['delivery_status']),
-		      'delivery_date='.$db->quote($post['delivery_date']),
-		      'note='.$db->quote($post['delivery_note']),
-		      'modified='.$db->quote($now));
-      $query->clear();
-      $query->update('#__ketshop_delivery');
-      $query->set($fields);
-      $query->where('id='.(int)$deliveryId);
-      $db->setQuery($query);
-      $db->query();
+	$fields = array('status='.$db->quote($post['delivery_status']),
+			'delivery_date='.$db->quote($post['delivery_date']),
+			'note='.$db->quote($post['delivery_note']),
+			'modified='.$db->quote($now));
+	$query->update('#__ketshop_delivery');
+	$query->set($fields);
+	$query->where('id='.(int)$deliveryId);
+	$db->setQuery($query);
+	$db->query();
+      }
 
     }
     elseif($context == 'com_ketshop.deliverypoint') { //DELIVERY POINT
@@ -872,13 +862,13 @@ class plgContentKetshop extends JPlugin
       $db->query();
 
       $query->clear();
-      $query->delete('#__ketshop_delivery');
+      $query->delete('#__ketshop_order_transaction');
       $query->where('order_id='.(int)$data->id);
       $db->setQuery($query);
       $db->query();
 
       $query->clear();
-      $query->delete('#__ketshop_transaction');
+      $query->delete('#__ketshop_delivery');
       $query->where('order_id='.(int)$data->id);
       $db->setQuery($query);
       $db->query();
@@ -912,22 +902,6 @@ class plgContentKetshop extends JPlugin
     //Filter the sent event.
 
     if($context == 'com_ketshop.product') {
-      return true;
-    }
-    elseif($context == 'com_ketshop.order') {
-      $ids = implode(',', $pks);
-
-      $db = JFactory::getDbo();
-      $query = 'UPDATE #__ketshop_delivery SET published='.$value
-	       .' WHERE order_id IN ('.$ids.')';
-      $db->setQuery($query);
-      $db->query();
-
-      $query = 'UPDATE #__ketshop_transaction SET published='.$value
-	       .' WHERE order_id IN ('.$ids.')';
-      $db->setQuery($query);
-      $db->query();
-
       return true;
     }
     else { //Hand over to Joomla.

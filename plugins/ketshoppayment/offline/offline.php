@@ -10,6 +10,7 @@
 defined('_JEXEC') or die('Restricted access');
 // Import the JPlugin class
 jimport('joomla.plugin.plugin');
+require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
 
 
 
@@ -49,10 +50,10 @@ class plgKetshoppaymentOffline extends JPlugin
     //Check for errors.
     if($db->getErrorNum() || is_null($offlinePayment)) {
       if($db->getErrorNum()) {
-	$utility['error'] = $db->getErrorMsg();
+	$utility['payment_detail'] = $db->getErrorMsg();
       }
       else {
-	$utility['error'] = JText::_('COM_KETSHOP_ERROR');
+	$utility['payment_detail'] = JText::_('COM_KETSHOP_ERROR');
       }
 
       $utility['plugin_result'] = false;
@@ -61,19 +62,18 @@ class plgKetshoppaymentOffline extends JPlugin
     }
 
     //Set the name of the offline payment as details.
-    $utility['payment_details'] = $offlinePayment->name;
+    $utility['payment_detail'] = $offlinePayment->name;
 
     //Create the form corresponding to the selected offline payment mode.
 
-    $output = '<form action="index.php?option=com_ketshop&task=finalize.confirmPurchase&payment=offline" '.
+    $output = '<form action="index.php?option=com_ketshop&task=payment.response&payment=offline" '.
 	       'method="post" id="payment_modes" >';
     $output .= '<div class="offline-payment">';
     $output .= '<h1>'.$offlinePayment->name.'</h1>';
     $output .= $offlinePayment->information;
     $output .= '<div id="action-buttons">';
     $output .= '<span class="btn">'.
-               '<a href="index.php?option=com_ketshop&view=payment&task=payment.cancel&payment=offline" onclick="hideButton(\'action-buttons\')">'.
-                        JText::_('COM_KETSHOP_CANCEL').'</a></span>';
+               '<a href="index.php?option=com_ketshop&view=payment&task=payment.cancelPayment&payment=offline" onclick="hideButton(\'action-buttons\')">'.JText::_('COM_KETSHOP_CANCEL').'</a></span>';
     $output .= '<span class="button-separation">&nbsp;</span>';
     $output .= '<input id="submit-button" class="btn btn-success" onclick="hideButton(\'action-buttons\')" type="submit" value="'.JText::_('COM_KETSHOP_VALIDATE').'" />';
     $output .= '</div>';
@@ -83,8 +83,6 @@ class plgKetshoppaymentOffline extends JPlugin
     //Store the output into the utility array in order to be displayed
     //in the payment view.
     $utility['plugin_output'] = $output;
-    //Everything went ok.
-    $utility['plugin_result'] = true;
 
     return $utility;
   }
@@ -92,32 +90,22 @@ class plgKetshoppaymentOffline extends JPlugin
 
   public function onKetshopPaymentOfflineResponse($amounts, $cart, $settings, $utility)
   {
-    //Grab the user session.
-    $session = JFactory::getSession();
-    $utility = $session->get('utility', array(), 'ketshop'); 
-    $utility['payment_result'] = 1;
-    $session->set('utility', $utility, 'ketshop');
+    //Note: Payment results can only be ok with offline payment method since there's
+    //      no web procedure to pass through.
 
-    $app = JFactory::getApplication();
-    $app->redirect(JRoute::_('index.php?option=com_ketshop&task=finalize.confirmPurchase', false));
-    return true;
+    ShopHelper::createTransaction($amounts, $utility, $settings); 
+
+    //Redirect the customer to the ending step.
+    $utility['redirect_url'] = JRoute::_('index.php?option=com_ketshop&task=finalize.confirmPurchase', false);
+
+    return $utility;
   }
 
 
-  public function onKetshopPaymentOfflineCancel($utility)
+  public function onKetshopPaymentOfflineCancel($amounts, $cart, $settings, $utility)
   {
-    //Grab the user session.
-    $session = JFactory::getSession();
-    $utility = $session->get('utility', array(), 'ketshop'); 
-    //Empty the output variable which make the view to display the
-    //payment modes. 
-    $utility['plugin_output'] = '';
-    $session->set('utility', $utility, 'ketshop');
-
-    $app = JFactory::getApplication();
-    $app->redirect(JRoute::_('index.php?option=com_ketshop&view=payment', false));
+    //Some code here if needed.
+    //...
     return true;
   }
-
-
 }

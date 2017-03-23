@@ -12,7 +12,6 @@ defined('_JEXEC') or die;
 <div class="row-fluid">
   <div class="span4">
     <div class="form-vertical">
-      <input type="hidden" name="transaction_id" value="<?php echo $displayData->id; ?>" />
 
       <div class="control-group">
 	<div class="control-label">
@@ -76,29 +75,17 @@ defined('_JEXEC') or die;
 	<div class="control-label">
 	  <label id="transaction_details-lbl" for="transaction_details" class="hasTooltip" title=""
 	  data-original-title="<strong>
-	  <?php echo JText::_('COM_KETSHOP_FIELD_TRANSACTION_DETAILS_LABEL'); ?></strong><br />
-	  <?php echo JText::_('COM_KETSHOP_FIELD_TRANSACTION_DETAILS_DESC'); ?>">
-	  <?php echo JText::_('COM_KETSHOP_FIELD_TRANSACTION_DETAILS_LABEL'); ?></label>
+	  <?php echo JText::_('COM_KETSHOP_FIELD_TRANSACTION_DETAIL_LABEL'); ?></strong><br />
+	  <?php echo JText::_('COM_KETSHOP_FIELD_TRANSACTION_DETAIL_DESC'); ?>">
+	  <?php echo JText::_('COM_KETSHOP_FIELD_TRANSACTION_DETAIL_LABEL'); ?></label>
 	  </div>
 	  <div class="controls">
 	  <textarea name="transaction_details" id="transaction-details"
-		  class="readonly" readonly="true" rows="5" cols="10"><?php echo $displayData->details; ?>
+		  class="readonly" readonly="true" rows="5" cols="10"><?php echo $displayData->detail; ?>
 	   </textarea>
 	</div>
       </div>
 
-      <div class="control-group">
-	<div class="control-label">
-	  <label id="transaction_note-lbl" for="transaction_note" class="hasTooltip" title=""
-	  data-original-title="<strong>
-	  <?php echo JText::_('COM_KETSHOP_FIELD_NOTE_LABEL'); ?></strong><br />
-	  <?php echo JText::_('COM_KETSHOP_FIELD_NOTE_DESC'); ?>">
-	  <?php echo JText::_('COM_KETSHOP_FIELD_NOTE_LABEL'); ?></label>
-	  </div>
-	  <div class="controls">
-	  <textarea name="transaction_note" id="transaction-note" rows="5" cols="10"><?php echo $displayData->note; ?></textarea>
-	</div>
-      </div>
     </div>
   </div>
 </div>

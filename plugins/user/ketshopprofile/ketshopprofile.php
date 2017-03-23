@@ -220,18 +220,19 @@ class plgUserKetshopProfile extends JPlugin
 
       //Load the appropriate form.
       if($name == 'com_ketshop.address.shipping') {
-	$form->loadFile('shipping', false);
+	//IMPORTANT: Don't forget to set the reset argument flag to true or the "required" attribute won't be toggled.
+	$form->loadFile('shipping', true);
       }
       else {
-	$form->loadFile('profile', false);
+	$form->loadFile('profile', true);
       }
     }
     else {
       $fields = array('street_bi', 'city_bi', 'region_code_bi', 'postcode_bi',
-		      'country_code_bi', 'phone_bi', 'note_bi',);
+		      'country_code_bi', 'phone_bi', 'note_bi');
 
       //Load the appropriate form.
-      $form->loadFile('no_shipping', false);
+      $form->loadFile('no_shipping', true);
     }
 
     foreach($fields as $field) {
@@ -507,6 +508,16 @@ echo '</pre>';*/
 	$cartModel = JModelLegacy::getInstance('cart', 'KetshopController');
 	//We just reload the current cart (passing no argument to the function).
 	$cartModel->loadCart();
+      }
+
+      //Grab the user session.
+      $session = JFactory::getSession();
+      $location = $session->get('location', '', 'ketshop'); 
+
+      //Redirect the user to the location he was before log in (when purchasing).
+      if(!empty($location)) {
+	JFactory::getApplication()->redirect(JRoute::_('index.php?option=com_ketshop&view='.$location, false));
+	return true;
       }
     }
 

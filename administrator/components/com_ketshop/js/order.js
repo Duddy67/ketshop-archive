@@ -3,12 +3,13 @@
 
   //Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
-    $('.remove-product').click( function() { $.fn.remove(this); });
+    $('.remove-product').click( function() { $.fn.removeProduct(this); });
     $('.refresh-qty').click( function() { $.fn.changeQuantity(this); });
   });
 
 
-  $.fn.remove = function(element) {
+  //Note: Don't call this function "remove" as it seems to interfere with the JQuery methods.
+  $.fn.removeProduct = function(element) {
     var userId = $('#user_id').val();
     alert(element.id+':'+userId);
     var urlQuery = {'product_id':element.id, 'user_id':userId, 'task':'remove'};

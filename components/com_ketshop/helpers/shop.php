@@ -631,6 +631,85 @@ class ShopHelper
   }
 
 
+  public static function deleteTemporaryData($orderId)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    $query->delete('#__ketshop_tmp_data')
+          ->where('order_id='.(int)$orderId);
+    $db->setQuery($query);
+    $db->execute();
+  }
+
+
+  public static function getTemporaryData($orderId, $utility = false)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    $query->select('amounts, cart, settings, utility')
+          ->from('#__ketshop_tmp_data')
+          ->where('order_id='.(int)$orderId);
+    $db->setQuery($query);
+    $result = $db->loadObject();
+
+    if(is_null($result)) {
+      return $result;
+    }
+
+    if($utility) {
+      return unserialize($result->utility);
+    }
+
+    $data = array();
+    $data['amounts'] = unserialize($result->amounts);
+    $data['cart'] = unserialize($result->cart);
+    $data['settings'] = unserialize($result->settings);
+    $data['utility'] = unserialize($result->utility);
+
+    return $data;
+  }
+
+
+  public static function createTransaction($amounts, $utility, $settings)
+  {
+    //Set the amount value which has been paid.
+    //Note: For now the shop doesn't handle multiple instalment payment but it will in the futur.
+    $amount = $amounts['fnl_crt_amt_incl_tax'];
+
+    //Set the result of the transaction.
+    $result = 'success';
+    $detail = $utility['payment_detail'];
+    if(!$utility['payment_result']) {
+      $result = 'error';
+    }
+
+    //Create the transaction.
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    $nowDate = $db->quote(JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true));
+    $columns = array('order_id','payment_mode','amount','result','detail','transaction_data','created');
+    $values = (int)$settings['order_id'].','.$db->quote($utility['payment_mode']).','.(float)$amount.','.  
+              $db->quote($result).','.$db->quote($detail).','.$db->quote($utility['transaction_data']).','.$nowDate;
+
+    $query->insert('#__ketshop_order_transaction')
+	  ->columns($columns)
+	  ->values($values);
+    try {
+      $db->setQuery($query);
+      $db->execute();
+    }
+    catch(RuntimeException $e) {
+      JFactory::getApplication()->enqueueMessage(JText::_($e->getMessage()), 'error');
+      return false;
+    }
+
+    return true;
+  }
+
+
   //Function used to trace possible errors and report them into a log file.
   public static function logEvent($location, $type, $criticity, $code = 0, $message = '')
   {

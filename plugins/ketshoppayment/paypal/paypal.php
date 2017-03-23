@@ -129,7 +129,7 @@ class plgKetshoppaymentPaypal extends JPlugin
 	if($paypalParamsArray['ACK'] === 'Success') {
 	  //Store the paypal params array as we gonna use it later (for payerID
 	  //variable).
-	  $utility['payment_details'] = $paypalParamsArray;
+	  $utility['payment_detail'] = $paypalParamsArray;
 	}
 	else { //Paypal query has failed.
 	  //Display the Paypal error message.
@@ -227,7 +227,7 @@ class plgKetshoppaymentPaypal extends JPlugin
 	  $utility['payment_result'] = 1;
 	  $utility['plugin_result'] = true;
 	  //Serialize the Paypal data to store it into database.
-	  $utility['payment_details'] = serialize($paypalParamsArray);
+	  $utility['payment_detail'] = serialize($paypalParamsArray);
 	  return $utility;
 	}
 	else { //Paypal query has failed.
@@ -396,7 +396,7 @@ class plgKetshoppaymentPaypal extends JPlugin
     $query .= $this->buildPaypalDetailOrder($amounts, $cart, $settings);
 
     $query .= '&PAYMENTREQUEST_0_CURRENCYCODE='.$currencyCode.
-	      '&PayerID='.$utility['payment_details']['PAYERID']. //Add payment id sent back by Paypal.
+	      '&PayerID='.$utility['payment_detail']['PAYERID']. //Add payment id sent back by Paypal.
 	      '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'; //Indicate a final sale.
 
     return $query;

@@ -99,19 +99,15 @@ class KetshopModelOrder extends JModelAdmin
     $item->cust_name = $customer->name;
     $item->cust_username = $customer->username;
 
-    //Delivery and transaction data is only available when cart status is completed.
+    //Delivery data is only available when cart status is completed.
     if($item->cart_status == 'completed') {
-      //Get the ids of the delivery and transaction linked to the order.
+      //Get the id of the delivery linked to the order.
       $query->clear();
-      $query->select('d.id AS delivery_id, t.id AS transaction_id');
-      $query->from('#__ketshop_transaction AS t');
-      $query->join('LEFT','#__ketshop_delivery AS d ON d.order_id='.$item->id);
-      $query->where('t.order_id='.$item->id);
+      $query->select('id');
+      $query->from('#__ketshop_delivery');
+      $query->where('order_id='.$item->id);
       $db->setQuery($query);
-      $ids = $db->loadAssoc();
-
-      $item->delivery_id = $ids['delivery_id'];
-      $item->transaction_id = $ids['transaction_id'];
+      $item->delivery_id = $db->loadResult();
     }
 
     return $item;
@@ -163,12 +159,12 @@ class KetshopModelOrder extends JModelAdmin
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    $query->select('id, payment_mode, amount, created, status, details, note')
-	  ->from('#__ketshop_transaction')
+    //Note: For now the shop doesn't handle multiple instalment payment but it will in the futur.
+    $query->select('payment_mode, amount, result, created, detail')
+	  ->from('#__ketshop_order_transaction')
 	  ->where('order_id='.$order->id);
     $db->setQuery($query);
 
-    // Return the result
     return $db->loadObject();
   }
 

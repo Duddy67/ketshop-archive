@@ -83,23 +83,21 @@ class KetshopModelOrder extends JModelAdmin
     //Add currency as an attribute to the order item.
     $item->currency = $currency;
 
-    $db = $this->getDbo();
-    $query = $db->getQuery(true);
-    //Get the ids of the delivery and transaction linked to the order.
-    $query->select('d.id AS delivery_id, d.status AS shipping_status, d.shipping_cost,'.
-	           'd.final_shipping_cost, t.id AS transaction_id, t.status AS payment_status')
-	  ->from('#__ketshop_transaction AS t')
-	  ->join('LEFT','#__ketshop_delivery AS d ON d.order_id='.$item->id)
-	  ->where('t.order_id='.$item->id);
-    $db->setQuery($query);
-    $ids = $db->loadAssoc();
+    if($item->shippable) {
+      $db = $this->getDbo();
+      $query = $db->getQuery(true);
+      //Get the delivery linked to the order.
+      $query->select('id AS delivery_id, status AS shipping_status, shipping_cost,final_shipping_cost')
+	    ->from('#__ketshop_delivery')
+	    ->where('order_id='.$item->id);
+      $db->setQuery($query);
+      $delivery = $db->loadAssoc();
 
-    $item->delivery_id = $ids['delivery_id'];
-    $item->transaction_id = $ids['transaction_id'];
-    $item->shipping_status = $ids['shipping_status'];
-    $item->payment_status = $ids['payment_status'];
-    $item->shipping_cost = $ids['shipping_cost'];
-    $item->final_shipping_cost = $ids['final_shipping_cost'];
+      $item->delivery_id = $delivery['delivery_id'];
+      $item->shipping_status = $delivery['shipping_status'];
+      $item->shipping_cost = $delivery['shipping_cost'];
+      $item->final_shipping_cost = $delivery['final_shipping_cost'];
+    }
 
     return $item;
   }

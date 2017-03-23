@@ -162,6 +162,7 @@ CREATE TABLE `#__ketshop_order` (
   `user_id` INT UNSIGNED NOT NULL ,
   `cart_status` VARCHAR(15) NOT NULL ,
   `order_status` VARCHAR(15) NOT NULL ,
+  `payment_status` VARCHAR(15) NOT NULL ,
   `cart_amount` DECIMAL(14,5) NOT NULL ,
   `crt_amt_incl_tax` DECIMAL(14,5) NOT NULL ,
   `final_cart_amount` DECIMAL(14,5) NOT NULL ,
@@ -224,21 +225,34 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
--- Table `#__ketshop_transaction`
+-- Table `#__ketshop_order_transaction`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `#__ketshop_transaction`;
-CREATE TABLE `#__ketshop_transaction` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `#__ketshop_order_transaction`;
+CREATE TABLE `#__ketshop_order_transaction` (
   `order_id` INT UNSIGNED NOT NULL ,
   `payment_mode` VARCHAR(80) NOT NULL,
   `amount` DECIMAL(14,5) NOT NULL,
-  `status` CHAR(15) NOT NULL ,
-  `details` TEXT NULL,
-  `note` TEXT NULL ,
+  `result` CHAR(15) NOT NULL ,
+  `detail` TEXT NULL,
+  `transaction_data` MEDIUMTEXT NULL,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' , -- in case of multiple transactions
-  `modified` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' , -- idem
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+  INDEX `idx_order_id` (`order_id` ASC) )
+ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
+-- Table `#__ketshop_tmp_data
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `#__ketshop_tmp_data`;
+CREATE TABLE `#__ketshop_tmp_data` (
+  `order_id` INT UNSIGNED NOT NULL ,
+  `amounts` MEDIUMTEXT NOT NULL ,
+  `cart` MEDIUMTEXT NOT NULL ,
+  `settings` MEDIUMTEXT NOT NULL ,
+  `utility` MEDIUMTEXT NOT NULL ,
+  `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  INDEX `idx_order_id` (`order_id` ASC) )
+ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------

@@ -94,16 +94,13 @@ class KetshopModelOrders extends JModelList
 
     // Select the required fields from the table.
     $query->select($this->getState('list.select', 'o.id, o.name, o.created, o.cart_status,'.
-				   'o.published, o.user_id, o.order_status,'.
+				   'o.published, o.user_id, o.order_status, o.payment_status,'.
 				   'o.checked_out, o.checked_out_time'));
 
     $query->from('#__ketshop_order AS o');
 
     $query->select('d.status AS shipping_status');
     $query->join('LEFT', '#__ketshop_delivery AS d ON d.order_id = o.id');
-
-    $query->select('t.status AS payment_status');
-    $query->join('LEFT', '#__ketshop_transaction AS t ON t.order_id = o.id');
 
     //Get the customer name.
     $query->select('u.name AS customer');

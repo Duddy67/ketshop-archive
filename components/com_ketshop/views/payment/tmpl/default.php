@@ -7,13 +7,15 @@
 
 // no direct access
 defined('_JEXEC') or die;
+require_once JPATH_COMPONENT.'/helpers/shop.php';
 
 JHtml::addIncludePath(JPATH_COMPONENT.'/helpers');
 
-//Check if the utility session array has already been created by setPayment
+//Check if the utility temporary data has already been created by the setPayment
 //controller function. 
 $session = JFactory::getSession();
-$utility = $session->get('utility', array(), 'ketshop'); 
+$orderId = $session->get('order_id', 0, 'ketshop'); 
+$utility = ShopHelper::getTemporaryData($orderId, true);
 ?>
 
 <div class="blog" id="ketshop-payment">
