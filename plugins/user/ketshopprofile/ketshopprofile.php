@@ -523,5 +523,16 @@ echo '</pre>';*/
 
     return true;
   }
+
+
+  public function onUserAfterLogout($options)
+  {
+    //TODO: Does not work properly.
+    //$app = JFactory::getApplication();
+
+    //$app->enqueueMessage(JText::_('PLG_USER_KETSHOP_PROFILE_LOGOUT'));
+    //$app->redirect(JRoute::_('index.php?option=com_ketshop&view=tag&layout=blog&id=2', false));
+    //return true;
+  }
 }
 

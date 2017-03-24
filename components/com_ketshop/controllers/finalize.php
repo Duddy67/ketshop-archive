@@ -37,8 +37,8 @@ class KetshopControllerFinalize extends JControllerForm
       $session->set('submit', 1, 'ketshop'); 
 
       $utility = ShopHelper::getTemporaryData($orderId, true);
-      //Run methods which make the purchase confirmed.
 
+      //Run methods which make the purchase confirmed.
       $this->setOrderStatus($utility);
       $this->stockSubtract();
 
@@ -51,39 +51,13 @@ class KetshopControllerFinalize extends JControllerForm
       $session->set('end_purchase', 1, 'ketshop'); 
     }
 
-    ShopHelper::deleteTemporaryData($orderId);
-
-    //Redirect the user to the end purchase view in passing the order id value in
-    //the url.
-    $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view=endpurchase&order_id='.$orderId, false));
-
-    return;
-  }
-
-
-  //Delete all of the session variables used during purchase.
-  public function endPurchase()
-  {
-    //Get the redirection url before removing session variables.
-    $session = JFactory::getSession();
-    $settings = $session->get('settings', array(), 'ketshop'); 
-    $redirectUrl = $settings['redirect_url_1'];
-
-    if(empty($redirectUrl)) {
-      $redirectUrl = JRoute::_('index.php');
-    }
-
     //Delete session variables.
     ShopHelper::clearPurchaseData();
+    //As well as temporary data.
+    ShopHelper::deleteTemporaryData($orderId);
 
-    if(!empty($redirectUrl)) {
-      //Redirect to the home page.
-      $this->setRedirect('index.php', false);
-      return;
-    }
-
-    //Redirect the user.
-    $this->setRedirect(JRoute::_($redirectUrl, false));
+    //Redirect the user to the order view.
+    $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view=order&order_id='.$orderId, false));
 
     return;
   }
@@ -118,7 +92,7 @@ class KetshopControllerFinalize extends JControllerForm
     if($paymentStatus == 'completed' && !ShopHelper::isShippable()) {
       $orderStatus = 'completed';
     }
-file_put_contents('debog_status.txt', print_r($paymentStatus.':'.$utility['payment_mode'], true));
+
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
