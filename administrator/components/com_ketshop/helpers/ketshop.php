@@ -32,6 +32,9 @@ class KetshopHelper
     JHtmlSidebar::addEntry(JText::_('COM_KETSHOP_SUBMENU_PRICE_RULES'),
 				      'index.php?option=com_ketshop&view=pricerules', $viewName == 'pricerules');
 
+    JHtmlSidebar::addEntry(JText::_('COM_KETSHOP_SUBMENU_COUPONS'),
+				      'index.php?option=com_ketshop&view=coupons', $viewName == 'coupons');
+
     JHtmlSidebar::addEntry(JText::_('COM_KETSHOP_SUBMENU_ORDERS'),
 				      'index.php?option=com_ketshop&view=orders', $viewName == 'orders');
 

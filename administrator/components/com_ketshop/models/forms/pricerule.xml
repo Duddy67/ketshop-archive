@@ -96,9 +96,11 @@
 	<field name="behavior" type="list"
 		label="COM_KETSHOP_FIELD_PRICE_RULE_BEHAVIOR_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_BEHAVIOR_DESC"
-		size="1" default="XOR">
-		<option value="XOR">COM_KETSHOP_OPTION_EXCLUSIVE</option>
+		size="1" default="AND">
 		<option value="AND">COM_KETSHOP_OPTION_CUMULATIVE</option>
+		<option value="XOR">COM_KETSHOP_OPTION_EXCLUSIVE</option>
+		<option value="CPN_AND">COM_KETSHOP_OPTION_COUPON_CUMULATIVE</option>
+		<option value="CPN_XOR">COM_KETSHOP_OPTION_COUPON_EXCLUSIVE</option>
 	</field>
 
 	<field name="published" type="list"

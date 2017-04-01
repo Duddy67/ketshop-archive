@@ -141,6 +141,14 @@ class KetshopModelPricerules extends JModelList
       $query->where('pr.behavior = '.$db->quote($behavior));
     }
 
+    //Get the possible option sent by a link to a modal window.
+    $modalOption = JFactory::getApplication()->input->get->get('modal_option', '', 'string');
+
+    if($modalOption == 'coupon_only') {
+      //Display price rules with coupon behavior only.
+      $query->where('(pr.behavior="CPN_XOR" OR pr.behavior="CPN_AND")');
+    }
+
     //Add the list to the sort.
     $orderCol = $this->state->get('list.ordering', 'pr.name');
     $orderDirn = $this->state->get('list.direction'); //asc or desc

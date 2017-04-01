@@ -317,7 +317,7 @@
 
     //Build the link to the modal window displaying the products.
     //Note: product_type parameter ask product model to only display normal
-    //product type (it prevents to have a bundle product types or product variants in the modal list). 
+    //product type (it prevents to have a bundle product types in the modal list). 
     var linkToModal = 'index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&id_nb='+idNb+'&type=bundleproduct&product_type=normal';
     $('#bundleproduct-item-'+idNb).createButton('select', '#', linkToModal);
 

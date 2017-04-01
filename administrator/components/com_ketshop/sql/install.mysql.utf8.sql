@@ -576,6 +576,40 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
+-- Table `#__ketshop_coupon`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `#__ketshop_coupon`;
+CREATE TABLE `#__ketshop_coupon` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(80) NOT NULL ,
+  `code` VARCHAR(80) NOT NULL ,
+  `prule_id` INT UNSIGNED NULL ,
+  `max_nb_uses` TINYINT UNSIGNED NULL ,
+  `max_nb_coupons` SMALLINT NULL ,
+  `description` TEXT NULL ,
+  `published` TINYINT NOT NULL DEFAULT 0 ,
+  `checked_out` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `checked_out_time` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `created_by` INT UNSIGNED NOT NULL ,
+  `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  PRIMARY KEY (`id`) )
+ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
+-- Table `#__ketshop_coupon_customer
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `#__ketshop_coupon_customer`;
+CREATE TABLE `#__ketshop_coupon_customer` (
+  `customer_id` INT UNSIGNED NOT NULL ,
+  `code` VARCHAR(80) NOT NULL ,
+  `nb_uses` TINYINT UNSIGNED NULL ,
+  INDEX `idx_customer_id` (`customer_id` ASC) )
+ENGINE = MyISAM DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
 -- Table `#__ketshop_shipping`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `#__ketshop_shipping`;
