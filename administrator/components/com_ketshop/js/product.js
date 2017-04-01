@@ -31,7 +31,6 @@
 
     //Set as function the global variables previously declared in edit.php file.
     checkAlias = $.fn.checkAlias;
-    checkCategory = $.fn.checkCategory;
     checkAttrValType = $.fn.checkAttrValType;
     checkOptionValType = $.fn.checkOptionValType;
 
@@ -69,56 +68,19 @@
   });
 
 
-  $.fn.checkAlias = function(task) {
+  $.fn.checkAlias = function() {
     var rtn;
     var id = $('#jform_id').val();
     var catid = $('#jform_catid').val();
-    var alias = $('#jform_alias').val();
     var name = $('#jform_name').val();
+    var alias = $('#jform_alias').val();
 
     //Set the url parameters for the Ajax call.
-    var urlQuery = {'task':task, 'id':id, 'catid':catid, 'alias':encodeURIComponent(alias), 'name':encodeURIComponent(name)};
+    var urlQuery = {'id':id, 'catid':catid, 'name':name, 'alias':alias};
     //Ajax call which check for unique alias.
     $.ajax({
 	type: 'GET', 
 	url: 'components/com_ketshop/js/ajax/checkalias.php', 
-	dataType: 'json',
-	async: false, //We need a synchronous calling here.
-	data: urlQuery,
-	//Get result.
-	success: function(result, textStatus, jqXHR) {
-	  rtn = result;
-	},
-	error: function(jqXHR, textStatus, errorThrown) {
-	  //Display the error.
-	  alert(textStatus+': '+errorThrown);
-	}
-    });
-
-    return rtn;
-  };
-
-
-  $.fn.checkCategory = function() {
-    var rtn;
-    var id = $('#jform_id').val();
-    var catid = $('#jform_catid').val();
-    var ref_prod_id = $('#jform_ref_prod_id').val();
-    var variants = $('#jform_variants').val();
-    var published = $('#jform_published').val();
-
-    //Only existing reference products or product variants are treated.
-    //Don't treat products which are not published.
-    if(!id || (!ref_prod_id && !variants) || published != 1) {
-      return 1;
-    }
-
-    //Set the url parameters for the Ajax call.
-    var urlQuery = {'id':id, 'catid':catid, 'ref_prod_id':ref_prod_id, 'variants':variants};
-    //Ajax call which check for category.
-    $.ajax({
-	type: 'GET', 
-	url: 'components/com_ketshop/js/ajax/checkcategory.php', 
 	dataType: 'json',
 	async: false, //We need a synchronous calling here.
 	data: urlQuery,

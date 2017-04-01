@@ -13,27 +13,34 @@ define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_BASE.'/administrator/components/co
 require_once (JPATH_BASE.'/includes/defines.php');
 require_once (JPATH_BASE.'/includes/framework.php');
 require_once (JPATH_BASE.'/libraries/joomla/factory.php');
-//Required for the isDuplicateCat funtion.
-require_once (JPATH_BASE.'/administrator/components/com_ketshop/helpers/ketshop.php');
 //Create the application
 $mainframe = JFactory::getApplication('site');
 $mainframe->initialise();
 
-//The aim of this Ajax script is to simulate the setting of the product category. 
+//The aim of this Ajax script is to simulate the checking for an unique alias in the table file. 
 //This avoid the users to loose the attributes and images they've just set in case of
 //error (handle in tables/product.php).
 
 //Get the required variables.
 $id = JFactory::getApplication()->input->get->get('id', 0, 'uint');
 $catid = JFactory::getApplication()->input->get->get('catid', 0, 'uint');
-$refProdId = JFactory::getApplication()->input->get->get('ref_prod_id', 0, 'uint');
-$variants = JFactory::getApplication()->input->get->get('variants', 0, 'uint');
+$name = JFactory::getApplication()->input->get->get('name', '', 'string');
+$alias = JFactory::getApplication()->input->get->get('alias', '', 'string');
 
-$return = 1;
-
-if(KetshopHelper::isDuplicateCat($id, $refProdId, $catid)) {
-  $return = 0;
+//Create a sanitized alias, (see stringURLSafe function for details).
+$alias = JFilterOutput::stringURLSafe($alias);
+//In case no alias has been defined, create a sanitized alias from the name field.
+if(empty($alias)) {
+  $alias = JFilterOutput::stringURLSafe($name);
 }
 
-echo json_encode($return);
+$db = JFactory::getDbo();
+$query = $db->getQuery(true);
+//Check for unique alias.
+$query->select('COUNT(*)')
+      ->from('#__ketshop_product')
+      ->where('alias='.$db->Quote($alias).' AND catid='.(int)$catid.' AND id!='.(int)$id);
+$db->setQuery($query);
+
+echo json_encode($db->loadResult());
 

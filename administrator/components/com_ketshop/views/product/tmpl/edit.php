@@ -34,9 +34,20 @@ $template = $this->form->getValue('type');
 ?>
 
 <script type="text/javascript">
+//Global variable. It will be set as function in product.js file.
+var checkAlias;
+
 Joomla.submitbutton = function(task)
 {
   if(task == 'product.cancel' || document.formvalidator.isValid(document.getElementById('product-form'))) {
+    //Check if the alias is unique before submiting form.
+    if(!checkAlias()) {
+      alert('<?php echo JText::_('COM_KETSHOP_DATABASE_ERROR_PRODUCT_UNIQUE_ALIAS'); ?>');
+      document.getElementById('jform_alias').style.borderColor='#fa5858';
+      document.getElementById('jform_alias-lbl').style.color='#fa5858';
+      return;
+    }
+
     Joomla.submitform(task, document.getElementById('product-form'));
   }
 }

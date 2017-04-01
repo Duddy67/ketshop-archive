@@ -297,34 +297,6 @@ class plgContentKetshop extends JPlugin
 
 	//Remove duplicate ids in case an item has been set twice or more.
 	$targetIds = array_unique($targetIds);
-
-	if($targetType != 'product_cat') {
-	  //In case of reference products the product variants must also
-	  //be part of the targets.
-
-	  //Check for reference products.
-	  $query->select('id')
-		->from('#__ketshop_product')
-		->where('id IN('.implode(',', $targetIds).')')
-		->where('variants > 0');
-	  $db->setQuery($query);
-	  $refProdIds = $db->loadColumn();
-
-	  //Get the ids of the associated product variants.
-	  if(!empty($refProdIds)) {
-	    $query->clear();
-	    $query->select('id')
-		  ->from('#__ketshop_product')
-		  ->where('ref_prod_id IN('.implode(',', $refProdIds).')');
-	    $db->setQuery($query);
-	    $variantIds = $db->loadColumn();
-
-	    //Add the variants as targets.
-	    foreach($variantIds as $variantId) {
-	      $targetIds[] = $variantId;
-	    }
-	  }
-	}
       }
 
       //Retrieve all the new set recipients from the POST array.
