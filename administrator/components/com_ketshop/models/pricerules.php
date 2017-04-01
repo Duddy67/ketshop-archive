@@ -152,7 +152,6 @@ class KetshopModelPricerules extends JModelList
     //Add the list to the sort.
     $orderCol = $this->state->get('list.ordering', 'pr.name');
     $orderDirn = $this->state->get('list.direction'); //asc or desc
-//file_put_contents('debog_pricerules_model.txt', print_r($query, true));
     $query->order($db->escape($orderCol.' '.$orderDirn));
 
     return $query;

@@ -515,7 +515,7 @@ CREATE TABLE `#__ketshop_price_rule` (
   `modifier` VARCHAR(50) NOT NULL ,
   `application` CHAR(15) NOT NULL ,
   `value` DECIMAL(14,5) UNSIGNED NULL ,
-  `behavior` VARCHAR(3) NOT NULL ,
+  `behavior` VARCHAR(9) NOT NULL ,
   `condition` VARCHAR(25) NULL ,
   `logical_opr` VARCHAR(3) NULL ,
   `target` VARCHAR(25) NOT NULL ,

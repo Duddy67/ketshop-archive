@@ -1,12 +1,17 @@
 
 //Check that all characters are figures.
-function checkNumber(itemId, allowZero)
+function checkNumber(itemId, allowZero, signed)
 {
   var number = document.getElementById(itemId).value;
   //Decimal numbers must be separated by a dot.
   var decimalPattern = /^[0-9]{1,}\.[0-9]+$/;
   //Only figures are allowed.
   var integerPattern = /^[0-9]+$/;
+
+  if(signed === true) {
+    decimalPattern = /^-?[0-9]{1,}\.[0-9]+$/;
+    integerPattern = /^-?[0-9]+$/;
+  }
 
   //Check for 0, 0., 0.0, 0.00 etc...
   var zeroPattern = /^0+\.?0*$/;

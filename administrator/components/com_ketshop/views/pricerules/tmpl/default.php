@@ -28,6 +28,8 @@ if($saveOrder) {
   $saveOrderingUrl = 'index.php?option=com_ketshop&task=pricerules.saveOrderAjax&tmpl=component';
   JHtml::_('sortablelist.sortable', 'priceruleList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
+
+$behavior = array('AND' => 'CUMULATIVE', 'XOR' => 'EXCLUSIVE', 'CPN_XOR' => 'COUPON_EXCLUSIVE', 'CPN_AND' => 'COUPON_CUMULATIVE');
 ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=pricerules');?>" method="post" name="adminForm" id="adminForm">
@@ -172,11 +174,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	    <?php echo UtilityHelper::formatPriceRule($item->operation, $item->value); ?>
 	  </td>
 	  <td class="center">
-	    <?php if($item->behavior == 'XOR') : ?>
-	      <?php echo JText::_('COM_KETSHOP_EXCLUSIVE_TITLE'); ?>
-	    <?php else : ?>
-	      <?php echo JText::_('COM_KETSHOP_CUMULATIVE_TITLE'); ?>
-	    <?php endif; ?>
+	    <?php echo JText::_('COM_KETSHOP_OPTION_'.$behavior[$item->behavior]); ?>
 	  </td>
 	  <td>
 	  <?php if($item->type == 'cart') : ?>
