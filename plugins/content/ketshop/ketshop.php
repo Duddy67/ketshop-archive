@@ -913,6 +913,24 @@ class plgContentKetshop extends JPlugin
 
       $values = array();
       foreach($jform['tags'] as $tagId) {
+	//Check for newly created tags (ie: id=#new#Title of the tag)
+	if(substr($tagId, 0, 5) == '#new#') {
+	  //Get the title tag then turn it into alias.
+	  $title = substr($tagId, 5);
+	  $alias = JFilterOutput::stringURLSafe($title);
+	  //Get the id of the new tag from its alias.
+	  $query->clear();
+	  $query->select('id')
+		->from('#__tags')
+		->where('alias='.$db->Quote($alias));
+	  $db->setQuery($query);
+	  $tagId = $db->loadResult();
+	  //Skip the tag in case of error.
+	  if(is_null($tagId)) {
+	    continue;
+	  }
+	}
+
 	$newTag = true; 
 	//In order to preserve the ordering of the old tags we check if 
 	//they match those newly selected.

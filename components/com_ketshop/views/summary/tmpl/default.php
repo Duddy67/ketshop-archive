@@ -130,6 +130,14 @@ $data['addresses'] = $this->addresses;
   </div>
 <?php endif; ?>
 
+<div class="coupon-information">
+  <?php echo JText::_('COM_KETSHOP_COUPON_INFORMATION'); ?>
+  <form action="index.php?option=com_ketshop&task=summary.checkCoupon" method="post" name="coupon" id="coupon">
+    <input type="text" name="code" class="coupon-code" id="coupon-code" value="" />
+    <input type="submit" class="btn btn-success" value="<?php echo JText::_('COM_KETSHOP_BUTTON_SEND'); ?>" />
+  </form>
+</div>
+
 <?php echo JLayoutHelper::render('addresses', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
 </div>
 

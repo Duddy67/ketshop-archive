@@ -1073,89 +1073,90 @@ a:link.ketshop-link {
 }
 
 .icon-shop-home:before {
-	content: "\e900";
+    content: "\e900";
+}
+.icon-shop-office:before {
+    content: "\e903";
 }
 .icon-shop-pencil:before {
-	content: "\e901";
+    content: "\e905";
 }
-.icon-shop-paste:before {
-	content: "\e902";
+.icon-shop-file-text2:before {
+    content: "\e926";
+}
+.icon-shop-folder-open:before {
+    content: "\e930";
 }
 .icon-shop-price-tag:before {
-	content: "\e903";
+    content: "\e935";
 }
 .icon-shop-price-tags:before {
-	content: "\e904";
+    content: "\e936";
 }
 .icon-shop-barcode:before {
-	content: "\e905";
+    content: "\e937";
 }
 .icon-shop-cart:before {
-	content: "\e906";
+    content: "\e93a";
 }
 .icon-shop-coin-dollar:before {
-	content: "\e907";
-}
-.icon-shop-coin-euro:before {
-	content: "\e908";
-}
-.icon-shop-coin-pound:before {
-	content: "\e909";
+    content: "\e93b";
 }
 .icon-shop-credit-card:before {
-	content: "\e90a";
+    content: "\e93f";
 }
 .icon-shop-calculator:before {
-	content: "\e90b";
-}
-.icon-shop-phone:before {
-	content: "\e918";
+    content: "\e940";
 }
 .icon-shop-pushpin:before {
-	content: "\e90c";
+    content: "\e946";
 }
 .icon-shop-location:before {
-	content: "\e90d";
-}
-.icon-shop-clock:before {
-	content: "\e90e";
+    content: "\e947";
 }
 .icon-shop-user:before {
-	content: "\e90f";
+    content: "\e971";
 }
 .icon-shop-users:before {
-	content: "\e910";
+    content: "\e972";
 }
-.icon-shop-enlarge:before {
-	content: "\e919";
+.icon-shop-spinner11:before {
+    content: "\e984";
+}
+.icon-shop-key:before {
+    content: "\e98d";
+}
+.icon-shop-cogs:before {
+    content: "\e995";
 }
 .icon-shop-pie-chart:before {
-	content: "\e911";
+    content: "\e99a";
 }
 .icon-shop-gift:before {
-	content: "\e91b";
+    content: "\e99f";
 }
 .icon-shop-truck:before {
-	content: "\e912";
+    content: "\e9b0";
 }
 .icon-shop-earth:before {
-	content: "\e913";
+    content: "\e9ca";
 }
 .icon-shop-flag:before {
-	content: "\e914";
+    content: "\e9cc";
 }
 .icon-shop-star-empty:before {
-	content: "\e915";
+    content: "\e9d7";
 }
 .icon-shop-star-half:before {
-	content: "\e916";
+    content: "\e9d8";
 }
-.icon-shop-star-full:before {
-	content: "\e917";
+.icon-shop-info:before {
+    content: "\ea0c";
 }
 .icon-shop-move-up:before {
-	content: "\e91a";
+    content: "\ea46";
 }
+
 
 
 

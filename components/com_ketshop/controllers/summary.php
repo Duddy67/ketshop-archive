@@ -63,6 +63,19 @@ file_put_contents('debog_shippers.txt', print_r($shippers, true));
     $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view=summary', false));
     return;
   }
+
+
+  public function checkCoupon()
+  {
+    $post = JFactory::getApplication()->input->post->getArray();
+    $code = $post['code'];
+
+    //PriceruleHelper::checkCoupon($code);
+
+    $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view=summary', false));
+
+    return;
+  }
 }
 
 

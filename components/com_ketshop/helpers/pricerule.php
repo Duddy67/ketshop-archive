@@ -81,7 +81,7 @@ class PriceruleHelper
       $leftJoinTranslation = $pruleTranslation->left_join;
     }
 
-    //Get all the rules concerning the current user (or the group he's in).
+    //Get all the cart type rules concerning the current user (or the group he's in).
     //The list of result is ordered to determine the level of the rules.
     //Only cart rules are selected.
     $query->select('pr.id,pr.type,pr.operation,pr.value,pr.behavior,pr.ordering,pr.show_rule,pr.children_cat,'. 
@@ -457,7 +457,7 @@ class PriceruleHelper
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->select('pr.id, pr.type, pr.operation, pr.value, pr.behavior, pr.ordering, pr.show_rule,'. 
-		   'pr.target, pr.recipient,'.$translatedFields.'pr.modifier, pr.application')
+		   'pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.
 			 'AND prr.item_id='.$user->id.') OR (pr.recipient="customer_group" '.
@@ -472,6 +472,8 @@ class PriceruleHelper
     }
 
     $query->where('pr.id = prt.prule_id AND pr.id = prr.prule_id AND pr.published = 1 AND pr.type = "catalog"')
+          //Rule out the coupon price rules.
+	  ->where('(pr.behavior!="CPN_AND" AND pr.behavior!="CPN_XOR")')
 	  //Check against publication dates (start and stop).
 	  ->where('('.$db->quote($now).' < pr.publish_down OR pr.publish_down = "0000-00-00 00:00:00")')
 	  ->where('('.$db->quote($now).' > pr.publish_up OR pr.publish_up = "0000-00-00 00:00:00")')
@@ -594,7 +596,7 @@ class PriceruleHelper
 
       $info = array('id' => $rule->id, 'operation' => $rule->operation,
 		    'value' => $rule->value, 'type' => $rule->type,
-		    'target' => $rule->target, 'name' => $rule->name,
+		    'target' => $rule->target, 'name' => $rule->name, 'ordering' => $rule->ordering, 
 		    'description' => $rule->description, 'show_rule' => $showRule);
       $rulesInfo[] = $info;
 

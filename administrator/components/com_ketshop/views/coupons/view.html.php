@@ -48,7 +48,7 @@ class KetshopViewCoupons extends JViewLegacy
   protected function addToolBar() 
   {
     //Display the view title and the icon.
-    JToolBarHelper::title(JText::_('COM_KETSHOP_COUPONS_TITLE'), 'barcode');
+    JToolBarHelper::title(JText::_('COM_KETSHOP_COUPONS_TITLE'), 'shop-barcode');
 
     //Get the allowed actions list
     $canDo = KetshopHelper::getActions();

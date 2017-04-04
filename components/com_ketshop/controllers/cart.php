@@ -545,6 +545,11 @@ class KetshopControllerCart extends JControllerForm
       $session->set('settings', $settings, 'ketshop');
     }
 
+    //Check for coupons array, create it if it doesn't exist.
+    if(!$session->has('coupons', 'ketshop')) {
+      $session->set('coupons', array(), 'ketshop');
+    }
+
     //Safety variables.
     if(!$session->has('end_purchase', 'ketshop')) {
       $session->set('end_purchase', 0, 'ketshop');

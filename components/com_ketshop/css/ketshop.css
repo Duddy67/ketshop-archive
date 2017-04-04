@@ -252,6 +252,19 @@ div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-
 }
 
 
+/* ///// Coupons /////// */
+
+.coupon-information {
+    font-weight: bold;
+}
+
+.coupon-code {
+    margin: 10px 10px 0 0;
+}
+
+
+/* ///// Icons /////// */
+
 @font-face {
 	font-family: 'icomoon';
 	src:url('../../../media/com_ketshop/fonts/icomoon.eot?vcu3dv');
