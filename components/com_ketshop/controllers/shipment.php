@@ -40,13 +40,12 @@ class KetshopControllerShipment extends JControllerForm
     //and set it as shippers session variable.
     $session->set('shippers', $shipperPlugins, 'ketshop');
 
-    //Search for shipping cost rules.
+    //Search for shipping cost price rules.
     $shippingPriceRules = array();
-    foreach($cartAmount['rules_info'] as $rule) {
+    foreach($cartAmount['pricerules'] as $priceRule) {
       //Store the shipping cost rules.
-      if($rule['target'] == 'shipping_cost') {
-	$shippingPriceRules[] = array('operation'=>$rule['operation'], 'value'=>$rule['value'],
-				      'name'=>$rule['name'], 'show_rule'=>$rule['show_rule']);
+      if($priceRule['target'] == 'shipping_cost') {
+	$shippingPriceRules[] = $priceRule;
       }
     }
 

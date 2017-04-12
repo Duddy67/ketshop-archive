@@ -77,7 +77,6 @@ Joomla.submitbutton = function(task)
 	<div class="span6" id="condition">
 	  <?php
 		echo $this->form->getControlGroup('condition');
-		echo $this->form->getControlGroup('children_cat');
 		echo $this->form->getControlGroup('logical_opr');
 	  ?>
 	</div>

@@ -18,10 +18,10 @@ $cartAmount = $displayData['cart_amount'];
  <?php echo JText::_('COM_KETSHOP_CART_AMOUNT_LABEL'); ?>
 </td></tr>
 
-<?php if(!empty($cartAmount['rules_info'])) : //Check for displaying cart rules if any. ?>
+<?php if(!empty($cartAmount['pricerules'])) : //Check for displaying cart rules if any. ?>
     <tr class="cart-rules-background"><td colspan="<?php echo $displayData['col_span_nb']; ?>" class="text-right">
 
-    <?php foreach($cartAmount['rules_info'] as $ruleInfo) : ?>
+    <?php foreach($cartAmount['pricerules'] as $ruleInfo) : ?>
       <?php if($ruleInfo['target'] == 'cart_amount') : //. ?>
 	<div class="info-row">
 	  <span class="rule-name"><?php echo $ruleInfo['name']; ?></span>

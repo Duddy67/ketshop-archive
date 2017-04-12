@@ -13,7 +13,7 @@ JHtml::_('behavior.framework');
 $options = $displayData->options;
 //
 $priceText = JText::_('COM_KETSHOP_HEADING_PRICE_INCL_TAX');
-if($displayData->shop_settings->tax_method == 'excl_tax') {
+if($displayData->shop_settings['tax_method'] == 'excl_tax') {
   $priceText = JText::_('COM_KETSHOP_HEADING_PRICE_EXCL_TAX');
 }
 ?>
@@ -61,16 +61,16 @@ if($displayData->shop_settings->tax_method == 'excl_tax') {
 	             '</td><td>';
 
 	    //Check for price rule.
-	    if($option['sale_price'] != $option['final_price'] && $option['rules_info'][0]['show_rule']) {
+	    if($option['sale_price'] != $option['final_price'] && $option['pricerules'][0]['show_rule']) {
 	      $html .= '<span class="striked-price small">'.UtilityHelper::formatNumber($option['sale_price']).'</span> ';
 	    }
 
 	    $html .= '<span class="price small">'.UtilityHelper::formatNumber($option['final_price']).'</span> '.
-		     '<span class="currency small">'.$displayData->shop_settings->currency.'</span>';
+		     '<span class="currency small">'.$displayData->shop_settings['currency'].'</span>';
 
 	    if(isset($option['final_price_with_taxes'])) {
 	      $html .= '<span class="price-incl-tax small">'.$option['final_price_with_taxes'].'</span> '.
-		       '<span class="price-incl-tax small">'.$displayData->shop_settings->currency.'</span>';
+		       '<span class="price-incl-tax small">'.$displayData->shop_settings['currency'].'</span>';
 	    }
 
 	    $html .= '</td></tr>'; 	  

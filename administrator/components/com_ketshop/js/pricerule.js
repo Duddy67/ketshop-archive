@@ -127,12 +127,12 @@
     //Get the value of the item type.
     var valueType = $('#jform_condition').val();
 
-    //Note: The cart amount type condition doesn't need select and remove buttons as it's unique
-    if(valueType != 'cart_amount') {
-      //Create the hidden input tag for the condition id.
-      var properties = {'type':'hidden', 'name':'condition_id_'+idNb, 'id':'condition-id-'+idNb, 'value':data.id};
-      $('#condition-item-'+idNb).createHTMLTag('<input>', properties);
+    //Create the hidden input tag for the condition id.
+    var properties = {'type':'hidden', 'name':'condition_id_'+idNb, 'id':'condition-id-'+idNb, 'value':data.id};
+    $('#condition-item-'+idNb).createHTMLTag('<input>', properties);
 
+    //Note: The total_prod_ type conditions don't need select and remove buttons as they're unique
+    if(valueType != 'total_prod_qty' && valueType != 'total_prod_amount') {
       //Create the select button.
       var linkToModal = $.fn.createLinkToModal('condition', idNb);
       $('#condition-item-'+idNb).createButton('select', '#', linkToModal);
@@ -147,7 +147,7 @@
       $('#condition-item-'+idNb).createHTMLTag('<input>', properties, 'item-name');
       //Create the removal button.
       $('#condition-item-'+idNb).createButton('remove');
-    } else { //cart_amount
+    } else { //total_prod_amount or total_prod_qty
       //Check if an empty item has already been created during the price rule
       //initialisation.
       if(idNb > 1) {
@@ -157,9 +157,16 @@
 
 	//Set the selected option.
 	$('#operator-1 option[value="'+data.operator+'"]').attr('selected', true);
-	//Format the amount.
-	data.item_amount = parseFloat(data.item_amount).toFixed(2);
-	$('#condition-item-amount-1').val(data.item_amount);
+	//Set the amount or quantity value accordingly.
+	if(valueType == 'total_prod_amount') {
+	  //Format the amount.
+	  data.item_amount = parseFloat(data.item_amount).toFixed(2);
+	  $('#condition-item-amount-1').val(data.item_amount);
+	}
+	else {
+	  $('#condition-item-quantity-1').val(data.item_qty);
+	}
+
 	//Remove the second condition item div which has just been created
 	//by the createItem function.
 	$('#condition-item-'+idNb).remove();
@@ -168,7 +175,6 @@
 	return;
       }
     }
-
 
     //Create the "operator" label (Note: Operator tag is common to each condition types).
     properties = {'title':Joomla.JText._('COM_KETSHOP_COMPARISON_OPERATOR_TITLE')};
@@ -180,7 +186,7 @@
     //Set values and texts option.
     //Important: We don't use real comparison signs in option values as < sign
     //causes problem because of the < and > html tags.
-    //ie: Equal, gt: Greater Than, lt: Lower Than, gtoet: Greater Than Or Equal To,
+    //e: Equal, gt: Greater Than, lt: Lower Than, gtoet: Greater Than Or Equal To,
     //ltoet: Lower Than Or Equal To.
     var options = '<option value="e">=</option><option value="gt">&gt;</option><option value="lt">&lt;</option>';
     options += '<option value="gtoet">&gt;=</option><option value="ltoet">&lt;=</option>';
@@ -193,7 +199,7 @@
 
     //Create a quantity or amount label and input tags according to the type of
     //the value.
-    if(valueType == 'cart_amount' || valueType == 'product_cat_amount') {
+    if(valueType == 'total_prod_amount' || valueType == 'product_cat_amount') {
       //Create an amount label.
       properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_AMOUNT_TITLE')};
       $('#condition-item-'+idNb).createHTMLTag('<span>', properties, 'item-amount-label');
@@ -212,8 +218,8 @@
       $('#condition-item-'+idNb).createHTMLTag('<span>', properties, 'item-quantity-label');
       $('#condition-item-'+idNb+' .item-quantity-label').text(Joomla.JText._('COM_KETSHOP_ITEM_QUANTITY_LABEL'));
 
-      //Create an text input to store the quantity to compare.
-      properties = {'type':'text', 'name':'condition_item_qty_'+idNb, 'value':data.item_qty};
+      //Create a text input to store the quantity to compare.
+      properties = {'type':'text', 'name':'condition_item_qty_'+idNb,'id':'condition-item-quantity-'+idNb, 'value':data.item_qty};
       $('#condition-item-'+idNb).createHTMLTag('<input>', properties, 'item-quantity');
     }
   };
@@ -262,8 +268,6 @@
       $('#jform_modifier-lbl').css({'visibility':'visible','display':'block'});
       //$('#jform_modifier').css({'visibility':'visible','display':'block'}); //Managed by Chosen plugin.
       $('#jform_modifier_chzn').css({'visibility':'visible','display':'block'}); //Chosen plugin.
-      //Show the children cat option.
-      $('#jform_target_children_cat').parent().parent().css({'visibility':'visible','display':'block'});
     }
     else { //cart 
       //Display the condition item div and tab. 
@@ -273,8 +277,6 @@
       $('#jform_modifier-lbl').css({'visibility':'hidden','display':'none'});
       //$('#jform_modifier').css({'visibility':'hidden','display':'none'}); //Managed by Chosen plugin.
       $('#jform_modifier_chzn').css({'visibility':'hidden','display':'none'}); //Chosen plugin.
-      //Hide the children cat option.
-      $('#jform_target_children_cat').parent().parent().css({'visibility':'hidden','display':'none'});
       //Initialize condition.
       $.fn.changeCondition();
     }
@@ -301,11 +303,21 @@
     //First remove of all the items from the container.
     $('#condition-container').removeItem();
 
-    //Show/hide the children cat radio button.
-    if($('#jform_condition').val() != 'product_cat' && $('#jform_condition').val() != 'product_cat_amount') {
-      $('#jform_children_cat-lbl').parent().parent().css({'visibility':'hidden','display':'none'});
-    } else {
-      $('#jform_children_cat-lbl').parent().parent().css({'visibility':'visible','display':'block'});
+    var condition = $('#jform_condition').val();
+    if(condition == 'total_prod_qty' || condition == 'total_prod_amount') {
+      //Hide the logical operator as the condition is unique.
+      $('#jform_logical_opr').parent().parent().css({'visibility':'hidden','display':'none'});
+      $('#add-condition-button-0').parent().css({'visibility':'hidden','display':'none'});
+      //Create an empty and unique condition item.
+      var data = $.fn.getDataSet('condition');
+      //Set its id to zero as the item is unique.
+      data.id = 0;
+      $.fn.createItem('condition', data);
+    }
+    else {
+      //Show the logical operator.
+      $('#jform_logical_opr').parent().parent().css({'visibility':'visible','display':'block'});
+      $('#add-condition-button-0').parent().css({'visibility':'visible','display':'block'});
     }
   };
 
@@ -470,7 +482,7 @@
       if(item == 'condition') {
 	//Set the type according to the condition type.
 	var type = 'qty';
-	if($('#jform_condition').val() == 'product_cat_amount') {
+	if($('#jform_condition').val() == 'product_cat_amount' || $('#jform_condition').val() == 'total_prod_amount') {
 	  type = 'amount';
 	}
 

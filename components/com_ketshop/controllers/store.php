@@ -375,17 +375,17 @@ class KetshopControllerStore extends JControllerForm
       //We're saving the final order.
       if(!$pendingCart) {
 	//Check if there's any catalog rule for this product .
-	if(!empty($cart[$i]['rules_info'])) {
+	if(!empty($cart[$i]['pricerules'])) {
 	  $j = count($priceRules); //Get the last index number.
-	  foreach($cart[$i]['rules_info'] as $ruleInfo) {
-	    $priceRules[$j] = array($orderId, (int)$ruleInfo['id'],
+	  foreach($cart[$i]['pricerules'] as $priceRule) {
+	    $priceRules[$j] = array($orderId, (int)$priceRule['id'],
 				    $cart[$i]['id'],
-				    $db->Quote($ruleInfo['name']),
-				    $db->Quote($ruleInfo['type']),
-				    $db->Quote($ruleInfo['target']),
-				    $db->Quote($ruleInfo['operation']),
-				    $ruleInfo['value'],
-				    $ruleInfo['show_rule']);
+				    $db->Quote($priceRule['name']),
+				    $db->Quote($priceRule['type']),
+				    $db->Quote($priceRule['target']),
+				    $db->Quote($priceRule['operation']),
+				    $priceRule['value'],
+				    $priceRule['show_rule']);
 	    $j++; //Don't forget to increment.
 	  }
 	}
@@ -413,17 +413,17 @@ class KetshopControllerStore extends JControllerForm
     if(!$pendingCart) {
       //Check if there is any cart rules.
       //If it does we add them to the rules array.
-      if(!empty($cartAmount['rules_info'])) {
+      if(!empty($cartAmount['pricerules'])) {
 	$j = count($priceRules); //Get the last index number.
-	foreach($cartAmount['rules_info'] as $ruleInfo) {
-	  $priceRules[$j] = array($orderId, (int)$ruleInfo['id'],
+	foreach($cartAmount['pricerules'] as $priceRule) {
+	  $priceRules[$j] = array($orderId, (int)$priceRule['id'],
 				  0, //No product id for cart price rule type.
-				  $db->Quote($ruleInfo['name']),
-				  $db->Quote($ruleInfo['type']),
-				  $db->Quote($ruleInfo['target']),
-				  $db->Quote($ruleInfo['operation']),
-				  $ruleInfo['value'],
-				  $ruleInfo['show_rule']);
+				  $db->Quote($priceRule['name']),
+				  $db->Quote($priceRule['type']),
+				  $db->Quote($priceRule['target']),
+				  $db->Quote($priceRule['operation']),
+				  $priceRule['value'],
+				  $priceRule['show_rule']);
 	  $j++; //Don't forget to increment.
 	}
       }

@@ -67,12 +67,14 @@
 		<option value="bundle">COM_KETSHOP_OPTION_BUNDLE_QUANTITY</option>
 		<option value="product_cat">COM_KETSHOP_OPTION_PRODUCT_CAT_QUANTITY</option>
 		<option value="product_cat_amount">COM_KETSHOP_OPTION_PRODUCT_CAT_AMOUNT</option>
+		<option value="total_prod_qty">COM_KETSHOP_OPTION_TOTAL_PRODUCT_QUANTITY</option>
+		<option value="total_prod_amount">COM_KETSHOP_OPTION_TOTAL_PRODUCT_AMOUNT</option>
 	</field>
 
 	<field name="logical_opr" type="list"
 		label="COM_KETSHOP_FIELD_PRICE_RULE_LOGICAL_OPERATOR_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_LOGICAL_OPERATOR_DESC"
-		size="1" class="logical-operator" default="AND" >
+		size="1" class="logical-operator" >
 		<option value="AND">COM_KETSHOP_OPTION_AND_CONDITION</option>
 		<option value="OR">COM_KETSHOP_OPTION_OR_CONDITION</option>
 	</field>
@@ -118,15 +120,6 @@
 		label="COM_KETSHOP_FIELD_PRICE_RULE_SHOW_RULE_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_SHOW_RULE_DESC"
 		default="1">
-		<option value="1">JYES</option>
-		<option value="0">JNO</option>
-	</field>
-
-	<field name="children_cat" type="radio"
-		class="btn-group btn-group-yesno"
-		label="COM_KETSHOP_FIELD_PRICE_RULE_CHILDREN_CAT_LABEL"
-		description="COM_KETSHOP_FIELD_PRICE_RULE_CHILDREN_CAT_DESC"
-		default="0">
 		<option value="1">JYES</option>
 		<option value="0">JNO</option>
 	</field>

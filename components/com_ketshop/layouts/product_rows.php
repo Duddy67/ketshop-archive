@@ -28,7 +28,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       $unitPrice = $product['unit_price']; 
       $quantity = $product['quantity']; 
       $taxRate = $product['tax_rate']; 
-      $rulesInfo = $product['rules_info']; 
+      $rulesInfo = $product['pricerules']; 
       $optionName = '';
 
       if($product['attribute_group']) {
@@ -131,8 +131,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
        <span class="product-price">
 	<?php  if($displayData['tax_method'] == 'excl_tax') {
 		 $sum = $unitPrice * $quantity;
-		 $inclTaxResult =
-		   UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $taxRate), $displayData['rounding'], $displayData['digits']);
+		 $inclTaxResult = UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $taxRate), $displayData['rounding'], $displayData['digits']);
 		 echo UtilityHelper::formatNumber($inclTaxResult, $displayData['digits']);
 	       }
 	       else { //incl_tax 

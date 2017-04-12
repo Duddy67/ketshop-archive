@@ -67,7 +67,7 @@ if(!empty($data['products'])) {
 
 <?php if(!empty($data['products'])) : //Make sure there is something within the cart. ?>
 
-  <form action="index.php?option=com_ketshop&task=cart.updateCart" method="post" id="ketshop_cart">
+  <form action="index.php?option=com_ketshop&task=cart.updateQuantity" method="post" id="ketshop_cart">
 
     <table class="table product-row end-table">
 

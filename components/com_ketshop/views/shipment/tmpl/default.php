@@ -23,19 +23,19 @@ $showRule = true;
 //Store the display in a variable.
 $output = '';
 
-foreach($cartAmount['rules_info'] as $ruleInfo) {
+foreach($cartAmount['pricerules'] as $priceRule) {
  //As soon as one of the rules must not be shown, we stop
  //searching.
- if(!$ruleInfo['show_rule']) {
+ if(!$priceRule['show_rule']) {
    $showRule = false;
    break;
  }
 
- if($ruleInfo['target'] == 'shipping_cost') {
+ if($priceRule['target'] == 'shipping_cost') {
    $output .= '<div class="shipping-rules-info">';
-   $output .= '<span class="rule-name">'.$ruleInfo['name'].'</span>';
+   $output .= '<span class="rule-name">'.$priceRule['name'].'</span>';
    $output .= '<span class="label label-warning">';
-   $output .= UtilityHelper::formatPriceRule($ruleInfo['operation'], $ruleInfo['value']);
+   $output .= UtilityHelper::formatPriceRule($priceRule['operation'], $priceRule['value']);
    $output .= '</span></div>';
  }
 }

@@ -259,7 +259,7 @@ class plgContentKetshop extends JPlugin
 	    $condition->id = $conditionId;
 	    $condition->operator = $operator;
 
-	    if($conditionType == 'product_cat_amount') {
+	    if($conditionType == 'product_cat_amount' || $conditionType == 'total_prod_amount') {
 	      $condition->amount = $post['condition_item_amount_'.$conditionNb];
 	    }
 	    else {
@@ -335,28 +335,22 @@ class plgContentKetshop extends JPlugin
 	$values = array();
 	foreach($conditions as $condition) {
 	  //Build the values SQL according to the selected condition type.
-	  if($conditionType == 'cart_amount') {
-	    $values[] = $data->id.','.$db->Quote($condition->operator).','.$condition->amount;
+	  if($conditionType == 'total_prod_amount') {
+	    $values[] = $data->id.', 0,'.$db->Quote($condition->operator).','.$condition->amount.', NULL';
+	  }
+	  elseif($conditionType == 'total_prod_qty') {
+	    $values[] = $data->id.', 0,'.$db->Quote($condition->operator).', NULL,'.$condition->quantity;
 	  }
 	  elseif($conditionType == 'product_cat_amount') {
-	    $values[] = $data->id.','.$condition->id.','.$db->Quote($condition->operator).','.$condition->amount;
+	    $values[] = $data->id.','.$condition->id.','.$db->Quote($condition->operator).','.$condition->amount.', NULL';
 	  }
-	  else { //product, bundle or product group quantity.
-	    $values[] = $data->id.','.$condition->id.','.$db->Quote($condition->operator).','.$condition->quantity;
+	  else { //product, bundle or product cat quantity.
+	    $values[] = $data->id.','.$condition->id.','.$db->Quote($condition->operator).', NULL,'.$condition->quantity;
 	  }
 	}
 
 	//Insert a new row for each condition item linked to the price rule.
-	if($conditionType == 'cart_amount') {
-	  $columns = array('prule_id', 'operator', 'item_amount');
-	}
-	elseif($conditionType == 'product_cat_amount') {
-	  $columns = array('prule_id', 'item_id', 'operator', 'item_amount');
-	}
-	else {
-	  $columns = array('prule_id', 'item_id', 'operator', 'item_qty');
-	}
-
+	$columns = array('prule_id', 'item_id', 'operator', 'item_amount', 'item_qty');
 	$query->clear();
 	$query->insert('#__ketshop_prule_condition')
 	      ->columns($columns)

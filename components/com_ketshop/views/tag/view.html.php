@@ -199,7 +199,7 @@ class KetshopViewTag extends JViewLegacy
 
     //Set the label of the current tax method for more convenience.
     $taxMethodLabel = 'COM_KETSHOP_FIELD_INCLUDING_TAXES_LABEL';
-    if($this->shopSettings->tax_method == 'excl_tax') {
+    if($this->shopSettings['tax_method'] == 'excl_tax') {
       $taxMethodLabel = 'COM_KETSHOP_FIELD_EXCLUDING_TAXES_LABEL';
     }
 
@@ -208,17 +208,22 @@ class KetshopViewTag extends JViewLegacy
     for($i = 0; $i < $nbItems; $i++) {
       $item = $this->items[$i];
 
+      //Convert item object into associative array by just casttype it.
+      $product = (array)$item;
+      //Get the possible price rules linked to the product.
+      $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
       //Get the catalog price of the product.
-      $catalogPrice = PriceruleHelper::getCatalogPrice($item, $this->shopSettings);
+      $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 
       $item->final_price = $catalogPrice->final_price;
-      $item->rules_info = $catalogPrice->rules_info;
+      $item->pricerules = $catalogPrice->pricerules;
       $item->tax_method_label = $taxMethodLabel;
       
-      if($this->shopSettings->tax_method == 'excl_tax') {
+      if($this->shopSettings['tax_method'] == 'excl_tax') {
 	$item->final_price_with_taxes = UtilityHelper::getPriceWithTaxes($item->final_price, $item->tax_rate);
 	$item->final_price_with_taxes = UtilityHelper::roundNumber($item->final_price_with_taxes,
-								   $this->shopSettings->rounding_rule, $this->shopSettings->digits_precision);
+								   $this->shopSettings['rounding_rule'],
+								   $this->shopSettings['digits_precision']);
       }
 
       //Get the stock state.

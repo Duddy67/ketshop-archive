@@ -53,7 +53,7 @@ class KetshopControllerSummary extends JControllerForm
 	  }
 	}
       }
-file_put_contents('debog_shippers.txt', print_r($shippers, true));
+//file_put_contents('debog_shippers.txt', print_r($shippers, true));
       $session->set('shippers', $shippers, 'ketshop'); 
     }
 
@@ -70,7 +70,7 @@ file_put_contents('debog_shippers.txt', print_r($shippers, true));
     $post = JFactory::getApplication()->input->post->getArray();
     $code = $post['code'];
 
-    //PriceruleHelper::checkCoupon($code);
+    PriceruleHelper::checkCoupon($code);
 
     $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view=summary', false));
 

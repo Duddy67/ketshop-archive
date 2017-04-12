@@ -379,10 +379,10 @@ class KetshopControllerFinalize extends JControllerForm
 
     //Check for the cart rules.
     $body .= JText::_('COM_KETSHOP_EMAIL_CART_RULE');
-    foreach($cartAmount['rules_info'] as $ruleInfo) {
-      if($ruleInfo['target'] == 'cart_amount') {
-	$body .= JText::sprintf('COM_KETSHOP_EMAIL_CART_RULE_ROW', $ruleInfo['name'],
-				 UtilityHelper::formatPriceRule($ruleInfo['operation'], $ruleInfo['value']));
+    foreach($cartAmount['pricerules'] as $priceRule) {
+      if($priceRule['target'] == 'cart_amount') {
+	$body .= JText::sprintf('COM_KETSHOP_EMAIL_CART_RULE_ROW', $priceRule['name'],
+				 UtilityHelper::formatPriceRule($priceRule['operation'], $priceRule['value']));
       }
     }
 

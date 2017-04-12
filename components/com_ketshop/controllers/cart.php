@@ -107,8 +107,8 @@ class KetshopControllerCart extends JControllerForm
     $cart[] = $product;
     $session->set('cart', $cart, 'ketshop'); 
 
-    //Update cart amount.
-    $this->cartAmount();
+    ShopHelper::updateProductPrices();
+    ShopHelper::updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
     $session->set('submit', 0, 'ketshop'); 
@@ -126,7 +126,7 @@ class KetshopControllerCart extends JControllerForm
   }
 
 
-  public function updateCart()
+  public function updateQuantity()
   {
     //Get the cart session array.
     $session = JFactory::getSession();
@@ -188,7 +188,7 @@ class KetshopControllerCart extends JControllerForm
       return false;
     }
 
-    //Update quantity and price for each product.
+    //Update quantity for each product.
     for($i = 0; $i < count($cart); $i++) {
       //Compute stock state after the new quantity is applied.
       $stockState = (int)$cart[$i]['stock'] - (int)$newQty[$cart[$i]['id']];
@@ -206,8 +206,8 @@ class KetshopControllerCart extends JControllerForm
     }
 
     $session->set('cart', $cart, 'ketshop'); 
-    //Update cart amount.
-    $this->cartAmount();
+
+    ShopHelper::updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
     $session->set('submit', 0, 'ketshop'); 
@@ -254,9 +254,9 @@ class KetshopControllerCart extends JControllerForm
       }
     }
 
-    //Update cart amount.
     $session->set('cart', $cart, 'ketshop'); 
-    $this->cartAmount();
+
+    ShopHelper::updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
     $session->set('submit', 0, 'ketshop'); 
@@ -488,35 +488,6 @@ class KetshopControllerCart extends JControllerForm
   }
 
 
-  private function cartAmount()
-  {
-    //Get cart and settings session variables.
-    $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-    $settings = $session->get('settings', array(), 'ketshop'); 
-
-    //If the cart amount array doesn't exist we create it.
-    if(!$session->has('cart_amount', 'ketshop')) {
-      $session->set('cart_amount', array(), 'ketshop');
-    }
-
-    $amount = 0;
-
-    //Just in case cart array is empty.
-    if(empty($cart)) {
-      $session->set('cart_amount', array(), 'ketshop');
-      return;
-    }
-
-    //Get cart amount modified by cart rules if any.
-    $cartAmount = PriceruleHelper::getCartAmount();
-
-    $session->set('cart_amount', $cartAmount, 'ketshop');
-
-    return;
-  }
-
-
   private function initializeCart()
   {
     //Grab the user session.
@@ -528,13 +499,7 @@ class KetshopControllerCart extends JControllerForm
     //We also need a settings array where all of the global needed 
     //data of the shop is stored.
     if(!$session->has('settings', 'ketshop')) {
-      $shopSettings = ShopHelper::getShopSettings();
-
-      //Turn the retrieved object into an associative array.
-      $settings = array();
-      foreach($shopSettings as $key =>$value) {
-	$settings[$key] = $value; 
-      }
+      $settings = ShopHelper::getShopSettings();
 
       //Set the label of the current tax method for more convenience.
       $settings['tax_method_label'] = 'COM_KETSHOP_FIELD_INCLUDING_TAXES';
@@ -543,11 +508,6 @@ class KetshopControllerCart extends JControllerForm
       }
 
       $session->set('settings', $settings, 'ketshop');
-    }
-
-    //Check for coupons array, create it if it doesn't exist.
-    if(!$session->has('coupons', 'ketshop')) {
-      $session->set('coupons', array(), 'ketshop');
     }
 
     //Safety variables.

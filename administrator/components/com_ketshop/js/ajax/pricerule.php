@@ -63,8 +63,10 @@ if($priceRuleType == 'cart') {
 
   //Build the SQL query according to the condition type.
   $join = '';
-  if($conditionType == 'cart_amount') {
-    $select = 'operator, item_amount';
+  if($conditionType == 'total_prod_amount') {
+    $select = 'item_id AS id, operator, item_amount';
+  } elseif($conditionType == 'total_prod_qty') {
+    $select = 'item_id AS id, operator, item_qty';
   } elseif($conditionType == 'product_cat_amount') {
     $select = 'item_id AS id, title AS name, operator, item_amount';
     $join = '#__categories ON id=item_id';

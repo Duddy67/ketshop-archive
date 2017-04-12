@@ -26,7 +26,7 @@ $data['cart_amount'] = array('amount' => $this->item->cart_amount,
 			     'final_amount' => $this->item->final_cart_amount,
 			     'amt_incl_tax' => $this->item->crt_amt_incl_tax,
 			     'fnl_amt_incl_tax' => $this->item->fnl_crt_amt_incl_tax,
-			     'rules_info' => $this->amountPriceRules
+			     'pricerules' => $this->amountPriceRules
                             );
 
 $data['shippable'] = $this->item->shippable;

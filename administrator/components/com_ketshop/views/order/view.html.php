@@ -52,7 +52,7 @@ class KetshopViewOrder extends JViewLegacy
 
     //Prepare price rules (if any) for each product.
     foreach($this->products as $key => $product) {
-      $this->products[$key]['rules_info'] = array();
+      $this->products[$key]['pricerules'] = array();
 
       $slug = $product['id'].':'.$product['alias'];
       //Build the link leading to the product page.
@@ -65,7 +65,7 @@ class KetshopViewOrder extends JViewLegacy
 
       foreach($this->priceRules as $priceRule) {
 	if($product['prod_id'] == $priceRule['prod_id']) {
-	  $this->products[$key]['rules_info'][] = $priceRule;
+	  $this->products[$key]['pricerules'][] = $priceRule;
 	}
       }
     }

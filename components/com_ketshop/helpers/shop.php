@@ -26,8 +26,8 @@ class ShopHelper
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //Get the required product data.
-    $query->select('p.name,p.id,p.type,p.base_price,p.sale_price AS unit_sale_price,t.rate AS tax_rate,p.type,p.shippable,'.
-	           'p.min_stock_threshold,p.allow_order,p.stock_subtract,p.min_quantity,p.max_quantity,'.
+    $query->select('p.name,p.id,p.catid,p.type,p.base_price,p.sale_price,p.sale_price AS unit_sale_price,t.rate AS tax_rate,p.type,'.
+	           'p.shippable,p.min_stock_threshold,p.allow_order,p.stock_subtract,p.min_quantity,p.max_quantity,'.
 		   'p.attribute_group,p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height');
 
 
@@ -82,21 +82,69 @@ class ShopHelper
       unset($product['opt_height']);
     }
 
-    $session = JFactory::getSession();
-    $settings = $session->get('settings', array(), 'ketshop'); 
-
-    //Get the catalog price of the product.
-    $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
-
-    //Add product price data to the product array.
-    $product['unit_price'] = $catalogPrice->final_price;
-    $product['rules_info'] = $catalogPrice->rules_info;
-    //Variable used to store the result of the cart rule operations applied on each product of
-    //the cart. Only used when cart rules are applied to cart amount.
-    $product['cart_rules_impact'] = 0;
     $product['opt_id'] = $optionId;
+    //Get the possible price rules linked to the product.
+    $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
 
     return $product;
+  }
+
+
+  public static function updateProductPrices($reloadPriceRules = false)
+  {
+    //Get the cart and settings session variables.
+    $session = JFactory::getSession();
+    $cart = $session->get('cart', array(), 'ketshop'); 
+    $settings = $session->get('settings', array(), 'ketshop'); 
+
+    foreach($cart as $key => $product) {
+      if($reloadPriceRules) {
+	$product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
+      }
+
+      //Set the catalog price rules for this product.
+      $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
+      //Add product price data to the product array.
+      $cart[$key]['unit_price'] = $catalogPrice->final_price;
+      $cart[$key]['pricerules'] = $catalogPrice->pricerules;
+
+      //Variable used to store the result of the cart rule operations applied on each product of
+      //the cart. Only used when cart rules are applied to cart amount.
+      //cart_rules_impact is a specific variable used to compute the impact of the
+      //cart rules on each product within the cart then to calculate the final amounts.
+      $cart[$key]['cart_rules_impact'] = $catalogPrice->final_price;
+    }
+
+    $session->set('cart', $cart, 'ketshop');
+
+    return;
+  }
+
+
+  public static function updateCartAmount()
+  {
+    //Get cart and settings session variables.
+    $session = JFactory::getSession();
+    $cart = $session->get('cart', array(), 'ketshop'); 
+    $settings = $session->get('settings', array(), 'ketshop'); 
+
+    //If the cart amount array doesn't exist we create it.
+    if(!$session->has('cart_amount', 'ketshop')) {
+      $session->set('cart_amount', array(), 'ketshop');
+    }
+
+    //Just in case cart array is empty.
+    if(empty($cart)) {
+      $session->set('cart_amount', array(), 'ketshop');
+      return;
+    }
+
+    //Get cart amount modified by cart price rules if any.
+    $cartAmount = PriceruleHelper::getCartAmount();
+
+    $session->set('cart_amount', $cartAmount, 'ketshop');
+
+    return;
   }
 
 
@@ -157,19 +205,19 @@ class ShopHelper
 	  ->join('INNER', '#__ketshop_country AS co ON co.alpha_2='.$db->quote($config->get('country_code')))
 	  ->where('cu.alpha='.$db->quote($config->get('currency_code')));
     $db->setQuery($query);
-    $settings = $db->loadObject();
+    $settings = $db->loadAssoc();
     //var_dump($settings);
     $attribs = array('shop_name','vendor_name','site_url','tax_method','shipping_weight_unit','volumetric_weight',
 		     'redirect_url_1','rounding_rule','digits_precision','volumetric_ratio','currency_display');
 
     foreach($attribs as $attrib) {
-      $settings->$attrib = $config->get($attrib);
+      $settings[$attrib] = $config->get($attrib);
     }
 
     //Create a currency attribute which contains currency in the correct display.
-    $settings->currency = $settings->currency_alpha;
-    if($settings->currency_display == 'symbol') {
-      $settings->currency = $settings->currency_symbol;
+    $settings['currency'] = $settings['currency_alpha'];
+    if($settings['currency_display'] == 'symbol') {
+      $settings['currency'] = $settings['currency_symbol'];
     }
 
     return $settings;
@@ -341,7 +389,7 @@ class ShopHelper
 
 
   //Return the total quantity of the products which are in the cart.
-  public static function getTotalQuantity()
+  public static function getTotalQuantity($onlyShippable = true)
   {
     //Get the cart.
     $session = JFactory::getSession();
@@ -350,7 +398,11 @@ class ShopHelper
     $totalQuantity = 0;
     foreach($cart as $product) {
       //Only shippable products are taking into account.
-      if($product['shippable']) {
+      if($onlyShippable && $product['shippable']) {
+	$totalQuantity += (int)$product['quantity'];
+      }
+      //All of the products are taking into account.
+      elseif(!$onlyShippable) {
 	$totalQuantity += (int)$product['quantity'];
       }
     }

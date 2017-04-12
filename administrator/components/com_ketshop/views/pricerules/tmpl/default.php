@@ -75,15 +75,18 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	<th width="5%">
 	<?php echo JHtml::_('grid.sort', 'COM_KETSHOP_HEADING_OPERATION', 'pr.value', $listDirn, $listOrder); ?>
 	</th>
-      <th width="5%">
-      <?php echo JHtml::_('grid.sort', 'COM_KETSHOP_HEADING_BEHAVIOR', 'pr.behavior', $listDirn, $listOrder); ?>
-      </th>
-      <th width="15%">
-      <?php echo JText::_('COM_KETSHOP_HEADING_TARGET'); ?>
-      </th>
-      <th width="15%">
-      <?php echo JText::_('COM_KETSHOP_HEADING_RECIPIENT'); ?>
-      </th>
+	<th width="5%">
+	<?php echo JHtml::_('grid.sort', 'COM_KETSHOP_HEADING_BEHAVIOR', 'pr.behavior', $listDirn, $listOrder); ?>
+	</th>
+	<th width="10%">
+	<?php echo JText::_('COM_KETSHOP_HEADING_TARGET'); ?>
+	</th>
+	<th width="10%">
+	<?php echo JText::_('COM_KETSHOP_HEADING_RECIPIENT'); ?>
+	</th>
+	<th width="1%">
+	<?php echo JText::_('COM_KETSHOP_HEADING_ORDER'); ?>
+	</th>
 	<th width="10%" class="nowrap hidden-phone">
 	<?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_CREATED_BY', 'user', $listDirn, $listOrder); ?>
 	</th>
@@ -216,6 +219,9 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	  <?php endif; ?>
 	  </td>
 	  <td class="small hidden-phone">
+	    <?php echo $item->ordering; ?>
+	  </td>
+	  <td class="small hidden-phone">
 	    <?php echo $this->escape($item->user); ?>
 	  </td>
 	  <td class="nowrap small hidden-phone">
@@ -227,7 +233,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 
       <?php endforeach; ?>
       <tr>
-	  <td colspan="12"><?php echo $this->pagination->getListFooter(); ?></td>
+	  <td colspan="13"><?php echo $this->pagination->getListFooter(); ?></td>
       </tr>
       </tbody>
     </table>

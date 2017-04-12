@@ -59,16 +59,21 @@ class KetshopViewProduct extends JViewLegacy
     //Add the settings to the item (for the layout).
     $this->item->shop_settings = $this->shopSettings;
 
+    //Convert item object into associative array by just casttype it.
+    $product = (array)$this->item;
+    //Get the possible price rules linked to the product.
+    $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
     //Get the catalog price of the product.
-    $catalogPrice = PriceruleHelper::getCatalogPrice($this->item, $this->shopSettings);
+    $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 
     $this->item->final_price = $catalogPrice->final_price;
-    $this->item->rules_info = $catalogPrice->rules_info;
+    $this->item->pricerules = $catalogPrice->pricerules;
 
-    if($this->shopSettings->tax_method == 'excl_tax') {
+    if($this->shopSettings['tax_method'] == 'excl_tax') {
       $this->item->final_price_with_taxes = UtilityHelper::getPriceWithTaxes($this->item->final_price, $this->item->tax_rate);
       $this->item->final_price_with_taxes = UtilityHelper::roundNumber($this->item->final_price_with_taxes,
-								       $this->shopSettings->rounding_rule, $this->shopSettings->digits_precision);
+								       $this->shopSettings['rounding_rule'], 
+								       $this->shopSettings['digits_precision']);
     }
 
     //Get possible product options.
@@ -89,18 +94,18 @@ class KetshopViewProduct extends JViewLegacy
 	  //Compute the catalog price for this product option.
 	  $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 	  $this->item->options[$key]['final_price'] = $catalogPrice->final_price;
-	  $this->item->options[$key]['rules_info'] = $catalogPrice->rules_info;
+	  $this->item->options[$key]['pricerules'] = $catalogPrice->pricerules;
 	}
 	else {
 	  $this->item->options[$key]['final_price'] = $option['sale_price'];
 	}
 
-	if($this->shopSettings->tax_method == 'excl_tax') {
+	if($this->shopSettings['tax_method'] == 'excl_tax') {
 	  $this->item->options[$key]['final_price_with_taxes'] = UtilityHelper::getPriceWithTaxes($this->item->options[$key]['final_price'],
 												  $this->item->tax_rate);
 	  $this->item->options[$key]['final_price_with_taxes'] = UtilityHelper::roundNumber($this->item->options[$key]['final_price_with_taxes'],
-											    $this->shopSettings->rounding_rule,
-											    $this->shopSettings->digits_precision);
+											    $this->shopSettings['rounding_rule'],
+											    $this->shopSettings['digits_precision']);
 	}
       }
     }

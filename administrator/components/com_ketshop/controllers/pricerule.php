@@ -21,19 +21,15 @@ class KetshopControllerPricerule extends JControllerForm
     $data = $this->input->post->get('jform', array(), 'array');
 
     //Remove the unwanted field from jform according to the rule type selected.
-    //In this way the unused fields will be NULL in the database table.
     //We also set the show_rule value according to the chosen options.
     if($data['type'] == 'catalog') {
       unset($data['condition']);
-      unset($data['logical_opr']);
+      $data['logical_opr'] = '';
 
       //Price rules based on profit margin cannot be shown.
       if($data['modifier'] == 'profit_margin_modifier') {
 	$data['show_rule'] = 0;
       }
-
-      //Reset children_cat value just in case. 
-      $data['children_cat'] = 0;
     }
     else { // cart
       unset($data['modifier']);
@@ -43,9 +39,9 @@ class KetshopControllerPricerule extends JControllerForm
 	$data['show_rule'] = 1;
       }
 
-      //Reset children_cat value just in case. 
-      if($data['condition'] != 'product_cat' && $data['condition'] != 'product_cat_amount') {
-	$data['children_cat'] = 0;
+      //Those conditions are unique so there is no need to use a logical operator.
+      if($data['condition'] == 'total_prod_amount' || $data['condition'] == 'total_prod_qty') {
+	$data['logical_opr'] = '';
       }
     }
 

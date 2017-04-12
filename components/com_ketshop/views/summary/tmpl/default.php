@@ -39,7 +39,7 @@ foreach($shippers as $shipper) {
 	$shippingData['name'] = $shipping['name'];
 	$shippingData['cost'] = $shipping['cost'];
 	$shippingData['final_cost'] = $shipping['final_cost'];
-	//$shippingData['rules_info'] = $shipping['rules_info']; //TODO: undefined warning. Check wether an old bug.
+	//$shippingData['pricerules'] = $shipping['pricerules']; //TODO: undefined warning. Check wether an old bug.
 	//Get the address of the delivery point chosen by the user.  
 	if($shipping['delivery_type'] == 'at_delivery_point') {
 	  $shippingData['delivery_type'] = 'at_delivery_point';
