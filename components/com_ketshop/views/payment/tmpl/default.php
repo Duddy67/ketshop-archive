@@ -14,9 +14,42 @@ JHtml::addIncludePath(JPATH_COMPONENT.'/helpers');
 //Check if the utility temporary data has already been created by the setPayment
 //controller function. 
 $session = JFactory::getSession();
+$settings = $session->get('settings', array(), 'ketshop'); 
 $orderId = $session->get('order_id', 0, 'ketshop'); 
 $utility = ShopHelper::getTemporaryData($orderId, true);
+
+//Get the current language tag.
+$langTag = JFactory::getLanguage()->getTag();
+//Remove possible spaces from the string then turn it into a table.
+$articleIds = preg_replace('/\s+/', '', $settings['gts_article_ids']);
+$articleIds = explode(';', $articleIds);
+$articleId = 0;
+//Parse the article id corresponding to the current language tag.
+foreach($articleIds as $articleId) {
+  if(preg_match('#^'.$langTag.'=([0-9]+)$#', $articleId, $matches)) {
+    $articleId = $matches[1];
+    break;
+  }
+}
 ?>
+<script>
+function checkGTS() {
+  var checkbox = document.getElementById('agreeing-gts').checked;
+
+  if(checkbox) {
+    hideButton('btn');
+    document.getElementById('payment-modes').submit();
+  }
+  else {
+    alert('<?php echo JText::_('COM_KETSHOP_GENERAL_TERMS_OF_SALE_NOT_CHECKED'); ?>');
+    document.getElementById('general-terms-sale').style.backgroundColor = '#f78181';
+    //Prevent to submit form. 
+    document.getElementById('payment-modes').addEventListener('submit', function(event){
+      event.preventDefault()
+    });
+  }
+}
+</script>
 
 <div class="blog" id="ketshop-payment">
 
@@ -32,7 +65,7 @@ $utility = ShopHelper::getTemporaryData($orderId, true);
   <?php $paymentPlugins = ShopHelper::getPaymentModes();//Get the available payment plugins.?>
 
   <form action="<?php echo JRoute::_('index.php?option=com_ketshop&task=payment.setPayment');?>"
-	method="post" id="ketshop_payment">
+	method="post" id="payment-modes">
   <?php
 
    foreach($paymentPlugins as $id => $paymentPlugin) :
@@ -49,7 +82,15 @@ $utility = ShopHelper::getTemporaryData($orderId, true);
 
   <?php endforeach; ?>
 
-  <input id="submit-button" class="btn" type="submit" value="<?php echo JText::_('COM_KETSHOP_PAY'); ?>" />
+  <div id="general-terms-sale">
+    <input id="agreeing-gts" type="checkbox" />
+    <p><?php echo JText::_('COM_KETSHOP_GENERAL_TERMS_OF_SALE_TEXT'); ?></p>
+    <p><a href="<?php echo JRoute::_('index.php?option=com_content&view=article&tmpl=component&id='.(int)$articleId);?>" target="_blank"><?php echo JText::_('COM_KETSHOP_READ_GENERAL_TERMS_OF_SALE'); ?></a></p>
+  </div>
+
+  <div id="btn-message">
+    <input id="submit-button" class="btn" type="submit" onclick="checkGTS();" value="<?php echo JText::_('COM_KETSHOP_PAY'); ?>" />
+  </div>
 
   </form>
 <?php endif; ?>

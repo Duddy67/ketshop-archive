@@ -214,6 +214,8 @@ class KetshopControllerPayment extends JControllerForm
     $amounts['crt_amt_incl_tax'] = $cartAmount['amt_incl_tax'];
     $amounts['final_cart_amount'] = $cartAmount['final_amount'];
     $amounts['fnl_crt_amt_incl_tax'] = $cartAmount['fnl_amt_incl_tax'];
+    $amounts['shipping_cost'] = 0;
+    $amounts['final_shipping_cost'] = 0;
 
     //Check the cart is shippable before searching any selected shipper.
     if(ShopHelper::isShippable()) {

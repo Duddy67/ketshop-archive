@@ -19,6 +19,7 @@ defined('_JEXEC') or die;
 //problem. It points to com_login component instead of com_ketshop.
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 require_once JPATH_ROOT.'/components/com_ketshop/controllers/cart.php';
+require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
 
 
 
@@ -494,21 +495,16 @@ echo '</pre>';*/
       $db->setQuery($query);
       $pendingOrderId = $db->loadResult();
 
-      //Instanciate then load the model in order to use the loadCart
-      //function from this plugin.
-      $cartModel = JModelLegacy::getInstance('cart', 'KetshopController');
-
       if(!is_null($pendingOrderId)) {
 	//Load the cart previousely saved.
-	$cartModel->loadCart($pendingOrderId);
+	ShopHelper::callControllerFunction('cart', 'loadCart', array($pendingOrderId));
 	//Inform the customer that products of the pending cart have been loaded. 
 	$app->enqueueMessage(JText::_('PLG_USER_KETSHOP_PROFILE_CART_PREVIOUSLY_SAVED'));
       }
-      else {
-	$cartModel = JModelLegacy::getInstance('cart', 'KetshopController');
-	//We just reload the current cart (passing no argument to the function).
-	$cartModel->loadCart();
-      }
+
+      //Update cart and products in case specific price rules are linked to the user. 
+      ShopHelper::callControllerFunction('cart', 'updateProductPrices', array(true));
+      ShopHelper::callControllerFunction('cart', 'updateCartAmount');
 
       //Grab the user session.
       $session = JFactory::getSession();
@@ -522,17 +518,6 @@ echo '</pre>';*/
     }
 
     return true;
-  }
-
-
-  public function onUserAfterLogout($options)
-  {
-    //TODO: Does not work properly.
-    //$app = JFactory::getApplication();
-
-    //$app->enqueueMessage(JText::_('PLG_USER_KETSHOP_PROFILE_LOGOUT'));
-    //$app->redirect(JRoute::_('index.php?option=com_ketshop&view=tag&layout=blog&id=2', false));
-    //return true;
   }
 }
 

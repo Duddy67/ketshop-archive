@@ -90,61 +90,34 @@ class ShopHelper
   }
 
 
-  public static function updateProductPrices($reloadPriceRules = false)
+  public static function callControllerFunction($controllerName, $function, $args = array())
   {
-    //Get the cart and settings session variables.
-    $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-    $settings = $session->get('settings', array(), 'ketshop'); 
+    $controllerName = strtolower($controllerName);
+    require_once JPATH_ROOT.'/components/com_ketshop/controllers/'.$controllerName.'.php';
+    $controllerName = ucfirst($controllerName);
+    $className = 'KetshopController'.$controllerName;
+    $controller = new $className();
 
-    foreach($cart as $key => $product) {
-      if($reloadPriceRules) {
-	$product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
-      }
+    //Call the controller's function according to the arguments to pass.
+    switch(count($args)) {
+      case 0:
+	return $controller->$function();
 
-      //Set the catalog price rules for this product.
-      $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
-      //Add product price data to the product array.
-      $cart[$key]['unit_price'] = $catalogPrice->final_price;
-      $cart[$key]['pricerules'] = $catalogPrice->pricerules;
+      case 1:
+	return $controller->$function($args[0]);
 
-      //Variable used to store the result of the cart rule operations applied on each product of
-      //the cart. Only used when cart rules are applied to cart amount.
-      //cart_rules_impact is a specific variable used to compute the impact of the
-      //cart rules on each product within the cart then to calculate the final amounts.
-      $cart[$key]['cart_rules_impact'] = $catalogPrice->final_price;
+      case 2:
+	return $controller->$function($args[0], $args[1]);
+
+      case 3:
+	return $controller->$function($args[0], $args[1], $args[2]);
+
+      case 4:
+	return $controller->$function($args[0], $args[1], $args[2], $args[3]);
+
+      default:
+	return null;
     }
-
-    $session->set('cart', $cart, 'ketshop');
-
-    return;
-  }
-
-
-  public static function updateCartAmount()
-  {
-    //Get cart and settings session variables.
-    $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-    $settings = $session->get('settings', array(), 'ketshop'); 
-
-    //If the cart amount array doesn't exist we create it.
-    if(!$session->has('cart_amount', 'ketshop')) {
-      $session->set('cart_amount', array(), 'ketshop');
-    }
-
-    //Just in case cart array is empty.
-    if(empty($cart)) {
-      $session->set('cart_amount', array(), 'ketshop');
-      return;
-    }
-
-    //Get cart amount modified by cart price rules if any.
-    $cartAmount = PriceruleHelper::getCartAmount();
-
-    $session->set('cart_amount', $cartAmount, 'ketshop');
-
-    return;
   }
 
 
@@ -208,7 +181,7 @@ class ShopHelper
     $settings = $db->loadAssoc();
     //var_dump($settings);
     $attribs = array('shop_name','vendor_name','site_url','tax_method','shipping_weight_unit','volumetric_weight',
-		     'redirect_url_1','rounding_rule','digits_precision','volumetric_ratio','currency_display');
+		     'redirect_url_1','rounding_rule','digits_precision','volumetric_ratio','currency_display','gts_article_ids');
 
     foreach($attribs as $attrib) {
       $settings[$attrib] = $config->get($attrib);
@@ -374,7 +347,7 @@ class ShopHelper
     $variables = array('cart','cart_amount','settings','utility',
 	               'billing_address_id','locked','end_purchase',
 		       'shippers','location','order_id','submit',
-		       'unavailable', 'shipping_data', 'order_nb');
+		       'unavailable', 'shipping_data', 'order_nb', 'coupons');
 
     $session = JFactory::getSession();
     foreach($variables as $variable) {
@@ -728,7 +701,7 @@ class ShopHelper
   {
     //Set the amount value which has been paid.
     //Note: For now the shop doesn't handle multiple instalment payment but it will in the futur.
-    $amount = $amounts['fnl_crt_amt_incl_tax'];
+    $amount = $amounts['fnl_crt_amt_incl_tax'] + $amounts['final_shipping_cost'];
 
     //Set the result of the transaction.
     $result = 'success';

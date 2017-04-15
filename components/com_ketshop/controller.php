@@ -61,6 +61,18 @@ class KetshopController extends JControllerLegacy
 			    'filter-ordering' => 'STRING', 'lang' => 'CMD',
 			    'Itemid' => 'INT');
 
+    //Ensure the no logged-in users cannot access those views.
+    if($vName == 'address' || $vName == 'shipment' || $vName == 'payment' || 
+       $vName == 'orders' || $vName == 'order' || $vName == 'summary') {
+      // If the user is a guest, redirect to the login page.
+      $user = JFactory::getUser();
+      if($user->get('guest') == 1) {
+	// Redirect to login page.
+	$this->setRedirect(JRoute::_('index.php?option=com_users&view=login', false));
+	return;
+      }
+    }
+
     //Display the view.
     parent::display($cachable, $safeurlparams);
   }

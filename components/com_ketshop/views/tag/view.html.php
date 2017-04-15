@@ -272,7 +272,6 @@ class KetshopViewTag extends JViewLegacy
 
     $this->nowDate = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
 
-//file_put_contents('debog_file.txt', print_r($this->params, true));
     $this->prepareDocument();
 
     $this->setDocument();

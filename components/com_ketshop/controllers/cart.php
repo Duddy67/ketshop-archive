@@ -107,8 +107,8 @@ class KetshopControllerCart extends JControllerForm
     $cart[] = $product;
     $session->set('cart', $cart, 'ketshop'); 
 
-    ShopHelper::updateProductPrices();
-    ShopHelper::updateCartAmount();
+    $this->updateProductPrices();
+    $this->updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
     $session->set('submit', 0, 'ketshop'); 
@@ -207,7 +207,7 @@ class KetshopControllerCart extends JControllerForm
 
     $session->set('cart', $cart, 'ketshop'); 
 
-    ShopHelper::updateCartAmount();
+    $this->updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
     $session->set('submit', 0, 'ketshop'); 
@@ -256,7 +256,7 @@ class KetshopControllerCart extends JControllerForm
 
     $session->set('cart', $cart, 'ketshop'); 
 
-    ShopHelper::updateCartAmount();
+    $this->updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
     $session->set('submit', 0, 'ketshop'); 
@@ -278,6 +278,64 @@ class KetshopControllerCart extends JControllerForm
       //$this->removePendingCart($orderId);
 
     $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
+    return;
+  }
+
+
+  public function updateProductPrices($reloadPriceRules = false)
+  {
+    //Get the cart and settings session variables.
+    $session = JFactory::getSession();
+    $cart = $session->get('cart', array(), 'ketshop'); 
+    $settings = $session->get('settings', array(), 'ketshop'); 
+
+    foreach($cart as $key => $product) {
+      if($reloadPriceRules) {
+	$product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
+      }
+
+      //Set the catalog price rules for this product.
+      $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
+      //Add product price data to the product array.
+      $cart[$key]['unit_price'] = $catalogPrice->final_price;
+      $cart[$key]['pricerules'] = $catalogPrice->pricerules;
+
+      //Variable used to store the result of the cart rule operations applied on each product of
+      //the cart. Only used when cart rules are applied to cart amount.
+      //cart_rules_impact is a specific variable used to compute the impact of the
+      //cart rules on each product within the cart then to calculate the final amounts.
+      $cart[$key]['cart_rules_impact'] = $catalogPrice->final_price;
+    }
+
+    $session->set('cart', $cart, 'ketshop');
+
+    return;
+  }
+
+
+  public function updateCartAmount()
+  {
+    //Get cart and settings session variables.
+    $session = JFactory::getSession();
+    $cart = $session->get('cart', array(), 'ketshop'); 
+    $settings = $session->get('settings', array(), 'ketshop'); 
+
+    //If the cart amount array doesn't exist we create it.
+    if(!$session->has('cart_amount', 'ketshop')) {
+      $session->set('cart_amount', array(), 'ketshop');
+    }
+
+    //Just in case cart array is empty.
+    if(empty($cart)) {
+      $session->set('cart_amount', array(), 'ketshop');
+      return;
+    }
+
+    //Get cart amount modified by cart price rules if any.
+    $cartAmount = PriceruleHelper::getCartAmount();
+
+    $session->set('cart_amount', $cartAmount, 'ketshop');
+
     return;
   }
 
@@ -313,15 +371,8 @@ class KetshopControllerCart extends JControllerForm
 
 
   //Empty the current cart then reload it. 
-  //When $pendingOrderId is provided all the products of the cart previously saved are
-  //loaded in the current cart.
-  public function loadCart($pendingOrderId = 0)
+  public function loadCart($pendingOrderId)
   {
-    //If no pending order id is provided we don't go further.
-    if(!$pendingOrderId) {
-      return;
-    }
-
     //Grab the user session and get the possible current cart.
     $session = JFactory::getSession();
     $cart = $session->get('cart', array(), 'ketshop'); 

@@ -777,8 +777,8 @@ class PriceruleHelper
       $db->execute();
     }
 
-    ShopHelper::updateProductPrices(true);
-    ShopHelper::updateCartAmount();
+    ShopHelper::callControllerFunction('cart', 'updateProductPrices', array(true));
+    ShopHelper::callControllerFunction('cart', 'updateCartAmount');
 
     return;
   }
