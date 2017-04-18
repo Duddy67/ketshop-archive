@@ -106,7 +106,7 @@ class KetshopViewOrder extends JViewLegacy
 
     //Display the view title (according to the user action) and the icon.
     JToolBarHelper::title($isNew ? JText::_('COM_KETSHOP_NEW_ORDER') :
-	JText::_('COM_KETSHOP_EDIT_ORDER'), 'shop-cart');
+	JText::_('COM_KETSHOP_EDIT_ORDER'), 'pencil-2');
 
     // Can't save the record if it's checked out.
     if(!$checkedOut) {

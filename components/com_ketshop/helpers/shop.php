@@ -50,7 +50,7 @@ class ShopHelper
 
     //Check for errors.
     if($db->getErrorNum()) {
-      ShopHelper::logEvent($codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
+      self::logEvent($codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
       return false;
     }
 
@@ -206,9 +206,9 @@ class ShopHelper
     $translatedFields = 's.name,s.description,';
     $leftJoinTranslation = '';
     //Check if a translation is needed.
-    if(ShopHelper::switchLanguage()) {
+    if(self::switchLanguage()) {
       //Get the SQL query parts needed for the translation of the shippers.
-      $shipTranslation = ShopHelper::getTranslation('shipper', 'id', 's', 's');
+      $shipTranslation = self::getTranslation('shipper', 'id', 's', 's');
       //Translation field are now defined by the SQL conditions.
       $translatedFields = $shipTranslation->translated_fields.',';
       //Build the left join SQL clause.
@@ -240,9 +240,9 @@ class ShopHelper
     $translatedFields = 'pm.name,pm.description,';
     $leftJoinTranslation = '';
     //Check if a translation is needed.
-    if(ShopHelper::switchLanguage()) {
+    if(self::switchLanguage()) {
       //Get the SQL query parts needed for the translation of the payment modes.
-      $paymentTranslation = ShopHelper::getTranslation('payment_mode', 'id', 'pm', 'pm');
+      $paymentTranslation = self::getTranslation('payment_mode', 'id', 'pm', 'pm');
       //Translation field are now defined by the SQL conditions.
       $translatedFields = $paymentTranslation->translated_fields.',';
       //Build the left join SQL clause.
@@ -424,7 +424,7 @@ class ShopHelper
   public static function getLocation()
   {
     //Remove previously set variables (if any) from the url query.
-    $location = ShopHelper::getUrlQuery(array('limitstart','start','filter_order','language'));
+    $location = self::getUrlQuery(array('limitstart','start','filter_order','language'));
 
     $jinput = JFactory::getApplication()->input;
 
@@ -471,9 +471,9 @@ class ShopHelper
     //The translated fields of an attribute .
     $translatedFields = 'a.name,';
     //Check if a translation is needed.
-    if(ShopHelper::switchLanguage()) {
+    if(self::switchLanguage()) {
       //Get the SQL query parts needed for the translation of the attributes.
-      $attrTranslation = ShopHelper::getTranslation('attribute', 'id', 'a', 'a');
+      $attrTranslation = self::getTranslation('attribute', 'id', 'a', 'a');
       //Translation field are now defined by the SQL conditions.
       $translatedFields = $attrTranslation->translated_fields.',';
     }
@@ -486,7 +486,7 @@ class ShopHelper
 	  ->join('LEFT','#__ketshop_attribute AS a ON a.id = pa.attrib_id');
 
     //Join over the attribute translation.
-    if(ShopHelper::switchLanguage()) {
+    if(self::switchLanguage()) {
       $query->join('LEFT', $attrTranslation->left_join);
     }
 
@@ -776,7 +776,7 @@ class ShopHelper
 
     //Redirect user on error page if criticity is 1.
     if($criticity == 1) {
-      ShopHelper::clearPurchaseData();
+      self::clearPurchaseData();
 
       $app = JFactory::getApplication();
       $app->redirect(JRoute::_('index.php?option=com_ketshop&view=error', false),
@@ -825,7 +825,7 @@ class ShopHelper
     $prefix = $itemPrefix.'tr';
 
     //Get the required language.
-    $language = ShopHelper::switchLanguage(true);
+    $language = self::switchLanguage(true);
 
     //Just used for the Quote function.
     $db = JFactory::getDbo();

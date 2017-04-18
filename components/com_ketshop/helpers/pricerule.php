@@ -54,7 +54,7 @@ class PriceruleHelper
   {
     $cartAmount = array();
     //
-    $totalProdAmt = PriceruleHelper::getTotalProductAmount();
+    $totalProdAmt = self::getTotalProductAmount();
     //Set the initial amounts.
     $cartAmount['amount'] = $totalProdAmt->amt_excl_tax;
     $cartAmount['amt_incl_tax'] = $totalProdAmt->amt_incl_tax;
@@ -64,7 +64,7 @@ class PriceruleHelper
     $cartAmount['fnl_amt_incl_tax'] = $totalProdAmt->amt_incl_tax;
 
     //Get and store all the cart price rules.
-    $priceRules = PriceruleHelper::getCartPriceRules();
+    $priceRules = self::getCartPriceRules();
     $cartAmount['pricerules'] = $priceRules;
 
     //Collect only the price rules targeting the cart amount.
@@ -91,7 +91,7 @@ class PriceruleHelper
 
     foreach($priceRules as $priceRule) {
       //Get the type (percent or absolute) and the operator (+ or -) of the operation.
-      $operation = PriceruleHelper::getOperationAttributes($priceRule['operation']);
+      $operation = self::getOperationAttributes($priceRule['operation']);
 
       //Reset cart amounts to prevent to add up product prices twice or more in case of
       //multiple cart rules.
@@ -101,7 +101,7 @@ class PriceruleHelper
 	if($operation->type == 'percent') {
 	  $pruleAmount = $cart[$key]['cart_rules_impact'] * ($priceRule['value'] / 100);
 	  //Apply the cart price rule.
-	  $cart[$key]['cart_rules_impact'] = PriceruleHelper::applyRule($operation->operator, $pruleAmount, $cart[$key]['cart_rules_impact']);
+	  $cart[$key]['cart_rules_impact'] = self::applyRule($operation->operator, $pruleAmount, $cart[$key]['cart_rules_impact']);
 
 	  //Compute final amounts according to the tax method.
 	  if($taxMethod == 'excl_tax') {
@@ -141,7 +141,7 @@ class PriceruleHelper
 	  $result = $priceRule['value'] * ($prodPercentage / 100);
 
 	  //Apply the cart rule to the product.
-	  $cart[$key]['cart_rules_impact'] = PriceruleHelper::applyRule($operation->operator, $result, $cart[$key]['cart_rules_impact']);
+	  $cart[$key]['cart_rules_impact'] = self::applyRule($operation->operator, $result, $cart[$key]['cart_rules_impact']);
 
 	  //Now the rule is applied to the product we must perform the
 	  //opposite operations.
@@ -231,7 +231,7 @@ class PriceruleHelper
 
       //Get the type (percent or absolute) and the operator (+ or -) of the
       //operation.
-      $operation = PriceruleHelper::getOperationAttributes($priceRule['operation']);
+      $operation = self::getOperationAttributes($priceRule['operation']);
 
       if($priceRule['modifier'] == 'profit_margin_modifier') {
 	//Compute the profit margin of this product.
@@ -247,7 +247,7 @@ class PriceruleHelper
 	}
 
 	//Apply rule to profit margin then round the result.
-	$finalProfitMargin = PriceruleHelper::applyRule($operation->operator, $result, $profitMargin);
+	$finalProfitMargin = self::applyRule($operation->operator, $result, $profitMargin);
 
         //Check the modified profit margin is still above zero.
 	if($finalProfitMargin <= 0) {
@@ -267,7 +267,7 @@ class PriceruleHelper
 	if($operation->type == 'percent') {
 	  $result = $finalPrice * ($priceRule['value'] / 100);
 	  //Apply rule to final price then round the result.
-	  $finalPrice = PriceruleHelper::applyRule($operation->operator, $result, $finalPrice);
+	  $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
 	}
 	else { //With absolute values, before and after taxes applications must be computed differently.
 	  $result = $priceRule['value'];
@@ -280,19 +280,19 @@ class PriceruleHelper
 	  if($priceRule['application'] == 'after_taxes' && $taxMethod == 'excl_tax') {
 	    //Rule must be applied to product unit price with taxes.
 	    $finalPrice = UtilityHelper::getPriceWithTaxes($finalPrice, $taxRate);
-	    $finalPrice = PriceruleHelper::applyRule($operation->operator, $result, $finalPrice);
+	    $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
 	    //Do the opposite operation (ie: retrieve product price without taxes). 
 	    $finalPrice = UtilityHelper::getPriceWithoutTaxes($finalPrice, $taxRate);
 	  }
 	  elseif($priceRule['application'] == 'before_taxes' && $taxMethod == 'incl_tax') {
 	    //Rule must be applied to product unit price without taxes.
 	    $finalPrice = UtilityHelper::getPriceWithoutTaxes($finalPrice, $taxRate);
-	    $finalPrice = PriceruleHelper::applyRule($operation->operator, $result, $finalPrice);
+	    $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
 	    //Do the opposite operation (ie: retrieve product price with taxes). 
 	    $finalPrice = UtilityHelper::getPriceWithTaxes($finalPrice, $taxRate);
 	  }
 	  else { //For the other cases we just apply the rule as it is.
-	    $finalPrice = PriceruleHelper::applyRule($operation->operator, $result, $finalPrice);
+	    $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
 	  }
 	}
 
@@ -350,7 +350,7 @@ class PriceruleHelper
     }
 
     //Check for possible coupon price rule.
-    $couponQuery = PriceruleHelper::setCouponQuery();
+    $couponQuery = self::setCouponQuery();
 
     //Get all the rules concerning the product (or the group/category it's in) and the
     //current user (or the group he's in).
@@ -441,7 +441,7 @@ class PriceruleHelper
     }
 
     //Check for possible coupon price rule.
-    $couponQuery = PriceruleHelper::setCouponQuery();
+    $couponQuery = self::setCouponQuery();
 
     //Get all the cart price rules concerning the current user (or the group he's in).
     //The list of result is ordered to determine the level of the rules.
@@ -502,7 +502,7 @@ class PriceruleHelper
       }
     }
 
-    return PriceruleHelper::checkCartPriceRuleConditions($cartPriceRules);
+    return self::checkCartPriceRuleConditions($cartPriceRules);
   }
 
 
@@ -519,36 +519,36 @@ class PriceruleHelper
       $attribute = 'item_qty';
 
       if($cartPriceRule['condition'] == 'product_cat_amount') {
-	$itemAttr = PriceruleHelper::getProdAttrByCategory(false);
+	$itemAttr = self::getProdAttrByCategory(false);
 	$attribute = 'item_amount';
       }
       elseif($cartPriceRule['condition'] == 'product_cat') {
-	$itemAttr = PriceruleHelper::getProdAttrByCategory();
+	$itemAttr = self::getProdAttrByCategory();
       }
       elseif($cartPriceRule['condition'] == 'total_prod_qty') {
 	//
 	$itemAttr = array(ShopHelper::getTotalQuantity(false));
       }
       elseif($cartPriceRule['condition'] == 'total_prod_amount') {
-	$itemAttr = array(PriceruleHelper::getTotalProductAmount(true));
+	$itemAttr = array(self::getTotalProductAmount(true));
 	$attribute = 'item_amount';
       }
       else { // product or bundle quantity
-	$itemAttr = PriceruleHelper::getProductQty();
+	$itemAttr = self::getProductQty();
       }
 
       //Check conditions and handle the price rule accordingly.
       foreach($conditions as $condition) {
 	//As soon as a condition is true whereas the logical operator is set to OR or is
 	//empty (ie: total_prod_qty, total_prod_amount), the price rule is valid. 
-        if(PriceruleHelper::isTrue($itemAttr[$condition['item_id']], $condition['operator'], $condition[$attribute]) &&
+        if(self::isTrue($itemAttr[$condition['item_id']], $condition['operator'], $condition[$attribute]) &&
 	    ($cartPriceRule['logical_opr'] == 'OR' || $cartPriceRule['logical_opr'] == '')) {
 	  break;
 	}
 
 	//As soon as a condition is false whereas the logical operator is set to AND or is
 	//empty (ie: unique condition),the price rule can be removed from the array. 
-        if(!PriceruleHelper::isTrue($itemAttr[$condition['item_id']], $condition['operator'], $condition[$attribute]) &&
+        if(!self::isTrue($itemAttr[$condition['item_id']], $condition['operator'], $condition[$attribute]) &&
 	    ($cartPriceRule['logical_opr'] == 'AND' || $cartPriceRule['logical_opr'] == '')) {
 	  $delete = true;
 	  break;
@@ -794,7 +794,7 @@ class PriceruleHelper
     $finalShippingCost = $shippingCost;
     foreach($shippingPriceRules as $shippingPriceRule) {
       //Get the percent/absolute and +/- attributes
-      $operation = PriceruleHelper::getOperationAttributes($shippingPriceRule['operation']);
+      $operation = self::getOperationAttributes($shippingPriceRule['operation']);
 
       if($operation->type == 'percent') {
 	$result = $shippingCost * ($shippingPriceRule['value'] / 100);
@@ -804,7 +804,7 @@ class PriceruleHelper
       }
 
       //Apply rule to shipping cost.
-      $finalShippingCost = PriceruleHelper::applyRule($operation->operator, $result, $finalShippingCost);
+      $finalShippingCost = self::applyRule($operation->operator, $result, $finalShippingCost);
 
       if($finalShippingCost < 0) {
 	$finalShippingCost = 0;

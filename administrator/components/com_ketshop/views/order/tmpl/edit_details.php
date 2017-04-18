@@ -15,7 +15,7 @@ $data = array();
 $data['layout'] = 'order_admin';
 
 $data['can_edit'] = false;
-if($this->item->cart_status == 'completed' && $this->item->order_status != 'completed') {
+if($this->item->cart_status == 'completed' && ($this->item->order_status != 'completed' && $this->delivery->status != 'completed')) {
   $data['can_edit'] = true;
 }
 
