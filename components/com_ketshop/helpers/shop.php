@@ -58,6 +58,7 @@ class ShopHelper
       //Check if option has a different price
       if($product['opt_sale_price'] > 0 && $product['opt_base_price'] > 0) {
 	$product['unit_sale_price'] = $product['opt_sale_price'];
+	$product['sale_price'] = $product['opt_sale_price'];
 	$product['base_price'] = $product['opt_base_price'];
       }
 

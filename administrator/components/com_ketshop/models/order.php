@@ -10,6 +10,7 @@ defined('_JEXEC') or die; //No direct access to this file.
 
 jimport('joomla.application.component.modeladmin');
 require_once JPATH_COMPONENT.'/helpers/utility.php';
+require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 
 
 class KetshopModelOrder extends JModelAdmin

@@ -14,8 +14,10 @@ $data = array();
 //Set the layout type.
 $data['layout'] = 'order_admin';
 
+//Check wether the order can be edited by the admin.
 $data['can_edit'] = false;
-if($this->item->cart_status == 'completed' && ($this->item->order_status != 'completed' && $this->delivery->status != 'completed')) {
+if($this->item->cart_status == 'completed' &&
+   ($this->item->order_status == 'pending' && ($this->delivery->status == 'pending' || $this->delivery->status == 'no_shipping'))) {
   $data['can_edit'] = true;
 }
 

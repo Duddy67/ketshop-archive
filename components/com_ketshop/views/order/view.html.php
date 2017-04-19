@@ -25,7 +25,8 @@ class KetshopViewOrder extends JViewLegacy
     // Initialise variables
     $item = $this->get('Item');
     $form = $this->get('Form');
-    $products = $this->get('Products');
+    //$products = $this->get('Products');
+    $products = ShopHelper::callControllerFunction('cart', 'getProductsFromOrder', array($item->id));
     $priceRules = $this->get('PriceRules');
     $shippingData = $this->get('ShippingData');
     //Invoke function in a slitghly different way here as we need to pass arguments.
@@ -44,7 +45,7 @@ class KetshopViewOrder extends JViewLegacy
       $products[$key]['url'] = $url;
 
       foreach($priceRules as $priceRule) {
-	if($product['prod_id'] == $priceRule['prod_id']) {
+	if($product['id'] == $priceRule['prod_id']) {
 	  $products[$key]['pricerules'][] = $priceRule;
 	}
       }
