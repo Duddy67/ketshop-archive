@@ -16,12 +16,16 @@ require_once JPATH_ROOT.'/components/com_ketshop/helpers/route.php';
 $jinput = JFactory::getApplication()->input;
 
 $idNb = $jinput->get->get('id_nb', 0, 'int');
+//The type of the calling item.
 $type = $jinput->get->get('type', '', 'string');
 $productType = $jinput->get->get('product_type', '', 'string');
 
 //Set the Javascript function to call.  
 if($type == 'translation') {
   $function = $jinput->get('function', 'selectItem');
+}
+elseif($type == 'order') {
+  $function = $jinput->get('function', 'jQuery.selectProduct');
 }
 else {
   $function = $jinput->get('function', 'jQuery.selectItem');
@@ -31,13 +35,17 @@ else {
   }
 }
 
+if(!empty($type)) {
+  $typeVariable = '&type='.$type;
+}
+
 $currency = UtilityHelper::getCurrency();
 
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&function='.$function.'&'.JSession::getFormToken().'=1');?>" method="post" name="adminForm" id="adminForm" class="form-inline">
+<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&function='.$function.'&'.JSession::getFormToken().'=1'.$typeVariable);?>" method="post" name="adminForm" id="adminForm" class="form-inline">
 
   <fieldset class="filter clearfix">
     <div class="btn-toolbar">
@@ -121,15 +129,49 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 	      <td class="has-context">
 		<div class="pull-left">
 
-	    <?php if($type == 'translation') : //Provide only product id and product name. ?>
+	    <?php if($type == 'translation' || $type == 'order') : //Provide only product id and product name. ?>
 	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');">
+
 	    <?php elseif($type == 'bundleproduct') : //A bundle is created, (we need stock quantity). ?>
 	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo
 		  $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>','<?php echo $item->stock; ?>');">
 	    <?php else : //Price rule ?>
 	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>');">
 	    <?php endif; ?>
-		  <?php echo $this->escape($item->name); ?></a>
+		  <?php echo $this->escape($item->name); ?>
+	    <?php if($type == 'order' && !empty($item->option_name)) : //. ?>
+	      <span class="small">&nbsp;<?php echo $this->escape($item->option_name); ?></span>
+	    <?php endif; ?></a>
+
+	    <?php if($type == 'order' && !empty($item->options)) : //. ?>
+	      <div class="small">
+	      <table>
+		<thead><tr>
+		  <th><?php echo JText::_('COM_KETSHOP_HEADING_OPTIONS'); ?></th>
+		  <th><?php echo JText::_('COM_KETSHOP_HEADING_STOCK'); ?></th>
+		  <th><?php echo JText::_('COM_KETSHOP_HEADING_BASE_PRICE'); ?></th>
+		  <th><?php echo JText::_('COM_KETSHOP_HEADING_SALE_PRICE'); ?></th>
+		</tr></thead>
+	      
+	      <?php foreach($item->options as $option) :  
+		      $prodIds = $option['prod_id'].'_'.$option['opt_id']; ?>
+		      <tr><td>
+			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($option['option_name']); ?></a></td>
+			<td><?php echo $item->stock; ?></td>
+			<?php $basePrice = $salePrice = '-';
+			      if($option['base_price'] > 0) { 
+				$basePrice = UtilityHelper::formatNumber($option['base_price']).' '.$currency;
+			      }
+			
+			      if($option['sale_price'] > 0) { 
+				$salePrice = UtilityHelper::formatNumber($option['sale_price']).' '.$currency;
+			      }
+			?>
+			<td><?php echo $basePrice; ?></td><td><?php echo $salePrice; ?></td></tr>
+	      <?php endforeach; ?> 
+	      </table>
+	      </div>
+	    <?php endif; ?>
 
 		  <span class="small break-word">
 		    <?php echo JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias)); ?>

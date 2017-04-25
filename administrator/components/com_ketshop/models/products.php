@@ -98,7 +98,7 @@ class KetshopModelProducts extends JModelList
 
     // Select the required fields from the table.
     $query->select($this->getState('list.select', 'p.id,p.name,p.alias,p.created,p.published,p.catid,p.hits,'.
-				   'p.base_price,p.sale_price,p.type,p.stock,'. 
+				   'p.base_price,p.sale_price,p.type,p.stock,p.option_name,'. 
 				   'p.access,p.ordering,p.created_by,p.checked_out,p.checked_out_time'))
 	  ->from('#__ketshop_product AS p');
 
@@ -213,6 +213,21 @@ class KetshopModelProducts extends JModelList
     $query->order($db->escape($orderCol.' '.$orderDirn));
 
     return $query;
+  }
+
+
+  public function getProductOptions($id)
+  {
+    //Create a new JDatabaseQuery object.
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    $query->select('prod_id, opt_id, option_name, base_price, sale_price, code, stock')
+	  ->from('#__ketshop_product_option')
+	  ->where('prod_id='.(int)$id);
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
   }
 }
 

@@ -60,10 +60,27 @@ if($this->item->tax_method == 'excl_tax') {
 
 if($data['can_edit']) {
   $data['col_span_nb'] = $data['col_span_nb'] + 1;
+  
+  $script = array();
+  $script[] = 'function selectItem(id, title) {';
+  $script[] = '  SqueezeBox.close();';
+  $script[] = ' window.location.replace("'.JURI::base().'index.php?option=com_ketshop&task=order.addProduct&order_id='.$this->item->id.'&prod_id="+id);';
+  $script[] = '}';
+
+  // Add the script to the document head.
+  JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
+  $link = 'index.php?option=com_ketshop&amp;view=products&amp;layout=modal&amp;type=order&amp;tmpl=component';
+  $button = '<a class="modal btn" id="item_link" title="Add product" href="'.$link.'"'
+	    .' rel="{handler: \'iframe\', size: {x: 800, y: 500}}">'.JText::_('COM_KETSHOP_ADD_PRODUCT').'</a>';
+  echo $button;
+
+  $link = JURI::base().'index.php?option=com_ketshop&task=order.updateOrder&order_id='.$this->item->id;
+  echo '<a class="btn small" id="update-order" href="#"><span class="icon-shop-spinner11"></a>'; 
 }
+
 ?>
 
-  <table class="table product-row end-table">
+  <table class="table product-row end-table" id="order-edit">
     <?php //Display layouts. ?>
     <?php echo JLayoutHelper::render('product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
     <?php echo JLayoutHelper::render('product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>

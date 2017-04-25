@@ -363,11 +363,11 @@ class ShopHelper
 
 
   //Return the total quantity of the products which are in the cart.
-  public static function getTotalQuantity($onlyShippable = true)
+  public static function getTotalQuantity($onlyShippable = true, $sessionGroup = 'ketshop')
   {
     //Get the cart.
     $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
+    $cart = $session->get('cart', array(), $sessionGroup); 
 
     $totalQuantity = 0;
     foreach($cart as $product) {

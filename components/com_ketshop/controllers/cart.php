@@ -207,6 +207,7 @@ class KetshopControllerCart extends JControllerForm
 
     $session->set('cart', $cart, 'ketshop'); 
 
+    $this->updateProductPrices();
     $this->updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.
@@ -256,6 +257,7 @@ class KetshopControllerCart extends JControllerForm
 
     $session->set('cart', $cart, 'ketshop'); 
 
+    $this->updateProductPrices();
     $this->updateCartAmount();
 
     //Reset submit flag in case cart has been previously saved.

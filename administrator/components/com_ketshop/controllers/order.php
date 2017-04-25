@@ -48,7 +48,38 @@ echo '</pre>';
   }
 
 
-  //Overrided function.
+  public function addProduct()
+  {
+    $prodId = $this->input->get('prod_id', 0, 'uint');
+    $orderId = $this->input->get('order_id', 0, 'uint');
+    //$this->setError(JText::_('JLIB_APPLICATION_ERROR_CREATE_RECORD_NOT_PERMITTED'));
+    //$this->setMessage($this->getError(), 'error');
+    $this->setRedirect('index.php?option=com_ketshop&view=order&layout=edit&id='.$orderId);
+    return;
+  }
+
+
+  public function removeProduct()
+  {
+  }
+
+
+  public function updateOrder($orderId = 0)
+  {
+    if(!$orderId) {
+      $orderId = $this->input->get('order_id', 0, 'uint');
+    }
+//file_put_contents('debog_file.txt', print_r($, true)); 
+    $this->setRedirect('index.php?option=com_ketshop&view=order&layout=edit&id='.$orderId);
+    return;
+  }
+
+
+  private function checkDuplicateProduct($prodId)
+  {
+  }
+
+
   protected function allowEdit($data = array(), $key = 'id')
   {
     $itemId = $data['id'];

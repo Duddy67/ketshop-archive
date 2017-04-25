@@ -44,7 +44,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	<?php echo $optionName; ?>
 
 	    <?php /////////////////////// UNIT PRICE //////////////////////////// ?>
-	    <?php if($quantity > 1) : //Check if unit price should be displayed. ?>
+	    <?php if($quantity > 1 || ($layout == 'order_admin' && $canEdit)) : //Check if unit price should be displayed. ?>
 		<div  class="info-row small">
 		  <?php echo JText::_('COM_KETSHOP_UNIT_PRICE_LABEL'); ?>
 
@@ -55,10 +55,19 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		    <span class="space">&nbsp;</span>
 		  <?php endif; ?>
 
+		  <?php if($layout == 'order_admin' && $canEdit) : // ?>
+		    <input class="unit-price" type="text" name="unit_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+			   id="unit_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+			   value="<?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits']); ?>" />
+		    <span class="unit-price">
+		      <?php echo $displayData['currency']; ?>
+		    </span>
+		  <?php else : ?>
 		    <span class="unit-price">
 		      <?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits']); ?>
 		      <?php echo $displayData['currency']; ?>
 		    </span>
+		  <?php endif; ?>
 
 		    <?php if($displayData['tax_method'] == 'excl_tax') : ?>
 		      <span class="tax-method"><?php echo JText::_('COM_KETSHOP_EXCLUDING_TAXES'); ?></span> 
@@ -98,11 +107,6 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		value="<?php echo $product['max_quantity']; ?>" />
 	<input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		value="<?php echo $product['name']; ?>" />
-      <?php endif; ?>
-
-      <?php if($canEdit) : //Display refresh quantity buttons in admin. ?>
-	  <a class="btn refresh-qty small" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#">
-	   <?php echo JText::_('COM_KETSHOP_REFRESH'); ?></a> 
       <?php endif; ?>
       </td>
 
@@ -148,13 +152,18 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       <?php if($layout == 'cart' || $canEdit) : //. ?>
 	<td class="center">
 	<?php if($layout == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
-	  <a class="btn" href="<?php echo 'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&opt_id='.$product['opt_id']; ?>">
-	   <?php echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	  <a class="btn" href="<?php echo
+	  'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&opt_id='.$product['opt_id'];
+	  ?>"><span class="icon-shop-bin"><?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
 	<?php endif; ?>
 
 	<?php if($canEdit) : //Order can be updated. ?>
-	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#">
-	   <?php echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#"><span class="icon-shop-bin">
+	   <?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	   <input type="hidden" name="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $taxRate; ?>" />
+	   <input type="hidden" name="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['catid']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>

@@ -37,6 +37,10 @@ class KetshopViewProducts extends JViewLegacy
     foreach($this->items as $item) {
       if($item->type == 'bundle') {
 	$item->stock = BundleHelper::getBundleStock($item->id);
+	$item->options = array();
+      }
+      else {
+	$item->options = $this->getModel()->getProductOptions($item->id);
       }
     }
 

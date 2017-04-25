@@ -353,6 +353,9 @@ div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-
 .icon-shop-gift:before {
 	content: "\e91b";
 }
+.icon-shop-bin:before {
+    content: "\e9ac";
+}
 .icon-shop-truck:before {
 	content: "\e912";
 }

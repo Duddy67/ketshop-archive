@@ -49,6 +49,13 @@ require_once JPATH_SITE.'/components/com_ketshop/helpers/shop.php';
 
 class PriceruleHelper
 {
+  //TEST FUNCTION (to be removed)
+  public static function getSession($sessionGroup = 'ketshop')
+  {
+    $session = JFactory::getSession();
+    $settings = $session->get('settings', array(), $sessionGroup); 
+    return $settings;
+  }
 
   public static function getCartAmount()
   {
@@ -65,6 +72,7 @@ class PriceruleHelper
 
     //Get and store all the cart price rules.
     $priceRules = self::getCartPriceRules();
+    $priceRules =  self::checkCartPriceRuleConditions($priceRules);
     $cartAmount['pricerules'] = $priceRules;
 
     //Collect only the price rules targeting the cart amount.
@@ -79,12 +87,33 @@ class PriceruleHelper
       return $cartAmount;
     }
 
+    $result = self::applyCartPriceRules($priceRules, $totalProdAmt);
+
+    //Check that the modified cart amount is still above zero.
+    if($result['final_amount'] <= 0) {
+      //Write the error down in the log file.
+      ShopHelper::logEvent($codeLocation, 'pricerule_error', 0, 103, 'getCartAmount: final amount is under zero');
+    }
+
+    $cart = $result['products'];
+    //Set the updated cart_rules_impact variable of the products.
+    $session = JFactory::getSession();
+    $session->set('cart', $cart, 'ketshop');
+
+    $cartAmount['final_amount'] = $result['final_amount'];
+    $cartAmount['fnl_amt_incl_tax'] = $result['fnl_amt_incl_tax'];
+
+    return $cartAmount;
+  }
+
+
+  public static function applyCartPriceRules($priceRules, $totalProdAmt, $sessionGroup = 'ketshop')
+  {
     //Get the data from the user session.
     $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-    $settings = $session->get('settings', array(), 'ketshop'); 
+    $products = $session->get('cart', array(), $sessionGroup); 
+    $settings = $session->get('settings', array(), $sessionGroup); 
 
-    //Get some needed variables.
     $taxMethod = $settings['tax_method'];
     $rounding = $settings['rounding_rule'];
     $digits = $settings['digits_precision'];
@@ -94,23 +123,23 @@ class PriceruleHelper
       $operation = self::getOperationAttributes($priceRule['operation']);
 
       //Reset cart amounts to prevent to add up product prices twice or more in case of
-      //multiple cart rules.
+      //multiple cart price rules.
       $finalAmount = $fnlAmtInclTax = 0;
 
-      foreach($cart as $key => $product) {
+      foreach($products as $key => $product) {
 	if($operation->type == 'percent') {
-	  $pruleAmount = $cart[$key]['cart_rules_impact'] * ($priceRule['value'] / 100);
+	  $pruleAmount = $product['cart_rules_impact'] * ($priceRule['value'] / 100);
 	  //Apply the cart price rule.
-	  $cart[$key]['cart_rules_impact'] = self::applyRule($operation->operator, $pruleAmount, $cart[$key]['cart_rules_impact']);
+	  $products[$key]['cart_rules_impact'] = self::applyRule($operation->operator, $pruleAmount, $product['cart_rules_impact']);
 
 	  //Compute final amounts according to the tax method.
 	  if($taxMethod == 'excl_tax') {
-	    $finalAmount += $cart[$key]['cart_rules_impact'] * $product['quantity'];
-	    $fnlAmtInclTax += UtilityHelper::getPriceWithTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
+	    $finalAmount += $products[$key]['cart_rules_impact'] * $product['quantity'];
+	    $fnlAmtInclTax += UtilityHelper::getPriceWithTaxes($products[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
 	  }
 	  else {
-	    $finalAmount += UtilityHelper::getPriceWithoutTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
-	    $fnlAmtInclTax += $cart[$key]['cart_rules_impact'] * $product['quantity'];
+	    $finalAmount += UtilityHelper::getPriceWithoutTaxes($products[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
+	    $fnlAmtInclTax += $products[$key]['cart_rules_impact'] * $product['quantity'];
 	  }
 	}
 	else { //absolute
@@ -118,21 +147,21 @@ class PriceruleHelper
 
 	    //We need product unit price with taxes.
 	    if($taxMethod == 'excl_tax') {
-	      $cart[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']);
+	      $products[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithTaxes($product['cart_rules_impact'], $product['tax_rate']);
 	    }
 
 	    //Calculate the percentage represented by the product against the cart amount.
-	    $prodPercentage = ($cart[$key]['cart_rules_impact'] / $cartAmount['amt_incl_tax']) * 100;
+	    $prodPercentage = ($products[$key]['cart_rules_impact'] / $totalProdAmt->amt_incl_tax) * 100;
 	  }
 	  else { // before_taxes  
 
 	    //We need product unit price without taxes.
 	    if($taxMethod == 'incl_tax') {
-	      $cart[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithoutTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']);
+	      $products[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithoutTaxes($product['cart_rules_impact'], $product['tax_rate']);
 	    }
 
 	    //Calculate the percentage represented by the product against the cart amount.
-	    $prodPercentage = ($cart[$key]['cart_rules_impact'] / $cartAmount['amount']) * 100;
+	    $prodPercentage = ($products[$key]['cart_rules_impact'] / $totalProdAmt->amt_excl_tax) * 100;
 	  }
 	  //Note: No changing are needed if (before_tax && excl_tax) and
 	  //if (after_tax && incl_tax).
@@ -141,58 +170,48 @@ class PriceruleHelper
 	  $result = $priceRule['value'] * ($prodPercentage / 100);
 
 	  //Apply the cart rule to the product.
-	  $cart[$key]['cart_rules_impact'] = self::applyRule($operation->operator, $result, $cart[$key]['cart_rules_impact']);
+	  $products[$key]['cart_rules_impact'] = self::applyRule($operation->operator, $result, $products[$key]['cart_rules_impact']);
 
 	  //Now the rule is applied to the product we must perform the
 	  //opposite operations.
 
 	  if($priceRule['application'] == 'after_taxes') {
 	    if($taxMethod == 'excl_tax') {
-	      $fnlAmtInclTax += $cart[$key]['cart_rules_impact'] * $product['quantity'];
+	      $fnlAmtInclTax += $products[$key]['cart_rules_impact'] * $product['quantity'];
 	      //Get the tax free product unit price back.
-	      $cart[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithoutTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']);
+	      $products[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithoutTaxes($products[$key]['cart_rules_impact'], $product['tax_rate']);
 	      //Set the tax free amount.
-	      $finalAmount += $cart[$key]['cart_rules_impact'] * $product['quantity'];
+	      $finalAmount += $products[$key]['cart_rules_impact'] * $product['quantity'];
 	    }
 	    else {
-	      $fnlAmtInclTax += $cart[$key]['cart_rules_impact'] * $product['quantity'];
-	      $finalAmount += UtilityHelper::getPriceWithoutTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
+	      $fnlAmtInclTax += $products[$key]['cart_rules_impact'] * $product['quantity'];
+	      $finalAmount += UtilityHelper::getPriceWithoutTaxes($products[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
 	    }
 	  }
 	  else { // before_taxes
 	    if($taxMethod == 'excl_tax') {
 	      //Set the tax free amount
-	      $finalAmount += $cart[$key]['cart_rules_impact'] * $product['quantity'];
+	      $finalAmount += $products[$key]['cart_rules_impact'] * $product['quantity'];
 	      //and the final amount with taxes.
-	      $fnlAmtInclTax += UtilityHelper::getPriceWithTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
+	      $fnlAmtInclTax += UtilityHelper::getPriceWithTaxes($products[$key]['cart_rules_impact'], $product['tax_rate']) * $product['quantity'];
 	    }
 	    else { //incl_tax
-	      $finalAmount += $cart[$key]['cart_rules_impact'] * $product['quantity'];
+	      $finalAmount += $products[$key]['cart_rules_impact'] * $product['quantity'];
 	      //Get the product unit price back with taxes.
-	      $cart[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithTaxes($cart[$key]['cart_rules_impact'], $product['tax_rate']);
-	      $fnlAmtInclTax += $cart[$key]['cart_rules_impact'] * $product['quantity'];
+	      $products[$key]['cart_rules_impact'] = UtilityHelper::getPriceWithTaxes($products[$key]['cart_rules_impact'], $product['tax_rate']);
+	      $fnlAmtInclTax += $products[$key]['cart_rules_impact'] * $product['quantity'];
 	    }
 	  }
 	}
       }
     }
 
-    $finalAmount = UtilityHelper::roundNumber($finalAmount, $rounding, $digits);
-    $fnlAmtInclTax = UtilityHelper::roundNumber($fnlAmtInclTax, $rounding, $digits);
+    $finalAmount = UtilityHelper::roundNumber($finalAmount , $rounding, $digits);
+    $fnlAmtInclTax = UtilityHelper::roundNumber($fnlAmtInclTax , $rounding, $digits);
 
-    //Check that the modified cart amount is still above zero.
-    if($finalAmount <= 0) {
-      //Write the error down in the log file.
-      ShopHelper::logEvent($codeLocation, 'pricerule_error', 0, 103, 'getCartAmount: final amount is under zero');
-    }
+    $result = array('final_amount' => $finalAmount, 'fnl_amt_incl_tax' => $fnlAmtInclTax, 'products' => $products);
 
-    //Set the updated cart_rules_impact variable of the products.
-    $session->set('cart', $cart, 'ketshop');
-
-    $cartAmount['final_amount'] = $finalAmount;
-    $cartAmount['fnl_amt_incl_tax'] = $fnlAmtInclTax;
-
-    return $cartAmount;
+    return $result;
   }
 
 
@@ -409,7 +428,7 @@ class PriceruleHelper
   }
 
 
-  public static function getCartPriceRules()
+  public static function getCartPriceRules($userId = 0)
   {
     //Used as first argument of the logEvent function.
     $codeLocation = 'helpers/pricerule.php';
@@ -417,10 +436,14 @@ class PriceruleHelper
     //Get current date and time (equal to NOW() in SQL).
     $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
 
-    //Get the user data.
-    $user = JFactory::getUser();
+    if(!$userId) {
+      //Get the user data.
+      $user = JFactory::getUser();
+      $userId = $user->id;
+    }
+
     //Get user group ids to which the user belongs to. 
-    $groups = JAccess::getGroupsByUser($user->id);
+    $groups = JAccess::getGroupsByUser($userId);
     $INcustGroups = implode(',', $groups);
 
     $db = JFactory::getDbo();
@@ -449,7 +472,7 @@ class PriceruleHelper
 		   'pr.condition, pr.logical_opr, pr.target, pr.recipient,'.$translatedFields.'pr.application')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.
-			 'AND prr.item_id='.$user->id.') OR (pr.recipient="customer_group" '.
+			 'AND prr.item_id='.$userId.') OR (pr.recipient="customer_group" '.
 			 'AND prr.item_id IN ('.$INcustGroups.')) ')
 	  ->join('LEFT', '#__ketshop_coupon AS cp ON cp.prule_id=pr.id');
 
@@ -502,11 +525,11 @@ class PriceruleHelper
       }
     }
 
-    return self::checkCartPriceRuleConditions($cartPriceRules);
+    return $cartPriceRules;
   }
 
 
-  public static function checkCartPriceRuleConditions($cartPriceRules)
+  public static function checkCartPriceRuleConditions($cartPriceRules, $sessionGroup = 'ketshop')
   {
     $delete = false;
     foreach($cartPriceRules as $key => $cartPriceRule) {
@@ -519,22 +542,22 @@ class PriceruleHelper
       $attribute = 'item_qty';
 
       if($cartPriceRule['condition'] == 'product_cat_amount') {
-	$itemAttr = self::getProdAttrByCategory(false);
+	$itemAttr = self::getProdAttrByCategory(false, $sessionGroup);
 	$attribute = 'item_amount';
       }
       elseif($cartPriceRule['condition'] == 'product_cat') {
-	$itemAttr = self::getProdAttrByCategory();
+	$itemAttr = self::getProdAttrByCategory(true, $sessionGroup);
       }
       elseif($cartPriceRule['condition'] == 'total_prod_qty') {
 	//
-	$itemAttr = array(ShopHelper::getTotalQuantity(false));
+	$itemAttr = array(ShopHelper::getTotalQuantity(false, $sessionGroup));
       }
       elseif($cartPriceRule['condition'] == 'total_prod_amount') {
-	$itemAttr = array(self::getTotalProductAmount(true));
+	$itemAttr = array(self::getTotalProductAmount(true, $sessionGroup));
 	$attribute = 'item_amount';
       }
       else { // product or bundle quantity
-	$itemAttr = self::getProductQty();
+	$itemAttr = self::getProductQty($sessionGroup);
       }
 
       //Check conditions and handle the price rule accordingly.
@@ -570,11 +593,13 @@ class PriceruleHelper
   }
 
 
-  protected static function getTotalProductAmount($currentTaxMethod = false)
+  /* Computes the amount (both incl and excl taxes) of all the products in the cart.  
+  */
+  public static function getTotalProductAmount($currentTaxMethod = false, $sessionGroup = 'ketshop')
   {
     $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-    $settings = $session->get('settings', array(), 'ketshop'); 
+    $cart = $session->get('cart', array(), $sessionGroup); 
+    $settings = $session->get('settings', array(), $sessionGroup); 
 
     $amtExclTax = $amtInclTax = 0;
 
@@ -590,7 +615,8 @@ class PriceruleHelper
         //Note: Taxes are applied AFTER the multiplication of product with quantity .
 	$sum = $product['unit_price'] * $product['quantity'];
 	$inclTaxResult = UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $product['tax_rate']),
-										     $settings['rounding'], $settings['digits']);
+										     $settings['rounding_rule'],
+										     $settings['digits_precision']);
 	$amtInclTax += $inclTaxResult;
       }
       else {
@@ -599,7 +625,7 @@ class PriceruleHelper
 	$amtInclTax += $product['unit_price'] * $product['quantity'];
 	$exclTaxProd = UtilityHelper::getPriceWithoutTaxes($product['unit_price'], $product['tax_rate']);
 	$exclTaxResult = $exclTaxProd * $product['quantity'];
-	$amtExclTax += UtilityHelper::roundNumber($exclTaxResult, $settings['rounding'], $settings['digits']);
+	$amtExclTax += UtilityHelper::roundNumber($exclTaxResult, $settings['rounding_rule'], $settings['digits_precision']);
       }
     }
 
@@ -621,11 +647,11 @@ class PriceruleHelper
   }
 
 
-  protected static function getProdAttrByCategory($quantity = true)
+  public static function getProdAttrByCategory($quantity = true, $sessionGroup = 'ketshop')
   {
     $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-    $settings = $session->get('settings', array(), 'ketshop'); 
+    $cart = $session->get('cart', array(), $sessionGroup); 
+    $settings = $session->get('settings', array(), $sessionGroup); 
 
     $prodAttrByCat = array();
 
@@ -826,11 +852,11 @@ class PriceruleHelper
 
   //Return id and quantity of each product within the cart.
   //Returned value as an associative array indexed with the product id.
-  protected static function getProductQty()
+  protected static function getProductQty($sessionGroup = 'ketshop')
   {
     //Grab the user session and get the cart array.
     $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
+    $cart = $session->get('cart', array(), $sessionGroup); 
 
     $productQty = array();
 

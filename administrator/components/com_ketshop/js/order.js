@@ -5,14 +5,68 @@
   $(window).load(function() {
     $('.remove-product').click( function() { $.fn.removeProduct(this); });
     $('.refresh-qty').click( function() { $.fn.changeQuantity(this); });
+    $('#update-order').click( function() { $.fn.updateOrder(); });
   });
+
+
+  $.fn.addProduct = function(id) {
+    var urlQuery = $.fn.getUrlQuery();
+    urlQuery.task = 'add';
+    //Note: Product id can be a single integer or a coupled figures in case of product option (eg: 41_2)  
+    urlQuery.product_ids = id;
+    $.fn.runAjax(urlQuery);
+    //alert(urlQuery.products[1].unit_price);
+  };
 
 
   //Note: Don't call this function "remove" as it seems to interfere with the JQuery methods.
   $.fn.removeProduct = function(element) {
+    var urlQuery = $.fn.getUrlQuery();
+    urlQuery.task = 'remove';
+    urlQuery.product_ids = element.id;
+    $.fn.runAjax(urlQuery);
+    //alert(element.id+':'+userId);
+  };
+
+
+  $.fn.updateOrder = function() {
+    var urlQuery = $.fn.getUrlQuery();
+    urlQuery.task = 'update';
+    $.fn.runAjax(urlQuery);
+    //alert(urlQuery.products[1].unit_price);
+    //location.reload();
+  };
+
+
+  //Function called from a child window, so we have to be specific
+  //and use the window object and the jQuery alias.
+  window.jQuery.selectProduct = function(id, name) {
+    SqueezeBox.close();
+    $.fn.addProduct(id);
+  };
+
+
+  $.fn.getUrlQuery = function() {
+    var orderId = $('#jform_id').val();
     var userId = $('#user_id').val();
-    alert(element.id+':'+userId);
-    var urlQuery = {'product_id':element.id, 'user_id':userId, 'task':'remove'};
+
+    var urlQuery = {'order_id':orderId, 'user_id':userId, 'products':[]};
+    //
+    $('[id^="unit_price_"]').each(function() {
+      var ids = this.id.substring(11);
+      var unitPrice = $('#'+this.id).val();
+      var quantity = $('#quantity_product_'+ids).val();
+      var taxRate = $('#tax_rate_'+ids).val();
+      var catid = $('#catid_'+ids).val();
+      //Insert dynamicaly an array of data for each product of the order.
+      urlQuery.products.push({'ids':ids, 'unit_price':unitPrice, 'quantity':quantity, 'tax_rate':taxRate, 'catid':catid});
+     });
+
+    return urlQuery;
+  };
+
+
+  $.fn.runAjax = function(urlQuery) {
 
     $.ajax({
 	type: 'GET', 
@@ -21,6 +75,7 @@
 	data: urlQuery,
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
+	  //location.reload();
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.
