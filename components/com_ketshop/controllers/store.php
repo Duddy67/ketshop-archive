@@ -384,6 +384,9 @@ class KetshopControllerStore extends JControllerForm
 				    $db->Quote($priceRule['type']),
 				    $db->Quote($priceRule['target']),
 				    $db->Quote($priceRule['operation']),
+				    $db->Quote($priceRule['condition']),
+				    $db->Quote($priceRule['logical_opr']),
+				    $db->Quote($priceRule['behavior']),
 				    $priceRule['value'],
 				    $priceRule['show_rule']);
 	    $j++; //Don't forget to increment.
@@ -422,6 +425,9 @@ class KetshopControllerStore extends JControllerForm
 				  $db->Quote($priceRule['type']),
 				  $db->Quote($priceRule['target']),
 				  $db->Quote($priceRule['operation']),
+				  $db->Quote($priceRule['condition']),
+				  $db->Quote($priceRule['logical_opr']),
+				  $db->Quote($priceRule['behavior']),
 				  $priceRule['value'],
 				  $priceRule['show_rule']);
 	  $j++; //Don't forget to increment.
@@ -459,13 +465,15 @@ class KetshopControllerStore extends JControllerForm
 	  $values[] = implode(',', $priceRule); //Build SQL values for each price rule.
 	}
 
-	$columns = array('order_id','prule_id','prod_id','name','type','target','operation','value','show_rule');
+	$columns = array('order_id','prule_id','prod_id','name','type','target',
+	                 'operation','condition','logical_opr','behavior','value','show_rule');
 
 	//Insert the price rules linked to the products and to the cart (total,
 	//shipping).
 	$query->clear();
 	$query->insert('#__ketshop_order_prule')
-	      ->columns($columns)
+	      //Note: Use quoteName function as "condition" is a reserved MySQL word.
+	      ->columns($db->quoteName($columns))
 	      ->values($values);
 	$db->setQuery($query);
 	$db->query();

@@ -217,8 +217,12 @@ CREATE TABLE `#__ketshop_order_prule` (
   `type` VARCHAR(20) NOT NULL ,
   `target` VARCHAR(20) NOT NULL ,
   `operation` CHAR(2) NOT NULL ,
+  `condition` VARCHAR(25) NULL ,
+  `logical_opr` VARCHAR(3) NOT NULL ,
+  `behavior` VARCHAR(9) NOT NULL ,
   `value` DECIMAL(14,5) UNSIGNED NULL ,
   `show_rule` TINYINT(1) UNSIGNED NOT NULL ,
+  `state` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,
   INDEX `idx_order_id` (`order_id` ASC) ,
   INDEX `idx_prule_id` (`prule_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;

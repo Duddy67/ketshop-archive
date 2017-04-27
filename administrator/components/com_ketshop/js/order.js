@@ -58,8 +58,14 @@
       var quantity = $('#quantity_product_'+ids).val();
       var taxRate = $('#tax_rate_'+ids).val();
       var catid = $('#catid_'+ids).val();
+      var name = $('#name_'+ids).val();
+      var optionName = $('#option_name_'+ids).val();
+      var code = $('#code_'+ids).val();
       //Insert dynamicaly an array of data for each product of the order.
-      urlQuery.products.push({'ids':ids, 'unit_price':unitPrice, 'quantity':quantity, 'tax_rate':taxRate, 'catid':catid});
+      urlQuery.products.push({'ids':ids, 'unit_price':unitPrice,
+			      'quantity':quantity, 'tax_rate':taxRate,
+			      'catid':catid, 'name':name,
+			      'option_name':optionName, 'code':code});
      });
 
     return urlQuery;

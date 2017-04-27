@@ -21,18 +21,6 @@ require_once (JPATH_BASE.'/administrator/components/com_ketshop/helpers/order.ph
 $mainframe = JFactory::getApplication('site');
 $mainframe->initialise();
 
-function separateIds($ids)
-{
-  if(!preg_match('#^([1-9][0-9]*)_(0|[1-9][0-9]*)$#', $ids, $matches)) {
-    return null;
-  }
-
-  $separatedIds = array('prod_id' => $matches[1], 'opt_id' => $matches[2]);
-
-  return $separatedIds;
-}
-
-
 //Get required variables.
 $task = JFactory::getApplication()->input->get->get('task', '', 'string');
 $orderId = JFactory::getApplication()->input->get->get('order_id', 0, 'uint');
@@ -44,7 +32,7 @@ $userId = JFactory::getApplication()->input->get->get('user_id', 0, 'uint');
 $data = array();
 
 foreach($products as $key => $product) {
-  $ids = separateIds($product['ids']);
+  $ids = OrderHelper::separateIds($product['ids']);
   $products[$key]['prod_id'] = $ids['prod_id'];
   $products[$key]['opt_id'] = $ids['opt_id'];
   $products[$key]['unit_price'] = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT);
@@ -56,71 +44,48 @@ foreach($products as $key => $product) {
 OrderHelper::setOrderSession($orderId, $products);
 $sessionGroup = 'ketshop_order_'.$orderId;
 
-//Get the cart price rules already linked to the order.
+//Get and check the cart price rules linked to the order.
 $orderCartPrules = OrderHelper::getCartPriceRules($orderId);
-$orderCartPrules = PriceruleHelper::checkCartPriceRuleConditions($orderCartPrules, $sessionGroup);
+$cartPriceRules = PriceruleHelper::checkCartPriceRuleConditions($orderCartPrules, $sessionGroup);
 
-//Get the possible extra cart price rules matching the updating of the products.
-$cartPrules = PriceruleHelper::getCartPriceRules($userId);
-$cartPrules = PriceruleHelper::checkCartPriceRuleConditions($cartPrules, $sessionGroup);
+foreach($orderCartPrules as $key => $orderCartPrule) {
+  $orderCartPrules[$key]['state'] = 0;
+  foreach($cartPriceRules as $cartPriceRule) {
+    if($cartPriceRule['id'] == $orderCartPrule['id']) {
+      $orderCartPrules[$key]['state'] = 1;
+      break;
+    }
+  }
+}
 
-$cartPriceRules = array_merge($orderCartPrules, $cartPrules);
-
-$pruleIds = $shippingPrules = array();
+$shippingPrules = array();
 foreach($cartPriceRules as $key => $cartPriceRule) {
   //Put aside the shipping price rules.
   if($cartPriceRule['target'] == 'shipping_cost') {
     $shippingPrules[] = $cartPriceRule;
     unset($cartPriceRules[$key]);
   }
-  //Remove duplicates rules (ie: already into the order)
-  elseif(in_array($cartPriceRule['id'], $pruleIds)) {
-    unset($cartPriceRules[$key]);
-  }
-  else {
-    $pruleIds[] = $cartPriceRule['id'];
-  }
 }
 
 $totalProdAmt = PriceruleHelper::getTotalProductAmount(false, $sessionGroup);
+$amounts = array('cart_amount' => $totalProdAmt->amt_excl_tax,
+		 'crt_amt_incl_tax' => $totalProdAmt->amt_incl_tax,
+		 'final_amount' => $totalProdAmt->amt_excl_tax,
+		 'fnl_amt_incl_tax' => $totalProdAmt->amt_incl_tax);
 
 if(!empty($cartPriceRules)) {
   $result = PriceruleHelper::applyCartPriceRules($cartPriceRules, $totalProdAmt, $sessionGroup);
   $products = $result['products'];
+  $amounts['final_amount'] = $result['final_amount'];
+  $amounts['fnl_amt_incl_tax'] = $result['fnl_amt_incl_tax'];
 }
-else {
-  $result = array('final_amount' => $totalProdAmt->amt_excl_tax, 'fnl_amt_incl_tax' => $totalProdAmt->amt_incl_tax);
-}
+
+OrderHelper::updateProducts($orderId, $products);
+OrderHelper::updatePriceRules($orderId, $orderCartPrules);
+OrderHelper::updateOrder($orderId, $amounts);
 
 OrderHelper::deleteOrderSession($orderId);
-file_put_contents('debog_file.txt', print_r($products, true));
-file_put_contents('debog_file_2.txt', print_r($priceRules, true));
 
-/*$cases = array('unit_price' => ' unit_price = CASE ', 'unit_sale_price' => ' unit_sale_price = CASE ', 'quantity' => ' quantity = CASE ');
-foreach($products as $product) {
-  $ids = separateIds($product['ids']);
-  $values = array();
-  $values['unit_price'] = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT);
-  $values['quantity'] = filter_var($product['quantity'], FILTER_VALIDATE_INT);
-  $values['unit_sale_price'] = $values['unit_price'] * $values['quantity'];
-
-  foreach($cases as $key => $case) {
-    $cases[$key] .= 'WHEN order_id='.$orderId.' AND prod_id='.$ids['prod_id'].' AND opt_id='.$ids['opt_id'].' THEN '.$values[$key].' ';
-  }
-}
-
-$query = '';
-foreach($cases as $case) {
-  $query .= $case.'END,';
-}
-$query = substr($query, 0, -1);
-
-UtilityHelper::setOrderSession($orderId, $products);
-$sessionGroup = 'ketshop_order_'.$orderId;
-$session = PriceruleHelper::getSession($sessionGroup);
-UtilityHelper::deleteOrderSession($orderId);
-file_put_contents('debog_file.txt', print_r($session, true));
-*/
 
 /*
 $db = JFactory::getDbo();

@@ -149,7 +149,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       </td><td class="small">
 	<?php echo $taxRate.' %'; ?>
       </td>
-      <?php if($layout == 'cart' || $canEdit) : //. ?>
+      <?php if($layout == 'cart' || $canEdit) : //Cart or order can be updated. Create a table cell. ?>
 	<td class="center">
 	<?php if($layout == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
 	  <a class="btn" href="<?php echo
@@ -158,12 +158,18 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	<?php endif; ?>
 
 	<?php if($canEdit) : //Order can be updated. ?>
-	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#"><span class="icon-shop-bin">
-	   <?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#"><span class="icon-shop-bin"></a> 
+	   <?php // ?>
 	   <input type="hidden" name="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $taxRate; ?>" />
 	   <input type="hidden" name="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['catid']; ?>" />
+	   <input type="hidden" name="code_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="code_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['code']; ?>" />
+	   <input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['name']; ?>" />
+	   <input type="hidden" name="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['option_name']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>

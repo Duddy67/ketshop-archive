@@ -142,9 +142,10 @@ class KetshopModelOrder extends JModelAdmin
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    $query->select('*');
-    $query->from('#__ketshop_order_prule');
-    $query->where('order_id='.$order->id);
+    $query->select('*')
+	  ->from('#__ketshop_order_prule')
+	  ->where('order_id='.$order->id)
+	  ->where('state=1');
     $db->setQuery($query);
 
     // Return the result

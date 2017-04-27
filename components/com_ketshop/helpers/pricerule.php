@@ -377,8 +377,8 @@ class PriceruleHelper
     //Only catalog rules are selected.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('pr.id, pr.type, pr.operation, pr.value, pr.behavior, pr.ordering, pr.show_rule,'. 
-		   'pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application')
+    $query->select('pr.id, pr.type, pr.operation, pr.condition, pr.value, pr.behavior, pr.ordering, pr.show_rule,'. 
+		   'pr.logical_opr, pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.
 			 'AND prr.item_id='.$user->id.') OR (pr.recipient="customer_group" '.
@@ -541,6 +541,7 @@ class PriceruleHelper
       $conditions = $cartPriceRule['conditions'];
       $attribute = 'item_qty';
 
+      //Note: condition attribute here is the global condition of the price rule.
       if($cartPriceRule['condition'] == 'product_cat_amount') {
 	$itemAttr = self::getProdAttrByCategory(false, $sessionGroup);
 	$attribute = 'item_amount';
