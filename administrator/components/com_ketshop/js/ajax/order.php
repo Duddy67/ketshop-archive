@@ -29,26 +29,47 @@ $products = JFactory::getApplication()->input->get->get('products', array(), 'ar
 $prodIds = JFactory::getApplication()->input->get->get('product_ids', '', 'string');
 $newQty = JFactory::getApplication()->input->get->get('new_qty', 0, 'uint');
 $userId = JFactory::getApplication()->input->get->get('user_id', 0, 'uint');
-$data = array();
+$data = array('message' => '');
 
+//In order to work with JText we have to load the language.
+//Note: As we load language from an external file the site language cannot be properly
+//identified and we end up with the en-GB tag by default.
+$lang = JFactory::getLanguage();
+//Check the lang tag parameter has been properly retrieved.
+if(empty($langTag)) {
+    //If not, we'll use english by default.
+    $langTag = $lang->getTag();
+}
+//Load language.
+$lang->load('com_ketshop', JPATH_ROOT.'/components/com_ketshop', $langTag);
 
 if($task == 'add' || $task == 'remove') {
   //Don't take into account the possible changes (qty, price). Get the products directly
   //from the order table. 
   $products = OrderHelper::getProducts($orderId);
+  //
   $ids = OrderHelper::separateIds($prodIds);
 
   if($task == 'add') {
     //Check for duplicates.
     foreach($products as $product) {
       if($product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
+	$data['message'] = JText::sprintf('COM_KETSHOP_DUPLICATE_PRODUCT', $product['name']);
+	echo json_encode($data);
+	return;
       }
     }
 
     $product = ShopHelper::getProduct($ids['prod_id'], $ids['opt_id']);
+
+    $product['prod_id'] = $product['id'];
+    $product['unit_price'] = $product['unit_sale_price'];
+    $product['cart_rules_impact'] = $product['unit_sale_price'];
+    $product['quantity'] = 1;
+    //Add the new product to the order.
+    $products[] = $product;
   }
 }
-
 
 //Set the order products.
 foreach($products as $key => $product) {
@@ -111,9 +132,9 @@ if(!empty($cartPriceRules)) {
   $amounts['fnl_amt_incl_tax'] = $result['fnl_amt_incl_tax'];
 }
 
-//OrderHelper::updateProducts($orderId, $products);
-//OrderHelper::updatePriceRules($orderId, $orderCartPrules);
-//OrderHelper::updateOrder($orderId, $amounts);
+OrderHelper::updateProducts($orderId, $products);
+OrderHelper::updatePriceRules($orderId, $orderCartPrules);
+OrderHelper::updateOrder($orderId, $amounts);
 
 OrderHelper::deleteOrderSession($orderId);
 

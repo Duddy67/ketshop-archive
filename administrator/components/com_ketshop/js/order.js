@@ -88,6 +88,11 @@
 	data: urlQuery,
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
+	  //Display message if any.
+	  if(results.message) {
+	    alert(results.message);
+	  }
+
 	  location.reload();
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
