@@ -12,7 +12,14 @@
   $.fn.addProduct = function(id) {
     var urlQuery = $.fn.getUrlQuery();
     urlQuery.task = 'add';
+
     //Note: Product id can be a single integer or a coupled figures in case of product option (eg: 41_2)  
+    //      For more convenience we add a zero product option to single product ids.
+    var regex = /^[0-9]+$/;
+    if(regex.test(id)) {
+      id = id+'_0';
+    }
+
     urlQuery.product_ids = id;
     $.fn.runAjax(urlQuery);
     //alert(urlQuery.products[1].unit_price);
@@ -24,8 +31,8 @@
     var urlQuery = $.fn.getUrlQuery();
     urlQuery.task = 'remove';
     urlQuery.product_ids = element.id;
+    //alert(element.id);
     $.fn.runAjax(urlQuery);
-    //alert(element.id+':'+userId);
   };
 
 
@@ -81,7 +88,7 @@
 	data: urlQuery,
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
-	  //location.reload();
+	  location.reload();
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.

@@ -122,10 +122,10 @@ class OrderHelper
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    /*$query->delete('#__ketshop_order_prod')
+    $query->delete('#__ketshop_order_prod')
 	  ->where('order_id='.(int)$orderId);
     $db->setQuery($query);
-    $db->query();*/
+    $db->query();
 
     $values = array();
     foreach($products as $product) {
@@ -143,8 +143,8 @@ class OrderHelper
 	  ->columns($columns)
 	  ->values($values);
 file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
-    //$db->setQuery($query);
-    //$db->query();
+    $db->setQuery($query);
+    $db->query();
 
   }
 
@@ -168,8 +168,8 @@ file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
 	  ->set($case)
 	  ->where('order_id='.(int)$orderId);
 file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
-    //$db->setQuery($query);
-    //$db->query();
+    $db->setQuery($query);
+    $db->query();
 
   }
 
@@ -179,8 +179,8 @@ file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
     //Set the new order amounts.
     $fields = array('cart_amount='.$amounts['cart_amount'],
 		    'crt_amt_incl_tax='.$amounts['crt_amt_incl_tax'],
-		    'final_amount='.$amounts['final_amount'],
-		    'fnl_amt_incl_tax='.$amounts['fnl_amt_incl_tax']); 
+		    'final_cart_amount='.$amounts['final_amount'],
+		    'fnl_crt_amt_incl_tax='.$amounts['fnl_amt_incl_tax']); 
 
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -188,8 +188,8 @@ file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
 	  ->set($fields)
 	  ->where('id='.(int)$orderId);
 file_put_contents('debog_file_order.txt', print_r($query->__toString(), true));
-    //$db->setQuery($query);
-    //$db->query();
+    $db->setQuery($query);
+    $db->query();
 
   }
 }

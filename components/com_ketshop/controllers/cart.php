@@ -489,7 +489,8 @@ class KetshopControllerCart extends JControllerForm
 		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name')
 	  ->from('#__ketshop_order_prod AS op')
 	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
-	  ->where('op.order_id='.(int)$orderId);
+	  ->where('op.order_id='.(int)$orderId)
+	  ->order('p.name');
     $db->setQuery($query);
     $products = $db->loadAssocList();
 

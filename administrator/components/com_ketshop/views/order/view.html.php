@@ -33,7 +33,7 @@ class KetshopViewOrder extends JViewLegacy
     $this->item = $this->get('Item');
     $this->form = $this->get('Form');
     $this->state = $this->get('State');
-    //$this->products = $this->get('Products');
+    //Call products from the cart controller.
     $this->products = ShopHelper::callControllerFunction('cart', 'getProductsFromOrder', array($this->item->id));
     $this->priceRules = $this->get('PriceRules');
     $this->billingAddress = $this->get('BillingAddress');

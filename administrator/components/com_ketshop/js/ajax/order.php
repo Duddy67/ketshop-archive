@@ -31,16 +31,47 @@ $newQty = JFactory::getApplication()->input->get->get('new_qty', 0, 'uint');
 $userId = JFactory::getApplication()->input->get->get('user_id', 0, 'uint');
 $data = array();
 
+
+if($task == 'add' || $task == 'remove') {
+  //Don't take into account the possible changes (qty, price). Get the products directly
+  //from the order table. 
+  $products = OrderHelper::getProducts($orderId);
+  $ids = OrderHelper::separateIds($prodIds);
+
+  if($task == 'add') {
+    //Check for duplicates.
+    foreach($products as $product) {
+      if($product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
+      }
+    }
+
+    $product = ShopHelper::getProduct($ids['prod_id'], $ids['opt_id']);
+  }
+}
+
+
+//Set the order products.
 foreach($products as $key => $product) {
-  $ids = OrderHelper::separateIds($product['ids']);
-  $products[$key]['prod_id'] = $ids['prod_id'];
-  $products[$key]['opt_id'] = $ids['opt_id'];
+  if($task == 'update') {
+    //Set both the product and option ids for this product.
+    $ids = OrderHelper::separateIds($product['ids']);
+    $products[$key]['prod_id'] = $ids['prod_id'];
+    $products[$key]['opt_id'] = $ids['opt_id'];
+  }
+  elseif($task == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
+    //Remove the product from the order.
+    unset($products[$key]);
+    continue;
+  }
+
+  //Update the product prices according the new quantities and price changes.
   $products[$key]['unit_price'] = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT);
   $products[$key]['quantity'] = filter_var($product['quantity'], FILTER_VALIDATE_INT);
   $products[$key]['unit_sale_price'] = $product['unit_price'] * $product['quantity'];
   $products[$key]['cart_rules_impact'] = $product['unit_price'] * $product['quantity'];
 }
 
+file_put_contents('debog_file_prod.txt', print_r($products, true));
 OrderHelper::setOrderSession($orderId, $products);
 $sessionGroup = 'ketshop_order_'.$orderId;
 
@@ -80,9 +111,9 @@ if(!empty($cartPriceRules)) {
   $amounts['fnl_amt_incl_tax'] = $result['fnl_amt_incl_tax'];
 }
 
-OrderHelper::updateProducts($orderId, $products);
-OrderHelper::updatePriceRules($orderId, $orderCartPrules);
-OrderHelper::updateOrder($orderId, $amounts);
+//OrderHelper::updateProducts($orderId, $products);
+//OrderHelper::updatePriceRules($orderId, $orderCartPrules);
+//OrderHelper::updateOrder($orderId, $amounts);
 
 OrderHelper::deleteOrderSession($orderId);
 

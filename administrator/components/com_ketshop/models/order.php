@@ -115,25 +115,6 @@ class KetshopModelOrder extends JModelAdmin
   }
 
 
-  public function getProducts()
-  {
-    //Get the selected order.
-    $order = $this->getItem();
-
-    $db = $this->getDbo();
-    $query = $db->getQuery(true);
-    $query->select('op.prod_id,op.name,op.option_name,op.code,op.unit_sale_price,op.unit_price,op.cart_rules_impact,'.
-	           'op.opt_id,op.quantity,op.tax_rate,p.id,p.catid,p.alias,p.attribute_group,p.min_quantity,p.max_quantity')
-	  ->from('#__ketshop_order_prod AS op')
-	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
-	  ->where('op.order_id = '.(int)$order->id);
-    // Setup the query
-    $db->setQuery($query);
-
-    return $db->loadAssocList();
-  }
-
-
   public function getPriceRules() 
   {
     //Get the selected order.
