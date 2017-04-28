@@ -49,14 +49,6 @@ require_once JPATH_SITE.'/components/com_ketshop/helpers/shop.php';
 
 class PriceruleHelper
 {
-  //TEST FUNCTION (to be removed)
-  public static function getSession($sessionGroup = 'ketshop')
-  {
-    $session = JFactory::getSession();
-    $settings = $session->get('settings', array(), $sessionGroup); 
-    return $settings;
-  }
-
   public static function getCartAmount()
   {
     $cartAmount = array();
@@ -377,8 +369,8 @@ class PriceruleHelper
     //Only catalog rules are selected.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('pr.id, pr.type, pr.operation, pr.condition, pr.value, pr.behavior, pr.ordering, pr.show_rule,'. 
-		   'pr.logical_opr, pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application')
+    $query->select('pr.id, pr.type, pr.operation, pr.value, pr.behavior, pr.ordering, pr.show_rule,'. 
+		   'pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.
 			 'AND prr.item_id='.$user->id.') OR (pr.recipient="customer_group" '.
@@ -811,7 +803,7 @@ class PriceruleHelper
   }
 
 
-  public static function applyShippingPriceRules($shippingCost, $shippingPriceRules)
+  public static function applyShippingPriceRules($shippingCost, $shippingPriceRules, $sessionGroup = 'ketshop')
   {
     if($shippingCost <= 0) { //We don't allow division by zero.
       return 0;
@@ -839,7 +831,7 @@ class PriceruleHelper
 
       //Get rounding data from session user.
       $session = JFactory::getSession();
-      $settings = $session->get('settings', array(), 'ketshop'); 
+      $settings = $session->get('settings', array(), $sessionGroup); 
       $rounding = $settings['rounding_rule'];
       $digits = $settings['digits_precision'];
 

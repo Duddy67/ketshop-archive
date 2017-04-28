@@ -7,6 +7,7 @@
 
 
 defined('_JEXEC') or die; //No direct access to this file.
+require_once (JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php');
 
 
 
@@ -77,6 +78,79 @@ class OrderHelper
   }
 
 
+  public static function setProductPriceRules($orderId, $product, $task)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    if($task == 'remove') {
+      $query->delete('#__ketshop_order_prule')
+	    ->where('order_id='.(int)$orderId)
+	    ->where('prod_id='.(int)$product['prod_id'])
+	    ->where('state=3');
+      $db->setQuery($query);
+      $db->query();
+
+      //
+      $query->clear();
+      $query->update('#__ketshop_order_prule')
+	    ->set('state=2')
+	    ->where('order_id='.(int)$orderId)
+	    ->where('prod_id='.(int)$product['prod_id']);
+  //file_put_contents('debog_file_shipping.txt', print_r($query->__toString(), true));
+      $db->setQuery($query);
+      $db->query();
+    }
+    else { //add
+      $query->select('prule_id AS id, name, type, target, operation, application,'.
+		     'modifier, behavior, value, show_rule, state')
+	    ->from('#__ketshop_order_prule')
+	    ->where('order_id='.(int)$orderId)
+	    ->where('prod_id='.(int)$product['prod_id']);
+      $db->setQuery($query);
+      $priceRules = $db->loadAssocList();
+
+      if(!empty($priceRules)) {
+	$query->clear();
+	$query->update('#__ketshop_order_prule')
+	      ->set('state=1')
+	      ->where('order_id='.(int)$orderId)
+	      ->where('prod_id='.(int)$product['prod_id']);
+    //file_put_contents('debog_file_shipping.txt', print_r($query->__toString(), true));
+	$db->setQuery($query);
+	$db->query();
+      }
+      else {
+	//Insert the possible price rules for this product. 
+	//Note: The state attribute is set to 3 which means this price rule will be deleted in
+	//      case this product is removed from the order.
+	$values = array();
+	foreach($product['pricerules'] as $priceRule) {
+	  $values[] = (int)$orderId.','.(int)$priceRule['id'].','.(int)$product['id'].','.$db->Quote($priceRule['name']).
+		      ','.$db->Quote($priceRule['type']).','.$db->Quote($priceRule['target']).','.$db->Quote($priceRule['operation']).
+		      ','.$db->Quote($priceRule['behavior']).','.$db->Quote($priceRule['modifier']).','.$db->Quote($priceRule['application']).
+		      ','.$priceRule['value'].','.$priceRule['show_rule'].',3';
+	}
+
+	if(!empty($values)) {
+	  $columns = array('order_id','prule_id','prod_id','name','type','target','operation',
+			   'behavior','modifier','application','value','show_rule','state');
+
+	  $query->clear();
+	  $query->insert('#__ketshop_order_prule')
+		->columns($columns)
+		->values($values);
+      //file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
+	  $db->setQuery($query);
+	  $db->query();
+	}
+      }
+
+      return $priceRules;
+    }
+  }
+
+
   public static function getCartPriceRules($orderId)
   {
     $db = JFactory::getDbo();
@@ -118,6 +192,44 @@ class OrderHelper
   }
 
 
+  public static function setShippingPriceRules($orderId, $priceRules)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('shipping_cost, final_shipping_cost')
+	  ->from('#__ketshop_delivery')
+	  ->where('order_id='.(int)$orderId);
+    $db->setQuery($query);
+    $shippingCosts = $db->loadAssoc();
+
+    //Nothing new happened.
+    if(empty($priceRules) && $shippingCosts['shipping_cost'] == $shippingCosts['final_shipping_cost']) {
+      return;
+    }
+    //Price rules have been cancelled due to the order modification. Reset the shipping costs. 
+    elseif(empty($priceRules) && $shippingCosts['shipping_cost'] > $shippingCosts['final_shipping_cost']) {
+      $shippingCosts['final_shipping_cost'] = $shippingCosts['shipping_cost'];
+    }
+    //Compute the shipping cost according to the price rules.
+    else {
+      $shippingCosts['final_shipping_cost'] = PriceruleHelper::applyShippingPriceRules($shippingCosts['shipping_cost'],
+										       $priceRules, 'ketshop_order_'.$orderId);
+    }
+
+    //Set the shipping costs.
+    $fields = array('shipping_cost='.$shippingCosts['shipping_cost'],
+		    'final_shipping_cost='.$shippingCosts['final_shipping_cost']); 
+
+    $query->clear();
+    $query->update('#__ketshop_delivery')
+	  ->set($fields)
+	  ->where('order_id='.(int)$orderId);
+//file_put_contents('debog_file_shipping.txt', print_r($query->__toString(), true));
+    $db->setQuery($query);
+    $db->query();
+  }
+
+
   public static function updateProducts($orderId, $products)
   {
     $db = JFactory::getDbo();
@@ -142,7 +254,7 @@ class OrderHelper
     $query->insert('#__ketshop_order_prod')
 	  ->columns($columns)
 	  ->values($values);
-file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
+//file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
     $db->setQuery($query);
     $db->query();
 
@@ -167,7 +279,7 @@ file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
     $query->update('#__ketshop_order_prule')
 	  ->set($case)
 	  ->where('order_id='.(int)$orderId);
-file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
+//file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
     $db->setQuery($query);
     $db->query();
 
@@ -187,7 +299,7 @@ file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
     $query->update('#__ketshop_order')
 	  ->set($fields)
 	  ->where('id='.(int)$orderId);
-file_put_contents('debog_file_order.txt', print_r($query->__toString(), true));
+//file_put_contents('debog_file_order.txt', print_r($query->__toString(), true));
     $db->setQuery($query);
     $db->query();
 

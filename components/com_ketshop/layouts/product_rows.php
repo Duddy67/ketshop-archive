@@ -169,7 +169,11 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	   <input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['name']; ?>" />
 	   <input type="hidden" name="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['option_name']; ?>" />
+		  id="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  value="<?php echo $product['option_name']; ?>" />
+	   <input type="hidden" name="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  value="<?php echo $product['unit_sale_price']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>

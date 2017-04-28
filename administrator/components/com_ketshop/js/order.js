@@ -68,11 +68,13 @@
       var name = $('#name_'+ids).val();
       var optionName = $('#option_name_'+ids).val();
       var code = $('#code_'+ids).val();
+      var unitSalePrice = $('#unit_sale_price_'+ids).val();
       //Insert dynamicaly an array of data for each product of the order.
       urlQuery.products.push({'ids':ids, 'unit_price':unitPrice,
 			      'quantity':quantity, 'tax_rate':taxRate,
 			      'catid':catid, 'name':name,
-			      'option_name':optionName, 'code':code});
+			      'option_name':optionName,
+			      'code':code, 'unit_sale_price':unitSalePrice});
      });
 
     return urlQuery;

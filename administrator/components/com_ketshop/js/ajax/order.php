@@ -44,8 +44,8 @@ if(empty($langTag)) {
 $lang->load('com_ketshop', JPATH_ROOT.'/components/com_ketshop', $langTag);
 
 if($task == 'add' || $task == 'remove') {
-  //Don't take into account the possible changes (qty, price). Get the products directly
-  //from the order table. 
+  //Don't take into account the possible changes (qty, unit price) set in the form. 
+  //Get the products directly from the order table. 
   $products = OrderHelper::getProducts($orderId);
   //
   $ids = OrderHelper::separateIds($prodIds);
@@ -61,10 +61,20 @@ if($task == 'add' || $task == 'remove') {
     }
 
     $product = ShopHelper::getProduct($ids['prod_id'], $ids['opt_id']);
-
     $product['prod_id'] = $product['id'];
-    $product['unit_price'] = $product['unit_sale_price'];
-    $product['cart_rules_impact'] = $product['unit_sale_price'];
+    $prodPrules = OrderHelper::setProductPriceRules($orderId, $product, $task);
+
+file_put_contents('debog_file_prod.txt', print_r($prodPrules, true));
+    if(!empty($prodPrules)) {
+      //Replace the possible new price rules with the ones previously set in the order.
+      $product['pricerules'] = $prodPrules;
+    }
+
+    $session = JFactory::getSession();
+    $settings = $session->get('settings', $sessionGroup);
+    $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
+
+    $product['unit_price'] = $catalogPrice->final_price;
     $product['quantity'] = 1;
     //Add the new product to the order.
     $products[] = $product;
@@ -80,19 +90,32 @@ foreach($products as $key => $product) {
     $products[$key]['opt_id'] = $ids['opt_id'];
   }
   elseif($task == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
+    OrderHelper::setProductPriceRules($orderId, $product, $task);
     //Remove the product from the order.
     unset($products[$key]);
     continue;
   }
 
+  //Sanitize and check the values passed through the form (ie: update task)
+  if(($unitPrice = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT)) === false || $product['unit_price'] == 0) {
+    $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_INVALID_UNIT_PRICE', $product['name']);
+    echo json_encode($data);
+    return;
+  }
+
+  if(($quantity = filter_var($product['quantity'], FILTER_VALIDATE_INT)) === false || $product['quantity'] == 0) {
+    $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $product['name']);
+    echo json_encode($data);
+    return;
+  }
+
   //Update the product prices according the new quantities and price changes.
-  $products[$key]['unit_price'] = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT);
-  $products[$key]['quantity'] = filter_var($product['quantity'], FILTER_VALIDATE_INT);
-  $products[$key]['unit_sale_price'] = $product['unit_price'] * $product['quantity'];
-  $products[$key]['cart_rules_impact'] = $product['unit_price'] * $product['quantity'];
+  $products[$key]['unit_price'] = $unitPrice;
+  $products[$key]['quantity'] = $quantity;
+  //Add the cart_rules_impact attribute used with the cart price rules computation.
+  $products[$key]['cart_rules_impact'] = $unitPrice;
 }
 
-file_put_contents('debog_file_prod.txt', print_r($products, true));
 OrderHelper::setOrderSession($orderId, $products);
 $sessionGroup = 'ketshop_order_'.$orderId;
 
@@ -132,6 +155,8 @@ if(!empty($cartPriceRules)) {
   $amounts['fnl_amt_incl_tax'] = $result['fnl_amt_incl_tax'];
 }
 
+//Process the order updating.
+OrderHelper::setShippingPriceRules($orderId, $shippingPrules);
 OrderHelper::updateProducts($orderId, $products);
 OrderHelper::updatePriceRules($orderId, $orderCartPrules);
 OrderHelper::updateOrder($orderId, $amounts);

@@ -220,6 +220,8 @@ CREATE TABLE `#__ketshop_order_prule` (
   `condition` VARCHAR(25) NULL ,
   `logical_opr` VARCHAR(3) NOT NULL ,
   `behavior` VARCHAR(9) NOT NULL ,
+  `modifier` VARCHAR(50) NOT NULL ,
+  `application` CHAR(15) NOT NULL ,
   `value` DECIMAL(14,5) UNSIGNED NULL ,
   `show_rule` TINYINT(1) UNSIGNED NOT NULL ,
   `state` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,

@@ -384,9 +384,11 @@ class KetshopControllerStore extends JControllerForm
 				    $db->Quote($priceRule['type']),
 				    $db->Quote($priceRule['target']),
 				    $db->Quote($priceRule['operation']),
-				    $db->Quote($priceRule['condition']),
-				    $db->Quote($priceRule['logical_opr']),
+				    $db->Quote(''), //condition attribute is not used with catalog price rules.
+				    $db->Quote(''), //logical_opr attribute is not used with catalog price rules.
 				    $db->Quote($priceRule['behavior']),
+				    $db->Quote($priceRule['modifier']),
+				    $db->Quote($priceRule['application']),
 				    $priceRule['value'],
 				    $priceRule['show_rule']);
 	    $j++; //Don't forget to increment.
@@ -428,6 +430,8 @@ class KetshopControllerStore extends JControllerForm
 				  $db->Quote($priceRule['condition']),
 				  $db->Quote($priceRule['logical_opr']),
 				  $db->Quote($priceRule['behavior']),
+				  $db->Quote(''), //modifier attribute is not used with cart price rules.
+				  $db->Quote(''), //application attribute is not used with cart price rules.
 				  $priceRule['value'],
 				  $priceRule['show_rule']);
 	  $j++; //Don't forget to increment.
@@ -466,7 +470,8 @@ class KetshopControllerStore extends JControllerForm
 	}
 
 	$columns = array('order_id','prule_id','prod_id','name','type','target',
-	                 'operation','condition','logical_opr','behavior','value','show_rule');
+	                 'operation','condition','logical_opr','behavior',
+			 'modifier','application','value','show_rule');
 
 	//Insert the price rules linked to the products and to the cart (total,
 	//shipping).
