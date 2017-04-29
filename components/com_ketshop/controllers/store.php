@@ -390,6 +390,7 @@ class KetshopControllerStore extends JControllerForm
 				    $db->Quote($priceRule['modifier']),
 				    $db->Quote($priceRule['application']),
 				    $priceRule['value'],
+				    (int)$priceRule['ordering'],
 				    $priceRule['show_rule']);
 	    $j++; //Don't forget to increment.
 	  }
@@ -433,6 +434,7 @@ class KetshopControllerStore extends JControllerForm
 				  $db->Quote(''), //modifier attribute is not used with cart price rules.
 				  $db->Quote(''), //application attribute is not used with cart price rules.
 				  $priceRule['value'],
+				  (int)$priceRule['ordering'],
 				  $priceRule['show_rule']);
 	  $j++; //Don't forget to increment.
 	}
@@ -471,7 +473,7 @@ class KetshopControllerStore extends JControllerForm
 
 	$columns = array('order_id','prule_id','prod_id','name','type','target',
 	                 'operation','condition','logical_opr','behavior',
-			 'modifier','application','value','show_rule');
+			 'modifier','application','value','ordering','show_rule');
 
 	//Insert the price rules linked to the products and to the cart (total,
 	//shipping).

@@ -223,6 +223,7 @@ CREATE TABLE `#__ketshop_order_prule` (
   `modifier` VARCHAR(50) NOT NULL ,
   `application` CHAR(15) NOT NULL ,
   `value` DECIMAL(14,5) UNSIGNED NULL ,
+  `ordering` INT NOT NULL ,
   `show_rule` TINYINT(1) UNSIGNED NOT NULL ,
   `state` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,
   INDEX `idx_order_id` (`order_id` ASC) ,

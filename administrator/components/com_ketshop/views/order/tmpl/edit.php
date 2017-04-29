@@ -49,7 +49,6 @@ Joomla.submitbutton = function(task)
 }
 </script>
 
-
 <form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=order&layout=edit&id='.(int) $this->item->id); ?>" 
  method="post" name="adminForm" id="order-form" enctype="multipart/form-data" class="form-validate">
 

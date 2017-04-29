@@ -126,7 +126,8 @@ class KetshopModelOrder extends JModelAdmin
     $query->select('*')
 	  ->from('#__ketshop_order_prule')
 	  ->where('order_id='.$order->id)
-	  ->where('state=1');
+	  ->where('state=1 OR state=3')
+	  ->order('ordering');
     $db->setQuery($query);
 
     // Return the result

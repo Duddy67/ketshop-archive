@@ -19,21 +19,14 @@ class OrderHelper
   public static function setOrderSession($orderId, $products)
   {
     self::deleteOrderSession($orderId);
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    $query->select('tax_method, currency_code, rounding_rule, digits_precision')
-	  ->from('#__ketshop_order')
-	  ->where('id='.(int)$orderId);
-    $db->setQuery($query);
-    $settings = $db->loadAssoc();
+    $settings = self::getOrderSettings($orderId);
 
     //Grab the user session.
     $session = JFactory::getSession();
     $session->set('cart', $products, 'ketshop_order_'.$orderId);
     $session->set('settings', $settings, 'ketshop_order_'.$orderId);
 
-    return;
+    return 'ketshop_order_'.$orderId;
   }
 
 
@@ -50,6 +43,19 @@ class OrderHelper
     }
 
     return;
+  }
+
+
+  public static function getOrderSettings($orderId)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('tax_method, currency_code, rounding_rule, digits_precision')
+	  ->from('#__ketshop_order')
+	  ->where('id='.(int)$orderId);
+    $db->setQuery($query);
+
+    return $db->loadAssoc();
   }
 
 
@@ -97,7 +103,6 @@ class OrderHelper
 	    ->set('state=2')
 	    ->where('order_id='.(int)$orderId)
 	    ->where('prod_id='.(int)$product['prod_id']);
-  //file_put_contents('debog_file_shipping.txt', print_r($query->__toString(), true));
       $db->setQuery($query);
       $db->query();
     }
@@ -106,7 +111,8 @@ class OrderHelper
 		     'modifier, behavior, value, show_rule, state')
 	    ->from('#__ketshop_order_prule')
 	    ->where('order_id='.(int)$orderId)
-	    ->where('prod_id='.(int)$product['prod_id']);
+	    ->where('prod_id='.(int)$product['prod_id'])
+	    ->order('ordering');
       $db->setQuery($query);
       $priceRules = $db->loadAssocList();
 
@@ -129,12 +135,12 @@ class OrderHelper
 	  $values[] = (int)$orderId.','.(int)$priceRule['id'].','.(int)$product['id'].','.$db->Quote($priceRule['name']).
 		      ','.$db->Quote($priceRule['type']).','.$db->Quote($priceRule['target']).','.$db->Quote($priceRule['operation']).
 		      ','.$db->Quote($priceRule['behavior']).','.$db->Quote($priceRule['modifier']).','.$db->Quote($priceRule['application']).
-		      ','.$priceRule['value'].','.$priceRule['show_rule'].',3';
+		      ','.$priceRule['value'].','.$priceRule['ordering'].','.$priceRule['show_rule'].',3';
 	}
 
 	if(!empty($values)) {
 	  $columns = array('order_id','prule_id','prod_id','name','type','target','operation',
-			   'behavior','modifier','application','value','show_rule','state');
+			   'behavior','modifier','application','value','ordering','show_rule','state');
 
 	  $query->clear();
 	  $query->insert('#__ketshop_order_prule')
@@ -159,7 +165,8 @@ class OrderHelper
 	           'logical_opr, behavior, value, show_rule, state')
 	  ->from('#__ketshop_order_prule')
 	  ->where('type='.$db->Quote('cart'))
-	  ->where('order_id='.(int)$orderId);
+	  ->where('order_id='.(int)$orderId)
+	  ->order('ordering');
     $db->setQuery($query);
     $priceRules = $db->loadAssocList();
 

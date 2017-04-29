@@ -64,14 +64,12 @@ if($task == 'add' || $task == 'remove') {
     $product['prod_id'] = $product['id'];
     $prodPrules = OrderHelper::setProductPriceRules($orderId, $product, $task);
 
-file_put_contents('debog_file_prod.txt', print_r($prodPrules, true));
     if(!empty($prodPrules)) {
       //Replace the possible new price rules with the ones previously set in the order.
       $product['pricerules'] = $prodPrules;
     }
 
-    $session = JFactory::getSession();
-    $settings = $session->get('settings', $sessionGroup);
+    $settings = OrderHelper::getOrderSettings($orderId);
     $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
 
     $product['unit_price'] = $catalogPrice->final_price;
@@ -116,8 +114,8 @@ foreach($products as $key => $product) {
   $products[$key]['cart_rules_impact'] = $unitPrice;
 }
 
-OrderHelper::setOrderSession($orderId, $products);
-$sessionGroup = 'ketshop_order_'.$orderId;
+//Start a specific session named after the order id.
+$sessionGroup = OrderHelper::setOrderSession($orderId, $products);
 
 //Get and check the cart price rules linked to the order.
 $orderCartPrules = OrderHelper::getCartPriceRules($orderId);
