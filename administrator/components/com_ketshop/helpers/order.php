@@ -13,11 +13,18 @@ require_once (JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php');
 
 class OrderHelper
 {
-  /* Creates a cart and settings session variables from the order. These variables are
-   * aimed to be used with the price rule functions. 
-  */
+  /**
+   * Creates a cart and settings session variables from the order. 
+   * These variables are aimed to be used with the price rule functions. 
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The products of the order.
+   *
+   * @return string  The group name of the created session. 
+   */
   public static function setOrderSession($orderId, $products)
   {
+    //Just in case a previous session for this order is hanging around.
     self::deleteOrderSession($orderId);
     $settings = self::getOrderSettings($orderId);
 
@@ -30,6 +37,13 @@ class OrderHelper
   }
 
 
+  /**
+   * Delete the session of the edited order.
+   *
+   * @param integer  The id of the edited order.
+   *
+   * @return void
+   */
   public static function deleteOrderSession($orderId)
   {
     $session = JFactory::getSession();
@@ -46,6 +60,13 @@ class OrderHelper
   }
 
 
+  /**
+   * Return the shop settings from the order data.
+   *
+   * @param integer  The id of the edited order.
+   *
+   * @return array   The shop settings.
+   */
   public static function getOrderSettings($orderId)
   {
     $db = JFactory::getDbo();
@@ -59,6 +80,13 @@ class OrderHelper
   }
 
 
+  /**
+   * Separate 2 numbers concatenated with an underscore (eg: 78_5)
+   *
+   * @param string  The product and option ids concatenated with an underscore
+   *
+   * @return array  The separated product and option ids.
+   */
   public static function separateIds($ids)
   {
     if(!preg_match('#^([1-9][0-9]*)_(0|[1-9][0-9]*)$#', $ids, $matches)) {
@@ -71,6 +99,13 @@ class OrderHelper
   }
 
 
+  /**
+   * Return the products of the given order.
+   *
+   * @param integer  The id of the edited order.
+   *
+   * @return array   The products of the order.
+   */
   public static function getProducts($orderId)
   {
     $db = JFactory::getDbo();
@@ -84,6 +119,15 @@ class OrderHelper
   }
 
 
+  /**
+   * Set the price rules for the added or removed product.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The product for which price rules have to be set. 
+   * @param string  The name of the task currently applied on the order.
+   *
+   * @return mixed  The set price rules for the product (array), void otherwise.
+   */
   public static function setProductPriceRules($orderId, $product, $task)
   {
     $db = JFactory::getDbo();

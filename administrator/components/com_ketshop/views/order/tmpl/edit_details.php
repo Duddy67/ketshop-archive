@@ -75,7 +75,7 @@ if($data['can_edit']) {
   echo $button;
 
   $link = JURI::base().'index.php?option=com_ketshop&task=order.updateOrder&order_id='.$this->item->id;
-  echo '<a class="btn small" id="update-order" href="#"><span class="icon-shop-spinner11"></a>'; 
+  echo '<a class="btn" id="update-order" href="#"><span class="icon-shop-spinner11"></span>&nbsp;'.JText::_('COM_KETSHOP_REFRESH_ORDER').'</a>'; 
 }
 
 ?>
