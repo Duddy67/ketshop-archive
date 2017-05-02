@@ -110,6 +110,14 @@ class JavascriptHelper
   }
 
 
+  public static function getOrderText() 
+  {
+    JText::script('COM_KETSHOP_REMOVE_PRODUCT'); 
+
+    return;
+  }
+
+
   public static function getShippingText() 
   {
     JavascriptHelper::getButtonText();

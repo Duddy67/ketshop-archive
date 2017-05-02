@@ -28,11 +28,12 @@
 
   //Note: Don't call this function "remove" as it seems to interfere with the JQuery methods.
   $.fn.removeProduct = function(element) {
-    var urlQuery = $.fn.getUrlQuery();
-    urlQuery.task = 'remove';
-    urlQuery.product_ids = element.id;
-    //alert(element.id);
-    $.fn.runAjax(urlQuery);
+    if(confirm(Joomla.JText._('COM_KETSHOP_REMOVE_PRODUCT'))) {
+      var urlQuery = $.fn.getUrlQuery();
+      urlQuery.task = 'remove';
+      urlQuery.product_ids = element.id;
+      $.fn.runAjax(urlQuery);
+    }
   };
 
 
@@ -69,12 +70,15 @@
       var optionName = $('#option_name_'+ids).val();
       var code = $('#code_'+ids).val();
       var unitSalePrice = $('#unit_sale_price_'+ids).val();
+      var minQty = parseInt($('input[name=min_quantity_'+ids+']').val());
+      var maxQty = parseInt($('input[name=max_quantity_'+ids+']').val());
       //Insert dynamicaly an array of data for each product of the order.
       urlQuery.products.push({'ids':ids, 'unit_price':unitPrice,
 			      'quantity':quantity, 'tax_rate':taxRate,
 			      'catid':catid, 'name':name,
 			      'option_name':optionName,
-			      'code':code, 'unit_sale_price':unitSalePrice});
+			      'code':code, 'unit_sale_price':unitSalePrice,
+			      'min_quantity':minQty,'max_quantity':maxQty});
      });
 
     return urlQuery;
@@ -88,6 +92,10 @@
 	url: 'components/com_ketshop/js/ajax/order.php', 
 	dataType: 'json',
 	data: urlQuery,
+	beforeSend: function(jqXHR, settings) {
+	  //Display the waiting screen all over the page.
+	  $('#ajax-waiting-screen').css({'visibility':'visible','display':'block'});
+	},
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
 	  //Display message if any.
@@ -100,6 +108,7 @@
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.
 	  alert(textStatus+': '+errorThrown);
+	  $('#ajax-waiting-screen').css({'visibility':'hidden','display':'none'});
 	}
     });
   };

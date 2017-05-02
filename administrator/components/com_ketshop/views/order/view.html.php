@@ -12,6 +12,7 @@ defined( '_JEXEC' ) or die; // No direct access
 jimport( 'joomla.application.component.view');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
 require_once JPATH_COMPONENT.'/helpers/utility.php';
+require_once JPATH_COMPONENT.'/helpers/javascript.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/route.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
  
@@ -78,6 +79,7 @@ class KetshopViewOrder extends JViewLegacy
       $amountPriceRules[] = $priceRule;
     }
 
+    JavascriptHelper::getOrderText();
     //Display the toolbar.
     $this->addToolBar();
 

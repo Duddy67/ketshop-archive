@@ -49,6 +49,10 @@ Joomla.submitbutton = function(task)
 }
 </script>
 
+<div id="ajax-waiting-screen" style="visibility: hidden;display: none;">
+  <img src="../media/com_ketshop/images/ajax-loader.gif" width="31" height="31" />
+</div>
+
 <form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=order&layout=edit&id='.(int) $this->item->id); ?>" 
  method="post" name="adminForm" id="order-form" enctype="multipart/form-data" class="form-validate">
 

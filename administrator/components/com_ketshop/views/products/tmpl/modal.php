@@ -157,7 +157,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 		      $prodIds = $option['prod_id'].'_'.$option['opt_id']; ?>
 		      <tr><td>
 			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($option['option_name']); ?></a></td>
-			<td><?php echo $item->stock; ?></td>
+			<td><?php echo $option['stock']; ?></td>
 			<?php $basePrice = $salePrice = '-';
 			      if($option['base_price'] > 0) { 
 				$basePrice = UtilityHelper::formatNumber($option['base_price']).' '.$currency;
