@@ -200,6 +200,7 @@ CREATE TABLE `#__ketshop_order_prod` (
   `cart_rules_impact` DECIMAL(14,5) UNSIGNED NOT NULL ,
   `quantity` SMALLINT UNSIGNED NOT NULL ,
   `tax_rate` DECIMAL(5,2) UNSIGNED NOT NULL ,
+  `history` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,
   INDEX `idx_order_id` (`order_id` ASC) ,
   INDEX `idx_prod_id` (`prod_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;
@@ -225,7 +226,7 @@ CREATE TABLE `#__ketshop_order_prule` (
   `value` DECIMAL(14,5) UNSIGNED NULL ,
   `ordering` INT NOT NULL ,
   `show_rule` TINYINT(1) UNSIGNED NOT NULL ,
-  `state` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,
+  `history` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,
   INDEX `idx_order_id` (`order_id` ASC) ,
   INDEX `idx_prule_id` (`prule_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;

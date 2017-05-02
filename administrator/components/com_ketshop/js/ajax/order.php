@@ -47,7 +47,7 @@ if($task == 'add' || $task == 'remove') {
   //Don't take into account the possible changes (qty, unit price) set in the form. 
   //Get the products directly from the order table. 
   $products = OrderHelper::getProducts($orderId);
-  //
+  //Get the product and option id. 
   $ids = OrderHelper::separateIds($prodIds);
 
   if($task == 'add') {
@@ -65,13 +65,14 @@ if($task == 'add' || $task == 'remove') {
     $prodPrules = OrderHelper::setProductPriceRules($orderId, $product, $task);
 
     if(!empty($prodPrules)) {
-      //Replace the possible new price rules with the ones previously set in the order.
+      //Replace the new price rules with the ones previously set in the order.
       $product['pricerules'] = $prodPrules;
     }
 
     $settings = OrderHelper::getOrderSettings($orderId);
     $catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
 
+    //Set some required attributes.
     $product['unit_price'] = $catalogPrice->final_price;
     $product['quantity'] = 1;
     //Add the new product to the order.
@@ -117,20 +118,23 @@ foreach($products as $key => $product) {
 //Start a specific session named after the order id.
 $sessionGroup = OrderHelper::setOrderSession($orderId, $products);
 
-//Get and check the cart price rules linked to the order.
+//Get and check the initial cart price rules linked to the order.
 $orderCartPrules = OrderHelper::getCartPriceRules($orderId);
 $cartPriceRules = PriceruleHelper::checkCartPriceRuleConditions($orderCartPrules, $sessionGroup);
 
+//Set the history attribute of the price rules according wether they are applied in the
+//current order or not.
 foreach($orderCartPrules as $key => $orderCartPrule) {
-  $orderCartPrules[$key]['state'] = 0;
+  $orderCartPrules[$key]['history'] = 0;
   foreach($cartPriceRules as $cartPriceRule) {
     if($cartPriceRule['id'] == $orderCartPrule['id']) {
-      $orderCartPrules[$key]['state'] = 1;
+      $orderCartPrules[$key]['history'] = 1;
       break;
     }
   }
 }
 
+//Price rules targeting the shipping cost are treated aside.
 $shippingPrules = array();
 foreach($cartPriceRules as $key => $cartPriceRule) {
   //Put aside the shipping price rules.
@@ -140,12 +144,14 @@ foreach($cartPriceRules as $key => $cartPriceRule) {
   }
 }
 
+//Set the new cart amounts. 
 $totalProdAmt = PriceruleHelper::getTotalProductAmount(false, $sessionGroup);
 $amounts = array('cart_amount' => $totalProdAmt->amt_excl_tax,
 		 'crt_amt_incl_tax' => $totalProdAmt->amt_incl_tax,
 		 'final_amount' => $totalProdAmt->amt_excl_tax,
 		 'fnl_amt_incl_tax' => $totalProdAmt->amt_incl_tax);
 
+//Compute the final cart amounts according to the applied cart price rules.
 if(!empty($cartPriceRules)) {
   $result = PriceruleHelper::applyCartPriceRules($cartPriceRules, $totalProdAmt, $sessionGroup);
   $products = $result['products'];
@@ -154,11 +160,12 @@ if(!empty($cartPriceRules)) {
 }
 
 //Process the order updating.
-OrderHelper::setShippingPriceRules($orderId, $shippingPrules);
+OrderHelper::setShippingCost($orderId, $shippingPrules);
 OrderHelper::updateProducts($orderId, $products);
-OrderHelper::updatePriceRules($orderId, $orderCartPrules);
+OrderHelper::updateCartPriceRules($orderId, $orderCartPrules);
 OrderHelper::updateOrder($orderId, $amounts);
 
+//The order must be modified "on the fly" so we delete the order session.
 OrderHelper::deleteOrderSession($orderId);
 
 

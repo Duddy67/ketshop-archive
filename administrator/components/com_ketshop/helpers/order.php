@@ -38,7 +38,7 @@ class OrderHelper
 
 
   /**
-   * Delete the session of the edited order.
+   * Deletes the session of the edited order.
    *
    * @param integer  The id of the edited order.
    *
@@ -61,7 +61,7 @@ class OrderHelper
 
 
   /**
-   * Return the shop settings from the order data.
+   * Returns the shop settings from the order data.
    *
    * @param integer  The id of the edited order.
    *
@@ -81,7 +81,7 @@ class OrderHelper
 
 
   /**
-   * Separate 2 numbers concatenated with an underscore (eg: 78_5)
+   * Separates 2 numbers concatenated with an underscore (eg: 78_5)
    *
    * @param string  The product and option ids concatenated with an underscore
    *
@@ -100,7 +100,7 @@ class OrderHelper
 
 
   /**
-   * Return the products of the given order.
+   * Returns the products of the given order.
    *
    * @param integer  The id of the edited order.
    *
@@ -112,7 +112,8 @@ class OrderHelper
     $query = $db->getQuery(true);
     $query->select('*')
 	  ->from('#__ketshop_order_prod')
-	  ->where('order_id='.(int)$orderId);
+	  ->where('order_id='.(int)$orderId)
+	  ->where('(history=1 OR history=2)');
     $db->setQuery($query);
 
     return $db->loadAssocList();
@@ -120,13 +121,19 @@ class OrderHelper
 
 
   /**
-   * Set the price rules for the added or removed product.
+   * Sets the price rules (and their history attribute) linked to the added or removed product.
+   *
+   * history codes:
+   * 0: The price rule is part of the initial order but is not currently applied (due to an order modification).
+   * 1: The price rule is part of the initial order and is currently applied.
+   * 2: The price rule is not part of the initial order and is currently applied. It will
+   *    be removed from the table in case of deletion of the linked product.
    *
    * @param integer  The id of the edited order.
    * @param array  The product for which price rules have to be set. 
    * @param string  The name of the task currently applied on the order.
    *
-   * @return mixed  The set price rules for the product (array), void otherwise.
+   * @return mixed  The price rules for the product (array), void otherwise.
    */
   public static function setProductPriceRules($orderId, $product, $task)
   {
@@ -134,63 +141,68 @@ class OrderHelper
     $query = $db->getQuery(true);
 
     if($task == 'remove') {
+      //Remove all the price rules (if any) 
+      //in case the product is not part of the initial order (history=2).
       $query->delete('#__ketshop_order_prule')
 	    ->where('order_id='.(int)$orderId)
 	    ->where('prod_id='.(int)$product['prod_id'])
-	    ->where('state=3');
+	    ->where('history=2');
       $db->setQuery($query);
       $db->query();
 
-      //
+      //Set the history attribute to zero for price rules in case the product 
+      //is part of the initial order.
       $query->clear();
       $query->update('#__ketshop_order_prule')
-	    ->set('state=2')
+	    ->set('history=0')
 	    ->where('order_id='.(int)$orderId)
 	    ->where('prod_id='.(int)$product['prod_id']);
       $db->setQuery($query);
       $db->query();
     }
-    else { //add
-      $query->select('prule_id AS id, name, type, target, operation, application,'.
-		     'modifier, behavior, value, show_rule, state')
-	    ->from('#__ketshop_order_prule')
+    else { //Add product
+      $priceRules = array();
+      //Check first if the product is part of the initial order (ie: it as been removed
+      //then added again).
+      $query->select('history')
+	    ->from('#__ketshop_order_prod')
 	    ->where('order_id='.(int)$orderId)
 	    ->where('prod_id='.(int)$product['prod_id'])
-	    ->order('ordering');
+	    ->where('opt_id='.(int)$product['opt_id']);
       $db->setQuery($query);
-      $priceRules = $db->loadAssocList();
+      $history = $db->loadResult();
 
-      if(!empty($priceRules)) {
+      if($history !== null) {
+	//Update the possible initial price rules for this product.
 	$query->clear();
 	$query->update('#__ketshop_order_prule')
-	      ->set('state=1')
+	      ->set('history=1')
 	      ->where('order_id='.(int)$orderId)
 	      ->where('prod_id='.(int)$product['prod_id']);
-    //file_put_contents('debog_file_shipping.txt', print_r($query->__toString(), true));
 	$db->setQuery($query);
 	$db->query();
       }
-      else {
+      else { // The added product is not being part of the initial order.
+	$priceRules = $product['pricerules'];
 	//Insert the possible price rules for this product. 
-	//Note: The state attribute is set to 3 which means this price rule will be deleted in
-	//      case this product is removed from the order.
+	//Note: The history attribute is set to 2 which means this price rule will be
+	//      deleted in case this product is removed from the order.
 	$values = array();
-	foreach($product['pricerules'] as $priceRule) {
+	foreach($priceRules as $priceRule) {
 	  $values[] = (int)$orderId.','.(int)$priceRule['id'].','.(int)$product['id'].','.$db->Quote($priceRule['name']).
 		      ','.$db->Quote($priceRule['type']).','.$db->Quote($priceRule['target']).','.$db->Quote($priceRule['operation']).
 		      ','.$db->Quote($priceRule['behavior']).','.$db->Quote($priceRule['modifier']).','.$db->Quote($priceRule['application']).
-		      ','.$priceRule['value'].','.$priceRule['ordering'].','.$priceRule['show_rule'].',3';
+		      ','.$priceRule['value'].','.$priceRule['ordering'].','.$priceRule['show_rule'].',2';
 	}
 
 	if(!empty($values)) {
 	  $columns = array('order_id','prule_id','prod_id','name','type','target','operation',
-			   'behavior','modifier','application','value','ordering','show_rule','state');
+			   'behavior','modifier','application','value','ordering','show_rule','history');
 
 	  $query->clear();
 	  $query->insert('#__ketshop_order_prule')
 		->columns($columns)
 		->values($values);
-      //file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
 	  $db->setQuery($query);
 	  $db->query();
 	}
@@ -201,12 +213,19 @@ class OrderHelper
   }
 
 
+  /**
+   * Returns the cart price rules linked to the given order.
+   *
+   * @param integer  The id of the edited order.
+   *
+   * @return array  The cart price rules linked to the given order.
+   */
   public static function getCartPriceRules($orderId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->select('prule_id AS id, name, type, target, operation, `condition`,'.
-	           'logical_opr, behavior, value, show_rule, state')
+	           'logical_opr, behavior, value, show_rule, history')
 	  ->from('#__ketshop_order_prule')
 	  ->where('type='.$db->Quote('cart'))
 	  ->where('order_id='.(int)$orderId)
@@ -218,12 +237,14 @@ class OrderHelper
       return $priceRules;
     }
 
+    //Collect the price rule ids and set the conditions attribute.
     $ids = array();
     foreach($priceRules as $key => $priceRule) {
       $priceRules[$key]['conditions'] = array();
       $ids[] = $priceRule['id'];
     }
 
+    //Get the conditions linked to the price rules.
     $query->clear();
     $query->select('*')
 	  ->from('#__ketshop_prule_condition')
@@ -231,6 +252,7 @@ class OrderHelper
     $db->setQuery($query);
     $conditions = $db->loadAssocList();
 
+    //Link the condition array to the corresponding price rule.
     foreach($priceRules as $key => $priceRule) {
       foreach($conditions as $condition) {
         if($condition['prule_id'] == $priceRule['id']) {
@@ -243,8 +265,17 @@ class OrderHelper
   }
 
 
-  public static function setShippingPriceRules($orderId, $priceRules)
+  /**
+   * Sets the shipping cost according to the given price rules.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The price rules to applied on the shipping cost
+   *
+   * @return void
+   */
+  public static function setShippingCost($orderId, $priceRules)
   {
+    //Get the current shipping costs.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->select('shipping_cost, final_shipping_cost')
@@ -275,68 +306,147 @@ class OrderHelper
     $query->update('#__ketshop_delivery')
 	  ->set($fields)
 	  ->where('order_id='.(int)$orderId);
-//file_put_contents('debog_file_shipping.txt', print_r($query->__toString(), true));
     $db->setQuery($query);
     $db->query();
   }
 
 
+  /**
+   * Updates the products and their history attribute in database.
+   *
+   * history codes:
+   * 0: The product is part of the initial order but not part of the current order (due to an order modification).
+   * 1: The product is part of the initial order as well as the current order.
+   * 2: The product is not part of the initial order but is part of the current order. It will
+   *    be removed from the table in case of deletion through the order form.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The products coming from the order form.
+   *
+   * @return void
+   */
   public static function updateProducts($orderId, $products)
   {
+    //Delete the products which are not part of the initial order.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->delete('#__ketshop_order_prod')
+	  ->where('order_id='.(int)$orderId)
+	  ->where('history=2');
+    $db->setQuery($query);
+    $db->query();
+
+    //Get the initial products.
+    $query->clear();
+    $query->select('prod_id, opt_id, history')
+	  ->from('#__ketshop_order_prod')
+	  ->where('order_id='.(int)$orderId);
+    $db->setQuery($query);
+    $initialProducts = $db->loadAssocList();
+
+    $values = array();
+    $when = '';
+    foreach($products as $product) {
+      $isInitial = false;
+      //Check wether the product is part of the initial order.
+      foreach($initialProducts as $key => $initialProduct) {
+	if($initialProduct['prod_id'] == $product['prod_id'] && $initialProduct['opt_id'] == $product['opt_id']) {
+	  //The initial product is part of the current order. Set the history attribute to 1.
+	  $when .= 'WHEN order_id='.$orderId.' AND prod_id='.$initialProduct['prod_id'].' AND opt_id='.$initialProduct['opt_id'].' THEN 1 ';
+	  //Remove the product from the array then set the flag to true.
+	  unset($initialProducts[$key]);
+	  $isInitial = true;
+	  break;
+	}
+      }
+
+      if($isInitial) {
+	//Don't go further, move to the next product.
+	continue;
+      }
+
+      //The product is part of the current order but is not part of the initial order. Set the history attribute to 2.
+      $values[] = (int)$orderId.','.(int)$product['prod_id'].','.(int)$product['opt_id'].','.$db->Quote($product['name']).
+	          ','.$db->Quote($product['option_name']).','.$db->Quote($product['code']).','.$product['unit_sale_price'].
+		  ','.$product['unit_price'].','.$product['cart_rules_impact'].','.(int)$product['quantity'].
+		  ','.$product['tax_rate'].',2';
+    }
+
+    //Set the remaining of the initial products to 0 as they are not part of the current order.
+    foreach($initialProducts as $initialProduct) {
+      $when .= 'WHEN order_id='.$orderId.' AND prod_id='.$initialProduct['prod_id'].' AND opt_id='.$initialProduct['opt_id'].' THEN 0 ';
+    }
+
+    $case = ' history = CASE '.$when.' ELSE history END';
+
+    //Update the initial products.
+    $query->clear();
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->update('#__ketshop_order_prod')
+	  ->set($case)
 	  ->where('order_id='.(int)$orderId);
     $db->setQuery($query);
     $db->query();
 
-    $values = array();
-    foreach($products as $product) {
-      $values[] = (int)$orderId.','.(int)$product['prod_id'].','.(int)$product['opt_id'].','.$db->Quote($product['name']).
-	          ','.$db->Quote($product['option_name']).','.$db->Quote($product['code']).','.$product['unit_sale_price'].
-		  ','.$product['unit_price'].','.$product['cart_rules_impact'].','.(int)$product['quantity'].','.$product['tax_rate'];
+    //Insert the new products (not being part of the initial order) in database.
+    if(!empty($values)) {
+      $columns = array('order_id', 'prod_id', 'opt_id', 'name', 'option_name',
+		       'code', 'unit_sale_price', 'unit_price', 'cart_rules_impact',
+		       'quantity', 'tax_rate', 'history');
+
+      $query->clear();
+      $query->insert('#__ketshop_order_prod')
+	    ->columns($columns)
+	    ->values($values);
+      $db->setQuery($query);
+      $db->query();
     }
-
-    $columns = array('order_id', 'prod_id', 'opt_id', 'name', 'option_name',
-		     'code', 'unit_sale_price', 'unit_price', 'cart_rules_impact',
-		     'quantity', 'tax_rate');
-
-    $query->clear();
-    $query->insert('#__ketshop_order_prod')
-	  ->columns($columns)
-	  ->values($values);
-//file_put_contents('debog_file_prod.txt', print_r($query->__toString(), true));
-    $db->setQuery($query);
-    $db->query();
-
   }
 
 
-  public static function updatePriceRules($orderId, $priceRules)
+  /**
+   * Updates the cart price rule data in database.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The cart price rules of the given order.
+   *
+   * @return void
+   */
+  public static function updateCartPriceRules($orderId, $priceRules)
   {
     if(empty($priceRules)) {
       return;
     }
 
+    //Build the WHEN case.
     $when = '';
     foreach($priceRules as $priceRule) {
-      $when .= 'WHEN order_id='.$orderId.' AND prule_id='.$priceRule['id'].' THEN '.$priceRule['state'].' ';
+      $when .= 'WHEN order_id='.$orderId.' AND prule_id='.$priceRule['id'].' THEN '.$priceRule['history'].' ';
     }
 
-    $case = ' state = CASE '.$when.' ELSE state END';
+    $case = ' history = CASE '.$when.' ELSE history END';
 
+    //Update data.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->update('#__ketshop_order_prule')
 	  ->set($case)
 	  ->where('order_id='.(int)$orderId);
-//file_put_contents('debog_file_prules.txt', print_r($query->__toString(), true));
     $db->setQuery($query);
     $db->query();
 
   }
 
 
+  /**
+   * Updates the order amounts in database.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The amounts of the given order.
+   *
+   * @return void
+   */
   public static function updateOrder($orderId, $amounts)
   {
     //Set the new order amounts.
@@ -350,10 +460,8 @@ class OrderHelper
     $query->update('#__ketshop_order')
 	  ->set($fields)
 	  ->where('id='.(int)$orderId);
-//file_put_contents('debog_file_order.txt', print_r($query->__toString(), true));
     $db->setQuery($query);
     $db->query();
-
   }
 }
 
