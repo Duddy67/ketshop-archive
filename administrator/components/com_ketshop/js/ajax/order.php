@@ -41,7 +41,7 @@ if(empty($langTag)) {
     $langTag = $lang->getTag();
 }
 //Load language.
-$lang->load('com_ketshop', JPATH_ROOT.'/components/com_ketshop', $langTag);
+$lang->load('com_ketshop', JPATH_ROOT.'/administrator/components/com_ketshop', $langTag);
 
 if($task == 'add' || $task == 'remove') {
   //Don't take into account the possible changes (qty, unit price) set in the form. 
@@ -49,6 +49,13 @@ if($task == 'add' || $task == 'remove') {
   $products = OrderHelper::getProducts($orderId);
   //Get the product and option id. 
   $ids = OrderHelper::separateIds($prodIds);
+
+  //The order must contained at least one product.
+  if($task == 'remove' && count($products) == 1) {
+    $data['message'] = JText::_('COM_KETSHOP_CANNOT_REMOVE_PRODUCT');
+    echo json_encode($data);
+    return;
+  }
 
   if($task == 'add') {
     //Check for duplicates.
@@ -87,32 +94,43 @@ foreach($products as $key => $product) {
     $ids = OrderHelper::separateIds($product['ids']);
     $products[$key]['prod_id'] = $ids['prod_id'];
     $products[$key]['opt_id'] = $ids['opt_id'];
+
+    //Sanitize and check the values passed through the form.
+    if(($products[$key]['unit_price'] = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT)) === false || $product['unit_price'] == 0) {
+      $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_INVALID_UNIT_PRICE', $product['name']);
+      echo json_encode($data);
+      return;
+    }
+
+    if(($products[$key]['quantity'] = filter_var($product['quantity'], FILTER_VALIDATE_INT)) === false || $product['quantity'] == 0) {
+      $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $product['name']);
+      echo json_encode($data);
+      return;
+    }
+
+    //Check for quantity limits.
+    if($products[$key]['quantity'] < $product['min_quantity']) {
+      $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_MIN_QUANTITY', $product['name'], $product['min_quantity']);
+      echo json_encode($data);
+      return;
+    }
+
+    if($products[$key]['quantity'] > $product['max_quantity']) {
+      $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_MAX_QUANTITY', $product['name'], $product['max_quantity']);
+      echo json_encode($data);
+      return;
+    }
   }
   elseif($task == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
     OrderHelper::setProductPriceRules($orderId, $product, $task);
     //Remove the product from the order.
     unset($products[$key]);
+    //Move to the next product.
     continue;
   }
 
-  //Sanitize and check the values passed through the form (ie: update task)
-  if(($unitPrice = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT)) === false || $product['unit_price'] == 0) {
-    $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_INVALID_UNIT_PRICE', $product['name']);
-    echo json_encode($data);
-    return;
-  }
-
-  if(($quantity = filter_var($product['quantity'], FILTER_VALIDATE_INT)) === false || $product['quantity'] == 0) {
-    $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $product['name']);
-    echo json_encode($data);
-    return;
-  }
-
-  //Update the product prices according the new quantities and price changes.
-  $products[$key]['unit_price'] = $unitPrice;
-  $products[$key]['quantity'] = $quantity;
-  //Add the cart_rules_impact attribute used with the cart price rules computation.
-  $products[$key]['cart_rules_impact'] = $unitPrice;
+  //Set (or add) the cart_rules_impact attribute used with the cart price rules computation.
+  $products[$key]['cart_rules_impact'] = $products[$key]['unit_price'];
 }
 
 //Start a specific session named after the order id.

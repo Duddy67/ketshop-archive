@@ -174,6 +174,9 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	   <input type="hidden" name="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  value="<?php echo $product['unit_sale_price']; ?>" />
+	   <input type="hidden" name="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  value="<?php echo $product['quantity']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>
@@ -206,7 +209,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	  <span class="cart-rules-impact-currency"><?php echo $displayData['currency']; ?></span>
 	</td>
 	<td class="center">-</td>
-	<?php if($layout == 'cart') : //Add the "Remove" button column. ?>
+	<?php if($layout == 'cart' || $canEdit) : //Add the "Remove" button column. ?>
 	  <td class="center">-</td>
 	<?php endif; ?>
 	</tr>

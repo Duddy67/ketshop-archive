@@ -327,81 +327,63 @@ class OrderHelper
    */
   public static function updateProducts($orderId, $products)
   {
-    //Delete the products which are not part of the initial order.
+    //First get the initial products.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->delete('#__ketshop_order_prod')
-	  ->where('order_id='.(int)$orderId)
-	  ->where('history=2');
-    $db->setQuery($query);
-    $db->query();
-
-    //Get the initial products.
-    $query->clear();
-    $query->select('prod_id, opt_id, history')
+    $query->select('*')
 	  ->from('#__ketshop_order_prod')
-	  ->where('order_id='.(int)$orderId);
+	  ->where('order_id='.(int)$orderId)
+	  ->where('(history=0 OR history=1)');
     $db->setQuery($query);
     $initialProducts = $db->loadAssocList();
 
+    //Delete all the order products including those which are not part 
+    //of the initial order (ie: history=2).
+    $query->clear();
+    $query->delete('#__ketshop_order_prod')
+	  ->where('order_id='.(int)$orderId);
+    $db->setQuery($query);
+    $db->query();
+
     $values = array();
-    $when = '';
+    //Check the products of the current order.
     foreach($products as $product) {
-      $isInitial = false;
-      //Check wether the product is part of the initial order.
+      $history = 2;
       foreach($initialProducts as $key => $initialProduct) {
+	//Check wether the product is part of the initial order.
 	if($initialProduct['prod_id'] == $product['prod_id'] && $initialProduct['opt_id'] == $product['opt_id']) {
-	  //The initial product is part of the current order. Set the history attribute to 1.
-	  $when .= 'WHEN order_id='.$orderId.' AND prod_id='.$initialProduct['prod_id'].' AND opt_id='.$initialProduct['opt_id'].' THEN 1 ';
-	  //Remove the product from the array then set the flag to true.
+	  $history = 1;
+	  //Remove the product from the array 
 	  unset($initialProducts[$key]);
-	  $isInitial = true;
 	  break;
 	}
       }
 
-      if($isInitial) {
-	//Don't go further, move to the next product.
-	continue;
-      }
-
-      //The product is part of the current order but is not part of the initial order. Set the history attribute to 2.
+      //Update the product.
       $values[] = (int)$orderId.','.(int)$product['prod_id'].','.(int)$product['opt_id'].','.$db->Quote($product['name']).
 	          ','.$db->Quote($product['option_name']).','.$db->Quote($product['code']).','.$product['unit_sale_price'].
 		  ','.$product['unit_price'].','.$product['cart_rules_impact'].','.(int)$product['quantity'].
-		  ','.$product['tax_rate'].',2';
+		  ','.$product['tax_rate'].','.(int)$history;
     }
 
     //Set the remaining of the initial products to 0 as they are not part of the current order.
     foreach($initialProducts as $initialProduct) {
-      $when .= 'WHEN order_id='.$orderId.' AND prod_id='.$initialProduct['prod_id'].' AND opt_id='.$initialProduct['opt_id'].' THEN 0 ';
+      $values[] = (int)$orderId.','.(int)$initialProduct['prod_id'].','.(int)$initialProduct['opt_id'].','.$db->Quote($initialProduct['name']).
+	          ','.$db->Quote($initialProduct['option_name']).','.$db->Quote($initialProduct['code']).','.$initialProduct['unit_sale_price'].
+		  ','.$initialProduct['unit_price'].','.$initialProduct['cart_rules_impact'].','.(int)$initialProduct['quantity'].
+		  ','.$initialProduct['tax_rate'].',0';
     }
 
-    $case = ' history = CASE '.$when.' ELSE history END';
+    $columns = array('order_id', 'prod_id', 'opt_id', 'name', 'option_name',
+		     'code', 'unit_sale_price', 'unit_price', 'cart_rules_impact',
+		     'quantity', 'tax_rate', 'history');
 
-    //Update the initial products.
     $query->clear();
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    $query->update('#__ketshop_order_prod')
-	  ->set($case)
-	  ->where('order_id='.(int)$orderId);
+    $query->insert('#__ketshop_order_prod')
+	  ->columns($columns)
+	  ->values($values);
     $db->setQuery($query);
     $db->query();
-
-    //Insert the new products (not being part of the initial order) in database.
-    if(!empty($values)) {
-      $columns = array('order_id', 'prod_id', 'opt_id', 'name', 'option_name',
-		       'code', 'unit_sale_price', 'unit_price', 'cart_rules_impact',
-		       'quantity', 'tax_rate', 'history');
-
-      $query->clear();
-      $query->insert('#__ketshop_order_prod')
-	    ->columns($columns)
-	    ->values($values);
-      $db->setQuery($query);
-      $db->query();
-    }
   }
 
 

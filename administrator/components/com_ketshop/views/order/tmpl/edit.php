@@ -72,7 +72,9 @@ Joomla.submitbutton = function(task)
 		  $this->form->setValue('cart_status', null, $status[$this->item->cart_status]);
 		  echo $this->form->getControlGroup('cart_status');
 		  $this->form->setValue('customer_name', null, $this->item->cust_name);
-		  echo $this->form->getControlGroup('customer_name'); ?>
+		  echo $this->form->getControlGroup('customer_name'); 
+		  echo $this->form->getControlGroup('vendor_note'); 
+		  echo $this->form->getControlGroup('customer_note'); ?>
 		  <span class="btn">
 		  <a href="<?php echo $customerUrl; ?>" class="modal" rel="{handler: 'iframe', size: {x: 800, y: 500}}">
 		  <span class="icon-notification-2"></span><?php echo JText::_('COM_KETSHOP_FIELD_INFORMATION_LABEL'); ?></a></span>
@@ -114,11 +116,7 @@ Joomla.submitbutton = function(task)
 	</div>
 	<div class="span6">
 	  <div class="form-vertical">
-	    <?php
-		  echo JLayoutHelper::render('joomla.edit.global', $this); 
-		  echo $this->form->getControlGroup('vendor_note');
-		  echo $this->form->getControlGroup('customer_note');
-	      ?>
+	    <?php echo JLayoutHelper::render('joomla.edit.global', $this); ?>
 	  </div>
 	</div>
       </div>

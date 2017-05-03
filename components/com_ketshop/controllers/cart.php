@@ -486,7 +486,7 @@ class KetshopControllerCart extends JControllerForm
     $query = $db->getQuery(true);
     $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
 		   'p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
-		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name')
+		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name, op.cart_rules_impact')
 	  ->from('#__ketshop_order_prod AS op')
 	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
 	  ->where('op.order_id='.(int)$orderId)
