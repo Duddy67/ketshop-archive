@@ -335,6 +335,9 @@ div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-
 .icon-shop-location:before {
 	content: "\e90d";
 }
+.icon-shop-download:before {
+    content: "\e960";
+}
 .icon-shop-clock:before {
 	content: "\e90e";
 }

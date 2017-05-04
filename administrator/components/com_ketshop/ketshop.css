@@ -1010,6 +1010,15 @@ input.unit-price {
   width: 70%;
 }
 
+#item_link {
+  margin-bottom: 10px;
+}
+
+#update-order {
+  margin-left: 60px;
+  margin-bottom: 10px;
+}
+
 #ajax-waiting-screen {
   z-index: 10000;
   position: fixed;
@@ -1137,6 +1146,9 @@ a:link.ketshop-link {
 }
 .icon-shop-location:before {
     content: "\e947";
+}
+.icon-shop-download:before {
+    content: "\e960";
 }
 .icon-shop-user:before {
     content: "\e971";

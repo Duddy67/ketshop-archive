@@ -9,8 +9,8 @@
 defined('_JEXEC') or die; // No direct access
  
 jimport( 'joomla.application.component.view');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
+require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/order.php';
  
 
 class KetshopViewOrder extends JViewLegacy
@@ -25,8 +25,7 @@ class KetshopViewOrder extends JViewLegacy
     // Initialise variables
     $item = $this->get('Item');
     $form = $this->get('Form');
-    //Get products from the cart controller function.
-    $products = ShopHelper::callControllerFunction('cart', 'getProductsFromOrder', array($item->id));
+    $products = OrderHelper::getProducts($item->id);
     $priceRules = $this->get('PriceRules');
     $shippingData = $this->get('ShippingData');
     //Invoke function in a slitghly different way here as we need to pass arguments.
@@ -37,7 +36,7 @@ class KetshopViewOrder extends JViewLegacy
     foreach($products as $key => $product) {
       $products[$key]['pricerules'] = array();
 
-      $slug = $product['id'].':'.$product['alias'];
+      $slug = $product['prod_id'].':'.$product['alias'];
       //Build the link leading to the product page.
       $url = JRoute::_(KetshopHelperRoute::getProductRoute($slug, (int)$product['catid']));
       //Make the link safe.
@@ -45,7 +44,7 @@ class KetshopViewOrder extends JViewLegacy
       $products[$key]['url'] = $url;
 
       foreach($priceRules as $priceRule) {
-	if($product['id'] == $priceRule['prod_id']) {
+	if($product['prod_id'] == $priceRule['prod_id']) {
 	  $products[$key]['pricerules'][] = $priceRule;
 	}
       }

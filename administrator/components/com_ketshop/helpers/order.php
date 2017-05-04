@@ -108,23 +108,44 @@ class OrderHelper
    */
   public static function getProducts($orderId)
   {
+    //Get the products from the order.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('*')
-	  ->from('#__ketshop_order_prod')
-	  ->where('order_id='.(int)$orderId)
-	  ->where('(history=1 OR history=2)');
+    $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
+		   'p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
+		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name, op.cart_rules_impact,'.
+		   'po.published AS opt_published, po.stock AS opt_stock')
+	  ->from('#__ketshop_order_prod AS op')
+	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
+	  ->join('LEFT', '#__ketshop_product_option AS po ON po.prod_id=op.prod_id AND po.opt_id=op.opt_id')
+	  ->where('op.order_id='.(int)$orderId)
+	  ->where('(op.history=1 OR op.history=2)')
+	  ->order('p.name');
     $db->setQuery($query);
+    $products = $db->loadAssocList();
 
-    return $db->loadAssocList();
+    //Check for product options.
+    foreach($products as $key => $product) {
+      if($product['opt_id']) {
+	//Replace the values of the main product with those of the option.
+	$products[$key]['published'] = $product['opt_published']; 
+	$products[$key]['stock'] = $product['opt_stock']; 
+      }
+
+      //Remove unnecessary variables.
+      unset($products[$key]['opt_published']);
+      unset($products[$key]['opt_stock']);
+    }
+
+    return $products;
   }
 
 
   /**
-   * Sets the price rules (and their history attribute) linked to the added or removed product.
+   * Sets the product price rules (and their history attribute) linked to the added or removed product.
    *
    * history codes:
-   * 0: The price rule is part of the initial order but is not currently applied (due to an order modification).
+   * 0: The price rule is part of the initial order but is not currently applied (ie: the linked product has been deleted).
    * 1: The price rule is part of the initial order and is currently applied.
    * 2: The price rule is not part of the initial order and is currently applied. It will
    *    be removed from the table in case of deletion of the linked product.
@@ -444,65 +465,6 @@ class OrderHelper
 	  ->where('id='.(int)$orderId);
     $db->setQuery($query);
     $db->query();
-  }
-
-
-  //TODO
-  public static function checkQuantity($orderId, $products)
-  {
-    /*
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-
-    //Set some return variables.
-    $data['insufficient_stock'] = 0;
-    $data['no_qty_change'] = 0;
-
-    //Check the current quantity.
-    $query->select('quantity')
-	  ->from('#__ketshop_order_prod')
-	  ->where('order_id='.(int)$orderId)
-	  ->where('prod_id='.(int)$prodId)
-	  ->where('opt_id='.(int)$optId);
-    $db->setQuery($query);
-    $currentQty = $db->loadResult();
-
-    //No need to go further.
-    if($newQty == $currentQty) {
-      $data['no_qty_change'] = 1;
-      echo json_encode($data);
-      return;
-    }
-
-    //Need to check the stock.
-    if($newQty > $currentQty) {
-      $addedQty = $newQty - $currentQty;
-      $table = '#__ketshop_product';
-      $query->clear()
-	    ->select('stock');
-
-      //Get the product stock value according to the product. 
-      if($optId) { //product option
-	$query->from('#__ketshop_product_option')
-	      ->where('prod_id='.(int)$prodId)
-	      ->where('opt_id='.(int)$optId);
-      }
-      else { //regular product
-	$query->from('#__ketshop_product')
-	      ->where('id='.(int)$prodId);
-      }
-
-      $db->setQuery($query);
-      $stock = $db->loadResult();
-
-      //Cannot change quantity.
-      if($addedQty > $stock) {
-	$data['insufficient_stock'] = 1;
-	echo json_encode($data);
-	return;
-      }
-    }
-    */
   }
 }
 

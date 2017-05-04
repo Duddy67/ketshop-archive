@@ -159,7 +159,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 
 	<?php if($canEdit) : //Order can be updated. ?>
 	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#"><span class="icon-shop-bin"></a> 
-	   <?php // ?>
+	   <?php //Set all the required data for the order editing. ?>
 	   <input type="hidden" name="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $taxRate; ?>" />
 	   <input type="hidden" name="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
@@ -177,6 +177,11 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	   <input type="hidden" name="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  value="<?php echo $product['quantity']; ?>" />
+	   <input type="hidden" name="stock_subtract_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="stock_subtract_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  value="<?php echo $product['stock_subtract']; ?>" />
+	   <input type="hidden" name="stock_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="stock_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['stock']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>

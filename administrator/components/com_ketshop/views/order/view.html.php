@@ -13,8 +13,8 @@ jimport( 'joomla.application.component.view');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
 require_once JPATH_COMPONENT.'/helpers/utility.php';
 require_once JPATH_COMPONENT.'/helpers/javascript.php';
+require_once JPATH_COMPONENT.'/helpers/order.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/route.php';
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
  
 
 class KetshopViewOrder extends JViewLegacy
@@ -34,8 +34,7 @@ class KetshopViewOrder extends JViewLegacy
     $this->item = $this->get('Item');
     $this->form = $this->get('Form');
     $this->state = $this->get('State');
-    //Get products from the cart controller function.
-    $this->products = ShopHelper::callControllerFunction('cart', 'getProductsFromOrder', array($this->item->id));
+    $this->products = OrderHelper::getProducts($this->item->id);
     $this->priceRules = $this->get('PriceRules');
     $this->billingAddress = $this->get('BillingAddress');
 
@@ -57,7 +56,7 @@ class KetshopViewOrder extends JViewLegacy
     foreach($this->products as $key => $product) {
       $this->products[$key]['pricerules'] = array();
 
-      $slug = $product['id'].':'.$product['alias'];
+      $slug = $product['prod_id'].':'.$product['alias'];
       //Build the link leading to the product page.
       $url = JRoute::_(KetshopHelperRoute::getProductRoute($slug, (int)$product['catid']));
       //
@@ -67,7 +66,7 @@ class KetshopViewOrder extends JViewLegacy
       $this->products[$key]['url'] = $url;
 
       foreach($this->priceRules as $priceRule) {
-	if($product['id'] == $priceRule['prod_id']) {
+	if($product['prod_id'] == $priceRule['prod_id']) {
 	  $this->products[$key]['pricerules'][] = $priceRule;
 	}
       }

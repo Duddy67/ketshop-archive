@@ -4,7 +4,6 @@
   //Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
     $('.remove-product').click( function() { $.fn.removeProduct(this); });
-    $('.refresh-qty').click( function() { $.fn.changeQuantity(this); });
     $('#update-order').click( function() { $.fn.updateOrder(); });
   });
 
@@ -61,7 +60,9 @@
     var urlQuery = {'order_id':orderId, 'user_id':userId, 'products':[]};
     //
     $('[id^="unit_price_"]').each(function() {
+      //
       var ids = this.id.substring(11);
+      //
       var unitPrice = $('#'+this.id).val();
       var quantity = $('#quantity_product_'+ids).val();
       var taxRate = $('#tax_rate_'+ids).val();
@@ -73,6 +74,8 @@
       var minQty = parseInt($('input[name=min_quantity_'+ids+']').val());
       var maxQty = parseInt($('input[name=max_quantity_'+ids+']').val());
       var initialQty = $('#initial_quantity_'+ids).val();
+      var stockSubtract = $('#stock_subtract_'+ids).val();
+      var stock = $('#stock_'+ids).val();
       //Insert dynamicaly an array of data for each product of the order.
       urlQuery.products.push({'ids':ids, 'unit_price':unitPrice,
 			      'quantity':quantity, 'tax_rate':taxRate,
@@ -80,7 +83,8 @@
 			      'option_name':optionName,
 			      'code':code, 'unit_sale_price':unitSalePrice,
 			      'min_quantity':minQty,'max_quantity':maxQty, 
-			      'initial_quantity':initialQty});
+			      'initial_quantity':initialQty,
+			      'stock_subtract':stockSubtract, 'stock':stock});
      });
 
     return urlQuery;

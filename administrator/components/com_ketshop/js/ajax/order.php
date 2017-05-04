@@ -68,6 +68,14 @@ if($task == 'add' || $task == 'remove') {
     }
 
     $product = ShopHelper::getProduct($ids['prod_id'], $ids['opt_id']);
+
+    //Check for stock.
+    if($product['stock'] == 0) {
+      $data['message'] = JText::sprintf('COM_KETSHOP_INSUFFICIENT_STOCK', $product['name']);
+      echo json_encode($data);
+      return;
+    }
+
     $product['prod_id'] = $product['id'];
     $prodPrules = OrderHelper::setProductPriceRules($orderId, $product, $task);
 
@@ -117,6 +125,13 @@ foreach($products as $key => $product) {
 
     if($products[$key]['quantity'] > $product['max_quantity']) {
       $data['message'] = JText::sprintf('COM_KETSHOP_ERROR_MAX_QUANTITY', $product['name'], $product['max_quantity']);
+      echo json_encode($data);
+      return;
+    }
+
+    //Check for stock.
+    if($product['stock_subtract'] && $products[$key]['quantity'] > $product['stock']) {
+      $data['message'] = JText::sprintf('COM_KETSHOP_INSUFFICIENT_STOCK', $product['name']);
       echo json_encode($data);
       return;
     }

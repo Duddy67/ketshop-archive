@@ -71,10 +71,10 @@ if($data['can_edit']) {
   JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
   $link = 'index.php?option=com_ketshop&amp;view=products&amp;layout=modal&amp;type=order&amp;tmpl=component';
   $button = '<a class="modal btn" id="item_link" title="Add product" href="'.$link.'"'
-	    .' rel="{handler: \'iframe\', size: {x: 800, y: 500}}">'.JText::_('COM_KETSHOP_ADD_PRODUCT').'</a>';
+	    .' rel="{handler: \'iframe\', size: {x: 800, y: 500}}">'
+	    .'<span class="icon-shop-download"></span>&nbsp;'.JText::_('COM_KETSHOP_ADD_PRODUCT').'</a>';
   echo $button;
 
-  $link = JURI::base().'index.php?option=com_ketshop&task=order.updateOrder&order_id='.$this->item->id;
   echo '<a class="btn" id="update-order" href="#"><span class="icon-shop-spinner11"></span>&nbsp;'.JText::_('COM_KETSHOP_REFRESH_ORDER').'</a>'; 
 }
 

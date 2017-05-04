@@ -13,6 +13,7 @@ jimport('joomla.application.component.controllerform');
 //JPATH_COMPONENT_SITE here causes weird path problems. So we build the path
 //from the root.
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
+require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/order.php';
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php';
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
  
@@ -391,7 +392,7 @@ class KetshopControllerCart extends JControllerForm
       $this->emptyCart();
     }
 
-    $products = $this->getProductsFromOrder($pendingOrderId);
+    $products = OrderHelper::getProducts($pendingOrderId);
 
     //Check if products are still available and if their quantity is ok.
     foreach($products as $product) {
@@ -476,63 +477,6 @@ class KetshopControllerCart extends JControllerForm
     }
 
     return;
-  }
-
-
-  public function getProductsFromOrder($orderId)
-  {
-    //Get the products from the order previously saved.
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
-		   'p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
-		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name, op.cart_rules_impact')
-	  ->from('#__ketshop_order_prod AS op')
-	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
-	  ->where('op.order_id='.(int)$orderId)
-	  ->where('(op.history=1 OR op.history=2)')
-	  ->order('p.name');
-    $db->setQuery($query);
-    $products = $db->loadAssocList();
-
-    //Check for errors.
-    if($db->getErrorNum()) {
-      ShopHelper::logEvent($this->codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
-      return false;
-    }
-
-    //Check for product options.
-    $WHERE = '';
-    foreach($products as $product) {
-      if($product['opt_id']) {
-	$WHERE .= '(prod_id='.(int)$product['id'].' AND opt_id='.(int)$product['prod_id'].') OR '; 
-      }
-    }
-
-    if(!empty($WHERE)) {
-      //Remove OR operator from the end of the string.
-      $WHERE = substr($WHERE, 0, -4);
-
-      //Get the published and stock values of the options.
-      $query->clear();
-      $query->select('prod_id, opt_id, published, stock')
-	    ->from('#__ketshop_product_option')
-	    ->where($WHERE);
-      $db->setQuery($query);
-      $options = $db->loadAssocList();
-
-      //Replace the values of the main product with those of the option.
-      foreach($products as $key => $product) {
-	foreach($options as $option) {
-	  if($product['id'] == $option['prod_id'] && $product['opt_id'] == $option['opt_id']) {
-	    $products[$key]['published'] = $option['published']; 
-	    $products[$key]['stock'] = $option['stock']; 
-	  }
-	}
-      }
-    }
-
-    return $products;
   }
 
 
