@@ -50,7 +50,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 
 		  <?php if(!empty($rulesInfo) && $rulesInfo[0]['show_rule']) : //Check if striked unit sale price can be displayed. ?>
 		    <span class="striked-price">
-		      <?php echo UtilityHelper::formatNumber($unitSalePrice, $displayData['digits']); ?>
+		      <?php echo UtilityHelper::formatNumber($unitSalePrice, $displayData['digits_precision']); ?>
 		      <?php echo $displayData['currency']; ?></span>
 		    <span class="space">&nbsp;</span>
 		  <?php endif; ?>
@@ -58,13 +58,13 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		  <?php if($layout == 'order_admin' && $canEdit) : // ?>
 		    <input class="unit-price" type="text" name="unit_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 			   id="unit_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-			   value="<?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits']); ?>" />
+			   value="<?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits_precision']); ?>" />
 		    <span class="unit-price">
 		      <?php echo $displayData['currency']; ?>
 		    </span>
 		  <?php else : ?>
 		    <span class="unit-price">
-		      <?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits']); ?>
+		      <?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits_precision']); ?>
 		      <?php echo $displayData['currency']; ?>
 		    </span>
 		  <?php endif; ?>
@@ -114,12 +114,12 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	<td>
 	<?php if(!empty($rulesInfo) && $rulesInfo[0]['show_rule']) : //Check if striked price can be displayed. ?>
 	  <span class="striked-price">
-	    <?php echo UtilityHelper::formatNumber($unitSalePrice * $quantity, $displayData['digits']); ?>
+	    <?php echo UtilityHelper::formatNumber($unitSalePrice * $quantity, $displayData['digits_precision']); ?>
 	    <?php echo $displayData['currency']; ?></span>
 	<?php endif; ?>
 
 	<span class="product-price">
-	  <?php echo UtilityHelper::formatNumber($unitPrice * $quantity, $displayData['digits']); ?>
+	  <?php echo UtilityHelper::formatNumber($unitPrice * $quantity, $displayData['digits_precision']); ?>
 	  <?php echo $displayData['currency']; ?></span>
       <?php endif; ?>
 
@@ -128,18 +128,18 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
        <?php //Check if striked price can be displayed. For incl_tax method only. ?>
        <?php if($displayData['tax_method'] == 'incl_tax' && !empty($rulesInfo) && $rulesInfo[0]['show_rule']) : ?>
 	  <span class="striked-price">
-	  <?php echo UtilityHelper::formatNumber($unitSalePrice * $quantity, $displayData['digits']); ?>
+	  <?php echo UtilityHelper::formatNumber($unitSalePrice * $quantity, $displayData['digits_precision']); ?>
 	  <?php echo $displayData['currency']; ?></span>
        <?php endif; ?>
 
        <span class="product-price">
 	<?php  if($displayData['tax_method'] == 'excl_tax') {
 		 $sum = $unitPrice * $quantity;
-		 $inclTaxResult = UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $taxRate), $displayData['rounding'], $displayData['digits']);
-		 echo UtilityHelper::formatNumber($inclTaxResult, $displayData['digits']);
+		 $inclTaxResult = UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $taxRate), $displayData['rounding_rule'], $displayData['digits_precision']);
+		 echo UtilityHelper::formatNumber($inclTaxResult, $displayData['digits_precision']);
 	       }
 	       else { //incl_tax 
-		 echo UtilityHelper::formatNumber($unitPrice * $quantity, $displayData['digits']);
+		 echo UtilityHelper::formatNumber($unitPrice * $quantity, $displayData['digits_precision']);
 	       }
 
 	       echo $displayData['currency'];
@@ -152,9 +152,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       <?php if($layout == 'cart' || $canEdit) : //Cart or order can be updated. Create a table cell. ?>
 	<td class="center">
 	<?php if($layout == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
-	  <a class="btn" href="<?php echo
-	  'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&opt_id='.$product['opt_id'];
-	  ?>"><span class="icon-shop-bin"><?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	  <a class="btn" href="<?php echo 'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&opt_id='.$product['opt_id']; ?>"><span class="icon-shop-bin"><?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
 	<?php endif; ?>
 
 	<?php if($canEdit) : //Order can be updated. ?>
@@ -182,6 +180,11 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		  value="<?php echo $product['stock_subtract']; ?>" />
 	   <input type="hidden" name="stock_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="stock_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['stock']; ?>" />
+	   <input type="hidden" name="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  value="<?php echo $product['attribute_group']; ?>" />
+	   <input type="hidden" name="alias_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="alias_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['alias']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>
@@ -200,15 +203,15 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 	  <span class="cart-rules-impact">
 	    <?php $sum = $product['cart_rules_impact'] * $quantity;
 		//For tax free products we rounding after multiplied the product with its quantity.
-		echo UtilityHelper::formatNumber(UtilityHelper::roundNumber($sum, $displayData['rounding'], $displayData['digits']), $displayData['digits']); ?>
+		echo UtilityHelper::formatNumber(UtilityHelper::roundNumber($sum, $displayData['rounding_rule'], $displayData['digits_precision']), $displayData['digits_precision']); ?>
 	  </span>
 	  <span class="cart-rules-impact-currency"><?php echo $displayData['currency']; ?></span>
 	</td><td>
 	<span class="cart-rules-impact">
 	  <?php 
 	      $sum = $product['cart_rules_impact'] * $quantity;
-	      $inclTaxResult = UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $taxRate), $displayData['rounding'], $displayData['digits']);
-	      echo UtilityHelper::formatNumber($inclTaxResult, $displayData['digits']);
+	      $inclTaxResult = UtilityHelper::roundNumber(UtilityHelper::getPriceWithTaxes($sum, $taxRate), $displayData['rounding_rule'], $displayData['digits_precision']);
+	      echo UtilityHelper::formatNumber($inclTaxResult, $displayData['digits_precision']);
 	  ?>
 	</span>
 	  <span class="cart-rules-impact-currency"><?php echo $displayData['currency']; ?></span>

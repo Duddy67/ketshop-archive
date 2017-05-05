@@ -30,8 +30,8 @@ $data['products'] = $this->products;
 $data['tax_method'] = $this->item->tax_method;
 $data['shippable'] = $this->item->shippable;
 $data['currency'] = $this->item->currency;
-$data['rounding'] = $this->item->rounding_rule;
-$data['digits'] = $this->item->digits_precision;
+$data['rounding_rule'] = $this->item->rounding_rule;
+$data['digits_precision'] = $this->item->digits_precision;
 
 $data['col_span_nb'] = 4;
 if($this->item->tax_method == 'excl_tax') {

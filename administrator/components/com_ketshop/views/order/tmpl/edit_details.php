@@ -22,7 +22,6 @@ if($this->item->cart_status == 'completed' &&
 }
 
 $data['products'] = $this->products;
-
 //Prepare some data for the layouts.
 $data['cart_amount'] = array('amount' => $this->item->cart_amount,
 			     'final_amount' => $this->item->final_cart_amount,
@@ -49,8 +48,8 @@ if($this->item->cart_status == 'completed') {
 $data['tax_method'] = $taxMethod = $this->item->tax_method;
 $data['shippable'] = $shippable = $this->item->shippable;
 $data['currency'] = $currency = $this->item->currency;
-$data['rounding'] = $rounding = $this->item->rounding_rule;
-$data['digits'] = $digits = $this->item->digits_precision;
+$data['rounding_rule'] = $rounding = $this->item->rounding_rule;
+$data['digits_precision'] = $digits = $this->item->digits_precision;
 
 //Compute the required number of columns.
 $data['col_span_nb'] = 4;

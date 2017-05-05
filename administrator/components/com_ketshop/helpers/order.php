@@ -7,7 +7,9 @@
 
 
 defined('_JEXEC') or die; //No direct access to this file.
+require_once (JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php');
 require_once (JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php');
+require_once (JPATH_ROOT.'/components/com_ketshop/helpers/route.php');
 
 
 
@@ -71,7 +73,7 @@ class OrderHelper
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('tax_method, currency_code, rounding_rule, digits_precision')
+    $query->select('tax_method, currency_code, rounding_rule, digits_precision, shippable')
 	  ->from('#__ketshop_order')
 	  ->where('id='.(int)$orderId);
     $db->setQuery($query);
@@ -465,6 +467,85 @@ class OrderHelper
 	  ->where('id='.(int)$orderId);
     $db->setQuery($query);
     $db->query();
+  }
+
+
+  public static function getProductPriceRules($orderId, $product)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('*')
+	  ->from('#__ketshop_order_prule')
+	  ->where('order_id='.(int)$orderId)
+	  ->where('prod_id='.(int)$product['prod_id'])
+	  ->where('(history=1 OR history=2)');
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
+  }
+
+
+  public static function getShippingCost($orderId)
+  {
+    //Get the current shipping data.
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('shipping_name AS name, shipping_cost AS cost, final_shipping_cost AS final_cost')
+	  ->from('#__ketshop_delivery')
+	  ->where('order_id='.(int)$orderId);
+    $db->setQuery($query);
+
+    return $db->loadAssoc();
+  }
+
+
+  public static function getRender($orderId, $products, $cartAmount, $cartPriceRules, $shippingPrules)
+  {
+    $data = array('layout' => 'order_admin', 'can_edit' => true);
+    $settings = self::getOrderSettings($orderId);
+    $data = array_merge($data, $settings);
+    $data['currency'] = UtilityHelper::getCurrency($data['currency_code']);
+    $data['col_span_nb'] = 5;
+
+    if($data['tax_method'] == 'excl_tax') {
+      $data['col_span_nb'] = 6;
+    }
+
+    foreach($products as $key => $product) {
+      if(!isset($product['id'])) {
+	$products[$key]['id'] = $product['prod_id'];
+      }
+
+      if(!isset($product['pricerules'])) {
+	$products[$key]['pricerules'] = self::getProductPriceRules($orderId, $product);
+      }
+
+      $products[$key]['initial_quantity'] = $product['quantity'];
+      $slug = $product['prod_id'].':'.$product['alias'];
+      //Build the link leading to the product page.
+      $products[$key]['url'] = JRoute::_(KetshopHelperRoute::getProductRoute($slug, (int)$product['catid']));
+    }
+
+    $data['products'] = $products;
+    $cartAmount['amount'] = $cartAmount['cart_amount'];
+    $cartAmount['amt_incl_tax'] = $cartAmount['crt_amt_incl_tax'];
+
+    if(!empty($shippingPrules)) {
+      $cartPriceRules = array_merge($cartPriceRules, $shippingPrules);
+    }
+
+    $cartAmount['pricerules'] = $cartPriceRules;
+    $data['cart_amount'] = $cartAmount;
+    $data['shipping_data'] = self::getShippingCost($orderId);
+
+    $render = '';
+    $render .= JLayoutHelper::render('product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('cart_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('shipping_cost', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('total_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    //file_put_contents('debog_file.txt', print_r($products, true));
+    return $render;
   }
 }
 

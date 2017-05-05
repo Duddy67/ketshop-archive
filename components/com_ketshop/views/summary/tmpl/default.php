@@ -26,8 +26,8 @@ $data['billing_address_id'] = $session->get('billing_address_id', 0, 'ketshop');
 $data['tax_method'] = $settings['tax_method'];
 $data['shippable'] = ShopHelper::isShippable();
 $data['currency'] = $settings['currency'];
-$data['rounding'] = $settings['rounding_rule'];
-$data['digits'] = $settings['digits_precision'];
+$data['rounding_rule'] = $settings['rounding_rule'];
+$data['digits_precision'] = $settings['digits_precision'];
 
 $shippingData = array();
 //Search for the selected shipper. 

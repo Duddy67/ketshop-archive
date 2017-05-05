@@ -3,7 +3,8 @@
 
   //Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
-    $('.remove-product').click( function() { $.fn.removeProduct(this); });
+    //$('.remove-product').click( function() { $.fn.removeProduct(this); });
+    $('#order-edit').on('click', '.remove-product', function() { $.fn.removeProduct(this); });
     $('#update-order').click( function() { $.fn.updateOrder(); });
   });
 
@@ -76,6 +77,8 @@
       var initialQty = $('#initial_quantity_'+ids).val();
       var stockSubtract = $('#stock_subtract_'+ids).val();
       var stock = $('#stock_'+ids).val();
+      var attribGroup = $('#attribute_group_'+ids).val();
+      var alias = $('#alias_'+ids).val();
       //Insert dynamicaly an array of data for each product of the order.
       urlQuery.products.push({'ids':ids, 'unit_price':unitPrice,
 			      'quantity':quantity, 'tax_rate':taxRate,
@@ -84,7 +87,8 @@
 			      'code':code, 'unit_sale_price':unitSalePrice,
 			      'min_quantity':minQty,'max_quantity':maxQty, 
 			      'initial_quantity':initialQty,
-			      'stock_subtract':stockSubtract, 'stock':stock});
+			      'stock_subtract':stockSubtract, 'stock':stock,
+			      'attribute_group':attribGroup, 'alias':alias});
      });
 
     return urlQuery;
@@ -102,6 +106,9 @@
 	  //Display the waiting screen all over the page.
 	  $('#ajax-waiting-screen').css({'visibility':'visible','display':'block'});
 	},
+	complete: function(jqXHR, textStatus) {
+	  $('#ajax-waiting-screen').css({'visibility':'hidden','display':'none'});
+	},
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
 	  //Display message if any.
@@ -109,7 +116,9 @@
 	    alert(results.message);
 	  }
 
-	  location.reload();
+	  $('#order-edit').empty();
+	  $('#order-edit').html(results.render);
+	  //location.reload();
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.

@@ -69,12 +69,12 @@ $cartAmount = $displayData['cart_amount'];
       <?php //Display the striked original cost. ?>
       <?php if($showRule && $shippingData['cost'] != $shippingData['final_cost']) : //. ?>
        <span class="striked-amount">
-        <?php echo UtilityHelper::formatNumber($shippingData['cost'], $displayData['digits']); ?>
+        <?php echo UtilityHelper::formatNumber($shippingData['cost'], $displayData['digits_precision']); ?>
         <?php echo $displayData['currency']; ?>
        </span>
       <?php endif; ?>
        <span class="shipping-cost">
-        <?php echo UtilityHelper::formatNumber($shippingData['final_cost'], $displayData['digits']); ?>
+        <?php echo UtilityHelper::formatNumber($shippingData['final_cost'], $displayData['digits_precision']); ?>
         <?php echo $displayData['currency']; ?>
        </span>
        <span class="incl-taxes"><?php echo JText::_('COM_KETSHOP_INCLUDING_TAXES'); ?></span> 

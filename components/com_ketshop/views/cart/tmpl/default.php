@@ -52,8 +52,8 @@ if(!empty($data['products'])) {
   $data['shippable'] = ShopHelper::isShippable();
   $data['tax_method'] = $settings['tax_method'];
   $data['currency'] = $settings['currency'];
-  $data['rounding'] = $settings['rounding_rule'];
-  $data['digits'] = $settings['digits_precision'];
+  $data['rounding_rule'] = $settings['rounding_rule'];
+  $data['digits_precision'] = $settings['digits_precision'];
 
   $data['col_span_nb'] = 5;
   if($data['tax_method'] == 'excl_tax') {

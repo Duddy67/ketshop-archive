@@ -201,5 +201,8 @@ OrderHelper::updateOrder($orderId, $amounts);
 //The order must be modified "on the fly" so we delete the order session after processing.
 OrderHelper::deleteOrderSession($orderId);
 
+$render = OrderHelper::getRender($orderId, $products, $amounts, $cartPriceRules, $shippingPrules);
+$data['render'] = $render;
+
 echo json_encode($data);
 
