@@ -470,6 +470,14 @@ class OrderHelper
   }
 
 
+  /**
+   * Returns the price rules (if any) of a given product.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The product to which checking the price rules.
+   *
+   * @return array  The price rules of the product.
+   */
   public static function getProductPriceRules($orderId, $product)
   {
     $db = JFactory::getDbo();
@@ -485,6 +493,13 @@ class OrderHelper
   }
 
 
+  /**
+   * Returns the shipping cost data.
+   *
+   * @param integer  The id of the edited order.
+   *
+   * @return array  The shipping cost data.
+   */
   public static function getShippingCost($orderId)
   {
     //Get the current shipping data.
@@ -499,8 +514,20 @@ class OrderHelper
   }
 
 
+  /**
+   * Returns the render of the order as HTML.
+   *
+   * @param integer  The id of the edited order.
+   * @param array  The products of the current order.
+   * @param array  The several amounts of the current order.
+   * @param array  The cart price rules applied on the current order.
+   * @param array  The shipping price rules applied on the current order.
+   *
+   * @return string  The render of the order as HTML.
+   */
   public static function getRender($orderId, $products, $cartAmount, $cartPriceRules, $shippingPrules)
   {
+    //Prepare data.
     $data = array('layout' => 'order_admin', 'can_edit' => true);
     $settings = self::getOrderSettings($orderId);
     $data = array_merge($data, $settings);
@@ -538,6 +565,7 @@ class OrderHelper
     $data['cart_amount'] = $cartAmount;
     $data['shipping_data'] = self::getShippingCost($orderId);
 
+    //Uses the layout patterns used in front-end for the cart view to generate the HTML render.
     $render = '';
     $render .= JLayoutHelper::render('product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
     $render .= JLayoutHelper::render('product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/');

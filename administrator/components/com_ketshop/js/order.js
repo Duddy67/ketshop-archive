@@ -3,7 +3,8 @@
 
   //Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
-    //$('.remove-product').click( function() { $.fn.removeProduct(this); });
+    //Important: Don't use the click method or it won't work after the ajax refresh. Use
+    //the on method instead.
     $('#order-edit').on('click', '.remove-product', function() { $.fn.removeProduct(this); });
     $('#update-order').click( function() { $.fn.updateOrder(); });
   });
@@ -22,7 +23,6 @@
 
     urlQuery.product_ids = id;
     $.fn.runAjax(urlQuery);
-    //alert(urlQuery.products[1].unit_price);
   };
 
 
@@ -41,8 +41,6 @@
     var urlQuery = $.fn.getUrlQuery();
     urlQuery.task = 'update';
     $.fn.runAjax(urlQuery);
-    //alert(urlQuery.products[1].unit_price);
-    //location.reload();
   };
 
 
@@ -63,7 +61,7 @@
     $('[id^="unit_price_"]').each(function() {
       //
       var ids = this.id.substring(11);
-      //
+      //Collect all the needed data from the order form.
       var unitPrice = $('#'+this.id).val();
       var quantity = $('#quantity_product_'+ids).val();
       var taxRate = $('#tax_rate_'+ids).val();
@@ -111,11 +109,13 @@
 	},
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
-	  //Display message if any.
+	  //Display warning message if any.
 	  if(results.message) {
 	    alert(results.message);
+	    return;
 	  }
 
+	  //Refresh the order table with new data.
 	  $('#order-edit').empty();
 	  $('#order-edit').html(results.render);
 	  //location.reload();
