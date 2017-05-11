@@ -185,6 +185,8 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		  value="<?php echo $product['attribute_group']; ?>" />
 	   <input type="hidden" name="alias_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
 		  id="alias_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['alias']; ?>" />
+	   <input type="hidden" name="type_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		  id="type_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['type']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>

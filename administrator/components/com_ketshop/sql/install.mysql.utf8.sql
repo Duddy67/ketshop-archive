@@ -32,6 +32,7 @@ CREATE TABLE `#__ketshop_product` (
   `new_until` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `attribute_group` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
   `option_name` VARCHAR(225) NOT NULL ,
+  `stock_locked` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
   `published` TINYINT NOT NULL DEFAULT 0 ,
   `catid` INT UNSIGNED NOT NULL ,
   `checked_out` INT UNSIGNED NOT NULL DEFAULT 0 ,

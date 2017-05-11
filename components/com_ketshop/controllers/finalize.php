@@ -40,7 +40,9 @@ class KetshopControllerFinalize extends JControllerForm
 
       //Run methods which make the purchase confirmed.
       $this->setOrderStatus($utility);
-      $this->stockSubtract();
+      $cart = $session->get('cart', array(), 'ketshop'); 
+      ShopHelper::updateStock($cart);
+      //$this->stockSubtract();
 
       //Update product sales.
       $this->sales();
@@ -140,7 +142,7 @@ class KetshopControllerFinalize extends JControllerForm
     }
 
     if(!empty($bundleIds)) {
-      //Get the products contained in the bundles whom quantity has to be subtracted from stock. 
+      //Get the products contained in the bundles which quantity has to be subtracted from stock. 
       $bundleProducts = ShopHelper::getBundleProducts($bundleIdQty, true);
 
       //Check for duplicates. A normal product can be part of one or more bundles.

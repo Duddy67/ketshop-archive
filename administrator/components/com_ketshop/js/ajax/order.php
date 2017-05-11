@@ -92,15 +92,22 @@ if($task == 'add' || $task == 'remove') {
     $product['quantity'] = 1;
     //Add the new product to the order.
     $products[] = $product;
+    //Subtract from the stock.
+    ShopHelper::updateStock(array($product));
   }
 }
+
+//Used with the update task.
+$addStockQty = $subtractStockQty = array();
 
 //Set the order products.
 foreach($products as $key => $product) {
   if($task == 'update') {
     //Set both the product and option ids for this product.
     $ids = OrderHelper::separateIds($product['ids']);
+    //Set required id attributes.
     $products[$key]['prod_id'] = $ids['prod_id'];
+    $products[$key]['id'] = $ids['prod_id'];
     $products[$key]['opt_id'] = $ids['opt_id'];
 
     //Sanitize and check the values passed through the form.
@@ -135,9 +142,27 @@ foreach($products as $key => $product) {
       echo json_encode($data);
       return;
     }
+
+    //Set the stock according to the quantity change.
+    if($products[$key]['quantity'] < $product['initial_quantity']) {
+      //Add the id attributes previously set.
+      $product = $products[$key];
+      //Set the quantity to add.
+      $product['quantity'] = $product['initial_quantity'] - $products[$key]['quantity']; 
+      $addStockQty[] = $product;
+    }
+
+    if($products[$key]['quantity'] > $product['initial_quantity']) {
+      $product = $products[$key];
+      //Set the quantity to subtract.
+      $product['quantity'] = $products[$key]['quantity'] - $product['initial_quantity'];
+      $subtractStockQty[] = $product;
+    }
   }
   elseif($task == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
     OrderHelper::setProductPriceRules($orderId, $product, $task);
+    //Add again in the stock.
+    ShopHelper::updateStock(array($product), 'add');
     //Remove the product from the order.
     unset($products[$key]);
     //Move to the next product.
@@ -146,6 +171,14 @@ foreach($products as $key => $product) {
 
   //Set (or add) the cart_rules_impact attribute used with the cart price rules computation.
   $products[$key]['cart_rules_impact'] = $products[$key]['unit_price'];
+}
+
+if(!empty($subtractStockQty)) {
+  ShopHelper::updateStock($subtractStockQty);
+}
+
+if(!empty($addStockQty)) {
+  ShopHelper::updateStock($addStockQty, 'add');
 }
 
 //Start a specific session named after the order id.

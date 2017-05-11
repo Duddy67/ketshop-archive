@@ -11,6 +11,7 @@ jimport('joomla.html.html');
 //problem. It points to com_login component instead of com_ketshop.
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php';
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/ketshop.php';
+require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/bundle.php';
 
 
 class ShopHelper
@@ -628,6 +629,127 @@ class ShopHelper
     array_unshift($options, $mainProdOpt);
 
     return $options;
+  }
+
+
+  /**
+   * Modifies the stock value for each product according to their quantity.
+   *
+   * @param array  The products.
+   * @param string  The action to perform on the stock.
+   *
+   * @return void
+   */
+  public static function updateStock($products, $action = 'subtract')
+  {
+    $bundleData = $prodIds = array();
+    $when1 = $when2 = $when3 = '';
+    $codeLocation = 'helpers/shop.php';
+
+    //Note: $key value is needed farther in case of bundle product type.
+    foreach($products as $key => $product) {
+      //Check first that the stock can be modified for this product.
+      if($product['stock_subtract']) {
+
+	//Ensure the query won't fail when subtracting quantity.
+	$operation = ' - IF('.$product['quantity'].' >= stock, stock, '.$product['quantity'].') ';
+	if($action === 'add') {
+	  $operation = ' + '.$product['quantity'].' ';
+	}
+
+	if($product['type'] === 'bundle') {
+	  //Set the array's key as the id of the bundle.
+	  $bundleData[$product['id']] = $product['quantity'];
+	  //The bundle products will be treated later on.
+	  continue;
+	}
+	elseif($product['opt_id']) { //Product option
+	  $when1 .= 'WHEN prod_id='.$product['id'].' AND opt_id = '.$product['opt_id'].' THEN stock '.$operation;
+	}
+	else { //Normal product
+	  $when2 .= 'WHEN id='.$product['id'].' THEN stock '.$operation;
+	}
+
+	//Collect the product ids.
+	$prodIds[] = $product['id'];
+      }
+    }
+
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    //
+    if(!empty($prodIds)) {
+      $query->select('id, checked_out')
+	    ->from('#__ketshop_product')
+	    ->where('id IN('.implode(',', $prodIds).')');
+      $db->setQuery($query);
+      $results = $db->loadAssocList();
+
+      foreach($results as $result) {
+	//Someone (in backend) is editing the product.  
+	if($result['checked_out']) {
+	  //Lock the new stock value to prevent this value to be modified by an admin
+	  //when saving in backend.
+	  $when3 .= 'WHEN id='.$product['id'].' THEN stock_locked=1 ';
+	}
+      }
+    }
+
+    //Update the stock according to the product (normal or product option).
+
+    if(!empty($when1)) {
+      $query->clear();
+      $query->update('#__ketshop_product_option')
+	    ->set('stock = CASE '.$when1.' ELSE stock END ')
+	    ->where('prod_id IN('.implode(',', $prodIds).')');
+file_put_contents('debog_file_opt.txt', print_r($query->__toString(), true));
+      $db->setQuery($query);
+      $db->query();
+
+      //Check for errors.
+      if($db->getErrorNum()) {
+	self::logEvent($codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
+	return false;
+      }
+    }
+
+    $cases = $comma = '';
+    if(!empty($when2)) {
+      $cases .= 'stock = CASE '.$when2.' ELSE stock END ';
+      $comma = ',';
+    }
+
+    if(!empty($when3)) {
+      $cases .= $comma.' stock_locked = CASE '.$when3.' ELSE stock_locked END ';
+    }
+
+    if(!empty($cases)) {
+      $query->clear();
+      $query->update('#__ketshop_product')
+	    ->set($cases)
+	    ->where('id IN('.implode(',', $prodIds).')');
+      $db->setQuery($query);
+      $db->query();
+
+      //Check for errors.
+      if($db->getErrorNum()) {
+	self::logEvent($codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
+	return false;
+      }
+    }
+
+    //The bundle products have been treated. 
+    //Now the stock of the bundles themself must be updated.
+    //Note: This condition must be checked before the recursive call or weird things occure.
+    if(isset($products[$key]['bundle_ids'])) {
+      BundleHelper::updateBundle('stock', $products[$key]['bundle_ids']);
+    }
+
+    if(!empty($bundleData)) {
+      $bundleProducts = BundleHelper::getBundleProducts($bundleData);
+      //Call the function one more time (recursively) to treat the bundle products.
+      self::updateStock($bundleProducts, $action);
+    }
   }
 
 

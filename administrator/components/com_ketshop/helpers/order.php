@@ -114,7 +114,7 @@ class OrderHelper
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
-		   'p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
+		   'p.type, p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
 		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name, op.cart_rules_impact,'.
 		   'po.published AS opt_published, po.stock AS opt_stock')
 	  ->from('#__ketshop_order_prod AS op')
@@ -572,7 +572,7 @@ class OrderHelper
     $render .= JLayoutHelper::render('cart_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
     $render .= JLayoutHelper::render('shipping_cost', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
     $render .= JLayoutHelper::render('total_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
-    //file_put_contents('debog_file.txt', print_r($products, true));
+
     return $render;
   }
 }

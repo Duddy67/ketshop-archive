@@ -70,7 +70,7 @@ class BundleHelper
     $products = $db->loadObjectList();
 
     //No product has been found.
-    if(is_null($products)) {
+    if(empty($products)) {
       return 0;
     }
 
@@ -164,9 +164,9 @@ class BundleHelper
     }
 
     //Build the CASE statement(s).
-    $CASE_WHEN = '';
+    $case = '';
     foreach($fieldNames as $fieldName) {
-      $CASE_WHEN .= $fieldName.' = CASE ';
+      $case .= $fieldName.' = CASE ';
       foreach($bundleIds as $bundleId) {
 	//Get and set the value of the given attribute for the given bundle id.
 	if($fieldName == 'stock') {
@@ -183,24 +183,71 @@ class BundleHelper
 	}
 
 	//Update the bundle row.
-	$CASE_WHEN .= 'WHEN id = '.$bundleId.' THEN '.$updateValue.' ';
+	$case .= 'WHEN id = '.$bundleId.' THEN '.$updateValue.' ';
       }
       //Close the CASE statement.
-      $CASE_WHEN .= ' END,';
+      $case .= ' ELSE '.$fieldName.' END, ';
     }
 
-    //Remove comma from the end of the string.
-    $CASE_WHEN = substr($CASE_WHEN, 0, -1);
+    //Remove both comma and space from the end of the string.
+    $case = substr($case, 0, -2);
 
     $query->clear();
     $query->update('#__ketshop_product')
 	  //Update all the given bundles at once thanks to the CASE WHEN structure.
-	  ->set($CASE_WHEN)
+	  ->set($case)
 	  ->where('id IN('.implode(',', $bundleIds).')');
     $db->setQuery($query);
     $db->query();
 
     return;
+  }
+
+
+  /**
+   * Returns the products contained in the given bundles. 
+   * Note: The function checks for duplicate products.
+   *
+   * @param array  The id and quantity of the bundles. The bundle's id is set as the array's key
+   *               (ie: array[id] => quantity)
+   *
+   * @return array  The products contained in the given bundles. 
+   */
+  public static function getBundleProducts($bundleData)
+  {
+    $ids = implode(',', array_keys($bundleData));
+
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('prod_id AS id, bundle_id, quantity, stock_subtract, type')
+	  ->from('#__ketshop_prod_bundle')
+	  ->join('LEFT', '#__ketshop_product ON id=prod_id')
+	  ->where('bundle_id IN('.$ids.')');
+    $db->setQuery($query);
+    $bundleProducts = $db->loadAssocList();
+
+    $bundleIds = explode(',', $ids);
+    //Store all of the products of the given bundles into a product array.
+    $products = array();
+    foreach($bundleProducts as $bundleProduct) {
+      if(!array_key_exists($bundleProduct['id'], $products)) {
+        //Note: For now a product option cannot be part of a bundle, but the opt_id attribute is
+	//      required in the updateStock function. 
+	$bundleProduct['opt_id'] = 0;
+	//Update the product quantity (ie: multiplied it with the quantity of the bundle itself).
+	$bundleProduct['quantity'] = $bundleProduct['quantity'] * $bundleData[$bundleProduct['bundle_id']];
+	//The bundle ids are needed in the updateStock function.
+	$bundleProduct['bundle_ids'] = $bundleIds;
+	//Store the product with the set attributes.
+	$products[$bundleProduct['id']] = $bundleProduct;
+      }
+      else { //The product is already into one of the given bundle.
+        //Just update the quantity for this product.
+	$products[$bundleProduct['id']]['quantity'] += $bundleProduct['quantity'] * $bundleData[$bundleProduct['bundle_id']];
+      }
+    }
+
+    return $products;
   }
 }
 
