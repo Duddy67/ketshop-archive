@@ -42,7 +42,6 @@ class KetshopControllerFinalize extends JControllerForm
       $this->setOrderStatus($utility);
       $cart = $session->get('cart', array(), 'ketshop'); 
       ShopHelper::updateStock($cart);
-      //$this->stockSubtract();
 
       //Update product sales.
       $this->sales();
@@ -116,116 +115,6 @@ class KetshopControllerFinalize extends JControllerForm
   }
 
 
-  protected function stockSubtract()
-  {
-    //Get the cart session array.
-    $session = JFactory::getSession();
-    $cart = $session->get('cart', array(), 'ketshop'); 
-
-    $products = $bundleIdQty = $bundleIds = array();
-    //Check each product of the cart to make sure we can update its stock value.  
-    foreach($cart as $product) {
-      //Bundle products will be treated separately as its stock depends on the products it is made of.
-      if($product['type'] == 'bundle') {
-
-	//Store the bundle ids. 
-	$bundleIds[] = $product['id'];
-	//We need to set a specific array which take the bundle id as index and its quantity as value.
-	$bundleIdQty[(int)$product['id']] = (int)$product['quantity'];
-      }
-      else { //Normal product type.
-	//Check if product has to be subtracted from stock.
-	if($product['stock_subtract']) {
-	  $products[] = $product;
-	}
-      }
-    }
-
-    if(!empty($bundleIds)) {
-      //Get the products contained in the bundles which quantity has to be subtracted from stock. 
-      $bundleProducts = ShopHelper::getBundleProducts($bundleIdQty, true);
-
-      //Check for duplicates. A normal product can be part of one or more bundles.
-      foreach($bundleProducts as $key1 => $bundleProduct) {
-	$duplicate = false;
-	foreach($products as $key2 => $product) {
-	  //A normal product is also part of a bundle.
-	  if($bundleProduct['id'] == $product['id']) {
-	    //Add to the normal product its quantity set in the bundle.
-	    $products[$key2]['quantity'] = $product['quantity'] + $bundleProduct['quantity'];
-	    $duplicate = true;
-	  }
-	}
-	//Remove the possible duplicate bundle product from the array.
-	if($duplicate) {
-	  unset($bundleProducts[$key1]);
-	}
-      }
-
-      //Add the bundle products to the normal product array.
-      foreach($bundleProducts as $bundleProduct) {
-	$products[] = $bundleProduct;
-      }
-    }
-
-    //We need a query which update multiple rows, so we use the CASE MySQL
-    //statement with an IF condition to avoid a MySQL error if quantity to
-    //subtract is greater than stock quantity.
-
-    //Build the WHEN part of the query.
-    $WHEN1 = $WHEN2 = '';
-    
-    foreach($products as $product) {
-      //Check for product options. 
-      if($product['opt_id']) { //Set the stock of the product option.
-	$WHEN1 .= 'WHEN prod_id='.$product['id'].' AND opt_id = '.$product['opt_id'].
-	         ' THEN stock - IF('.$product['quantity'].' >= stock, stock, '.$product['quantity'].') ';
-      }
-      else { //Product without options (set the product stock).
-	$WHEN2 .= 'WHEN id='.$product['id'].' THEN stock - IF('.$product['quantity'].' >= stock, stock, '.$product['quantity'].') ';
-      }
-    }
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-
-    if(!empty($WHEN1)) {
-      $query->update('#__ketshop_product_option')
-	    ->set('stock = CASE '.$WHEN1.' ELSE stock END ');
-      $db->setQuery($query);
-      $db->query();
-
-      //Check for errors.
-      if($db->getErrorNum()) {
-	ShopHelper::logEvent($this->codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
-	return false;
-      }
-    }
-
-    if(!empty($WHEN2)) {
-      $query->clear();
-      $query->update('#__ketshop_product')
-	    ->set('stock = CASE '.$WHEN2.' ELSE stock END ');
-      //Execute the query.
-      $db->setQuery($query);
-      $db->query();
-
-      //Check for errors.
-      if($db->getErrorNum()) {
-	ShopHelper::logEvent($this->codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
-	return false;
-      }
-    }
-
-    //Don't forget to update the bundle stock.
-    if(!empty($bundleIds)) {
-      BundleHelper::updateBundle('stock', $bundleIds);
-    }
-
-    return true;
-  }
-
-
   //Update the "sales" field of each product of the cart.
   protected function sales()
   {
@@ -250,16 +139,15 @@ class KetshopControllerFinalize extends JControllerForm
     }
 
     if(!empty($bundleIds)) {
-      //Get the products contained in the bundles. It doesn't matter if their quantities
-      //must be subtracted from the stock as they've been sold anyway.
-      $bundleProducts = ShopHelper::getBundleProducts($bundleIdQty);
+      //Get the products contained in the bundles. 
+      $bundleProducts = BundleHelper::getBundleProducts($bundleIdQty);
 
       //Check for duplicates. A normal product can be part of one or more bundles.
       foreach($bundleProducts as $key1 => $bundleProduct) {
 	$duplicate = false;
 	foreach($products as $key2 => $product) {
 	  //A normal product is also part of a bundle.
-	  if(in_array($product['id'], $bundleProduct['ids'])) {
+	  if($product['id'] == $bundleProduct['id']) {
 	    //Add to the normal product its quantity set in the bundle.
 	    $products[$key2]['quantity'] = $product['quantity'] + $bundleProduct['quantity'];
 	    $duplicate = true;

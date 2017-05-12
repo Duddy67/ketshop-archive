@@ -23,7 +23,6 @@ class ShopHelper
     //Used as first argument of the logEvent function.
     $codeLocation = 'helpers/ketshop.php';
 
-//file_put_contents('debog_getproduct.txt', print_r($productId.':'.$optionId, true), FILE_APPEND);
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //Get the required product data.
@@ -677,7 +676,7 @@ class ShopHelper
 
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    //
+    //Check if someone is editing the updated products.
     if(!empty($prodIds)) {
       $query->select('id, checked_out')
 	    ->from('#__ketshop_product')
@@ -690,7 +689,7 @@ class ShopHelper
 	if($result['checked_out']) {
 	  //Lock the new stock value to prevent this value to be modified by an admin
 	  //when saving in backend.
-	  $when3 .= 'WHEN id='.$product['id'].' THEN stock_locked=1 ';
+	  $when3 .= 'WHEN id='.$result['id'].' THEN 1 ';
 	}
       }
     }
@@ -702,7 +701,6 @@ class ShopHelper
       $query->update('#__ketshop_product_option')
 	    ->set('stock = CASE '.$when1.' ELSE stock END ')
 	    ->where('prod_id IN('.implode(',', $prodIds).')');
-file_put_contents('debog_file_opt.txt', print_r($query->__toString(), true));
       $db->setQuery($query);
       $db->query();
 

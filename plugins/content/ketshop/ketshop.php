@@ -19,6 +19,46 @@ class plgContentKetshop extends JPlugin
 
   public function onContentBeforeSave($context, $data, $isNew)
   {
+    if(!$isNew && $context == 'com_ketshop.product') { 
+      //The stock has been modified while the user was editing the product.
+      if($data->stock_locked) {
+	//Delete the stock attribute so that its new value is not taken into account.
+	unset($data->stock);
+
+	//The product has options.
+	if($data->attribute_group) {
+	  //Get the current product options.
+	  $db = JFactory::getDbo();
+	  $query = $db->getQuery(true);
+	  $query->select('opt_id, stock')
+		->from('#__ketshop_product_option')
+		->where('prod_id='.(int)$data->id);
+	  $db->setQuery($query);
+	  $productOptions = $db->loadAssocList('opt_id');
+
+	  $jinput = JFactory::getApplication()->input;
+	  $post = $jinput->post->getArray();
+	  //Check the edited product options and replace their stock value accordingly. 
+	  foreach($post as $key => $value) {
+	    if(preg_match('#^option_id_([0-9]+)$#', $key, $matches)) {
+	      $optNb = $matches[1];
+	      $optId = $post['option_id_'.$optNb];
+
+	      if(isset($productOptions[$optId])) {
+		//Replace the new stock value with the old one.
+		$jinput->post->set('stock_'.$optNb, $productOptions[$optId]['stock']);
+	      }
+	    }
+	  }
+	}
+
+	//Unlocks the stock value.
+	$data->stock_locked = 0;
+	//Informs the user.
+	JFactory::getApplication()->enqueueMessage(JText::_('COM_KETSHOP_NOTICE_STOCK_LOCKED'), 'Notice');
+      }
+    }
+
     return true;
   }
 
