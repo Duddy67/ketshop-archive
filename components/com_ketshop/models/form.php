@@ -22,6 +22,21 @@ class KetshopModelForm extends KetshopModelProduct
   public $typeAlias = 'com_ketshop.product';
 
 
+  public function getForm($data = array(), $loadData = true) 
+  {
+    //Use field and form files from the back-end.
+    JForm::addFieldPath(JPATH_ROOT.'/administrator/components/com_ketshop/models/fields');
+    $path = JPATH_ROOT.'/administrator/components/com_ketshop/models/forms/product.xml';
+    $form = $this->loadForm('com_ketshop.product', $path, array('control' => 'jform', 'load_data' => $loadData));
+
+    if(empty($form)) {
+      return false;
+    }
+
+    return $form;
+  }
+
+
   /**
    * Method to auto-populate the model state.
    *

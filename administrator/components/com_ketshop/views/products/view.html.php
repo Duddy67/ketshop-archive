@@ -66,7 +66,7 @@ class KetshopViewProducts extends JViewLegacy
     $user = JFactory::getUser();
 
     //The user is allowed to create or is able to create in one of the component categories.
-    if($canDo->get('core.create') || (count($user->getAuthorisedCategories('com_product', 'core.create'))) > 0) {
+    if($canDo->get('core.create') || (count($user->getAuthorisedCategories('com_ketshop', 'core.create'))) > 0) {
       //JToolBarHelper::addNew('product.add', 'JTOOLBAR_NEW');
       JToolbarHelper::addNew('product.normal', 'COM_KETSHOP_PRODUCT_NORMAL_LABEL');
       JToolbarHelper::custom('product.bundle', 'shop-gift', '', 'COM_KETSHOP_PRODUCT_BUNDLE_LABEL', false);
@@ -74,8 +74,8 @@ class KetshopViewProducts extends JViewLegacy
     }
 
     if($canDo->get('core.edit') || $canDo->get('core.edit.own') || 
-       (count($user->getAuthorisedCategories('com_product', 'core.edit'))) > 0 || 
-       (count($user->getAuthorisedCategories('com_product', 'core.edit.own'))) > 0) {
+       (count($user->getAuthorisedCategories('com_ketshop', 'core.edit'))) > 0 || 
+       (count($user->getAuthorisedCategories('com_ketshop', 'core.edit.own'))) > 0) {
       JToolBarHelper::editList('product.edit', 'JTOOLBAR_EDIT');
     }
 
@@ -90,7 +90,7 @@ class KetshopViewProducts extends JViewLegacy
     }
 
     //Check for delete permission.
-    if($canDo->get('core.delete') || count($user->getAuthorisedCategories('com_product', 'core.delete'))) {
+    if($canDo->get('core.delete') || count($user->getAuthorisedCategories('com_ketshop', 'core.delete'))) {
       JToolBarHelper::divider();
       JToolBarHelper::deleteList('', 'products.delete', 'JTOOLBAR_DELETE');
     }

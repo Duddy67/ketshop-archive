@@ -36,13 +36,15 @@
 
     //If the product item exists we need to get the data of the dynamical items.
     if(productId != 0) {
+      var isAdmin = $('#is-admin').val();
       //Set the url parameters for the Ajax call.
-      var urlQuery = {'product_id':productId, 'product_type':productType};
+      var urlQuery = {'product_id':productId, 'product_type':productType, 'is_admin':isAdmin};
+      var baseUrl = $('#base-url').val();
 
       //Ajax call which get item data previously set.
       $.ajax({
 	  type: 'GET', 
-	  url: 'components/com_ketshop/js/ajax/product.php', 
+	  url: baseUrl+'administrator/components/com_ketshop/js/ajax/product.php', 
 	  dataType: 'json',
 	  data: urlQuery,
 	  //Get results as a json array.
@@ -104,7 +106,8 @@
     $('#attribute-item-'+idNb).createHTMLTag('<input>', properties);
 
     //Build the link to the modal window displaying the attribute list.
-    var linkToModal = 'index.php?option=com_ketshop&view=attributes&layout=modal&tmpl=component&id_nb='+idNb;
+    var baseUrl = $('#base-url').val();
+    var linkToModal = baseUrl+'administrator/index.php?option=com_ketshop&view=attributes&layout=modal&tmpl=component&id_nb='+idNb;
     $('#attribute-item-'+idNb).createButton('select', '#', linkToModal);
 
     //Create the "name" label.
@@ -223,11 +226,15 @@
     //Remove the current attribute fields.
     $('#attribute-value-list-1-'+idNb).remove();
     $('#attribute-value-list-2-'+idNb).remove();
+    $('#attribute-field-value-1-'+idNb).remove();
+    $('#attribute-field-value-2-'+idNb).remove();
+
+    var baseUrl = $('#base-url').val();
 
     //Get the fields and their values from database.
     $.ajax({
 	type: 'GET', 
-	url: 'components/com_ketshop/js/ajax/attribute.php', 
+	url: baseUrl+'administrator/components/com_ketshop/js/ajax/attribute.php', 
 	dataType: 'json',
 	data: {'attribute_id':id},
 	//Get results as a json array.
@@ -247,7 +254,8 @@
     //Get the id of the current user.
     var userId = ketshop.getUserId();
     //Build the link to the Joomla image server.
-    var link = 'index.php?option=com_media&view=images&tmpl=component&asset=com_ketshop&author='+userId+'&fieldid='+idNb+'&folder=ketshop';
+    var baseUrl = $('#base-url').val();
+    var link = baseUrl+'administrator/index.php?option=com_media&view=images&tmpl=component&asset=com_ketshop&author='+userId+'&fieldid='+idNb+'&folder=ketshop';
     $('#image-item-'+idNb).createButton('select', '#', link);
 
     //Create the "alt" label.

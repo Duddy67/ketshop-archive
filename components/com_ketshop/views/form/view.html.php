@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
+require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/javascript.php';
 
 
 class KetshopViewForm extends JViewLegacy
@@ -27,7 +28,7 @@ class KetshopViewForm extends JViewLegacy
 
     //Redirect unregistered users to the login page.
     if($user->guest) {
-      $app =& JFactory::getApplication();
+      $app = JFactory::getApplication();
       $app->redirect('index.php?option=com_users&view=login'); 
       return true;
     }
@@ -74,6 +75,10 @@ class KetshopViewForm extends JViewLegacy
       $this->form->setFieldAttribute('catid', 'readonly', 'true');
     }
 
+    //Load Javascript functions.
+    JavascriptHelper::getProductText();
+    JavascriptHelper::getCommonText();
+    JavascriptHelper::loadFunctions(array('user', 'shortcut', 'attribute_groups'));
     //$this->setDocument();
 
     parent::display($tpl);

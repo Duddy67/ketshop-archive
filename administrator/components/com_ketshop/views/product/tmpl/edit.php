@@ -162,6 +162,8 @@ Joomla.submitbutton = function(task)
   </div>
 
   <input type="hidden" name="task" value="" />
+  <input type="hidden" id="base-url" name="base_url" value="<?php echo JURI::root(); ?>" />
+  <input type="hidden" id="is-admin" name="is_admin" value="1" />
   <?php echo JHtml::_('form.token'); ?>
 </form>
 

@@ -8,6 +8,13 @@
 			<![CDATA[COM_KETSHOP_FORM_VIEW_DEFAULT_DESC]]>
 		</message>
 	</layout>
+
+	<fields name="request">
+	    <fieldset name="request">
+	       <field name="type" type="hidden" default="normal" />
+	    </fieldset>
+	</fields>
+
 	<fields name="params">
 		<fieldset name="basic">
 			<field name="enable_category"

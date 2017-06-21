@@ -9,6 +9,7 @@
 defined('_JEXEC') or die;
 
 JHtml::_('behavior.keepalive');
+JHtml::_('behavior.modal');
 JHtml::_('behavior.tabstate');
 JHtml::_('behavior.calendar');
 JHtml::_('behavior.formvalidation');
@@ -16,10 +17,12 @@ JHtml::_('formbehavior.chosen', 'select');
 
 // Create shortcut to parameters.
 $params = $this->state->get('params');
-$uri = JUri::getInstance();
 ?>
 
 <script type="text/javascript">
+//Global variable. It will be set as function in product.js file.
+var checkAlias;
+
 Joomla.submitbutton = function(task)
 {
   if(task == 'product.cancel' || document.formvalidator.isValid(document.id('product-form'))) {
@@ -65,6 +68,10 @@ Joomla.submitbutton = function(task)
 
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#details" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_DETAILS') ?></a></li>
+		<li><a href="#stock-quantities" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_STOCK_QUANTITIES') ?></a></li>
+		<li><a href="#weight-dimensions" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_WEIGHT_DIMENSIONS') ?></a></li>
+		<li><a href="#attributes" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_ATTRIBUTES') ?></a></li>
+		<li><a href="#images" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_IMAGES') ?></a></li>
 		<li><a href="#publishing" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_PUBLISHING') ?></a></li>
 		<li><a href="#language" data-toggle="tab"><?php echo JText::_('JFIELD_LANGUAGE_LABEL') ?></a></li>
 		<li><a href="#metadata" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_METADATA') ?></a></li>
@@ -80,14 +87,40 @@ Joomla.submitbutton = function(task)
 	      <?php endif; ?>
 
 	      <?php
+		echo $this->form->getControlGroup('base_price');
+		echo $this->form->getControlGroup('sale_price');
+		echo $this->form->getControlGroup('tax_id');
+		echo $this->form->getControlGroup('code');
 		echo $this->form->getControlGroup('producttext');
 	      ?>
+	      </div>
+
+	      <div class="tab-pane" id="stock-quantities">
+		<?php echo JLayoutHelper::render('edit.stockquantities', $this, JPATH_ROOT.'/administrator/components/com_ketshop/layouts/'); ?>
+	      </div>
+
+	      <div class="tab-pane" id="weight-dimensions">
+		<?php echo JLayoutHelper::render('edit.weightdimensions', $this, JPATH_ROOT.'/administrator/components/com_ketshop/layouts/'); ?>
+	      </div>
+
+	      <div class="tab-pane" id="attributes">
+		<div class="span6" id="attribute">
+		</div>
+	      </div>
+
+	      <div class="tab-pane" id="images">
+		<div class="span6" id="image">
+		<?php echo $this->form->getInput('imageurl'); //Must be loaded to call the overrided media file.
+		      echo $this->form->getControlGroup('img_reduction_rate');
+		?>
+		</div>
 	      </div>
 
 	      <div class="tab-pane" id="publishing">
 		<?php echo $this->form->getControlGroup('catid'); ?>
 		<?php echo $this->form->getControlGroup('tags'); ?>
 		<?php echo $this->form->getControlGroup('access'); ?>
+		<?php echo $this->form->getControlGroup('id'); ?>
 
 		<?php if($this->item->params->get('access-change')) : ?>
 		  <?php echo $this->form->getControlGroup('published'); ?>
@@ -111,8 +144,17 @@ Joomla.submitbutton = function(task)
     <?php if($this->params->get('enable_category', 0) == 1) :?>
       <input type="hidden" name="jform[catid]" value="<?php echo $this->params->get('catid', 1); ?>" />
     <?php endif; ?>
+    <input type="hidden" id="base-url" name="base_url" value="<?php echo JURI::root(); ?>" />
+    <input type="hidden" id="is-admin" name="is_admin" value="0" />
     <?php echo JHtml::_('form.token'); ?>
     </fieldset>
   </form>
 </div>
+
+<?php
+$doc = JFactory::getDocument();
+
+//Load the jQuery scripts.
+$doc->addScript(JURI::root().'administrator/components/com_ketshop/js/common.js');
+$doc->addScript(JURI::root().'administrator/components/com_ketshop/js/product.js');
 

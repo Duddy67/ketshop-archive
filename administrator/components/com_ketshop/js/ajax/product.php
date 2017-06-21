@@ -22,6 +22,7 @@ $mainframe->initialise();
 //Get the required variables.
 $productId = JFactory::getApplication()->input->get->get('product_id', 0, 'uint');
 $productType = JFactory::getApplication()->input->get->get('product_type', '', 'string');
+$isAdmin = JFactory::getApplication()->input->get->get('is_admin', 0, 'uint');
 
 //Get data of attributes, images and bundle product linked the a given product. 
 //(Note: a bundle is considered as a product).
@@ -59,10 +60,12 @@ $query->select('src, width, height, alt, ordering')
 $db->setQuery($query);
 $images = $db->loadAssocList();
 
-//Add "../" to the path of each image as we are in the administrator area.
-foreach($images as $key => $image) {
-  $image['src'] = '../'.$image['src'];
-  $images[$key] = $image;
+if($isAdmin) {
+  //Add "../" to the path of each image as we are in the administrator area.
+  foreach($images as $key => $image) {
+    $image['src'] = '../'.$image['src'];
+    $images[$key] = $image;
+  }
 }
 
 $data['image'] = $images;

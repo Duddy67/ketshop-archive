@@ -37,8 +37,8 @@ $productLayoutPath = JPATH_SITE.'/components/com_ketshop/layouts/product/';
 
   <?php echo JLayoutHelper::render('title', array('item' => $item, 'params' => $params, 'now_date' => $this->nowDate), $productLayoutPath); ?>
 
-  <?php //echo JLayoutHelper::render('icons', array('item' => $this->item, 'user' => $this->user, 'uri' => $this->uri),
-				    //JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+  <?php echo JLayoutHelper::render('icons', array('item' => $this->item, 'user' => $this->user, 'uri' => $this->uri),
+				    JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
 
   <?php echo JLayoutHelper::render('image', array('item' => $this->item, 'params' => $params),
 				    JPATH_SITE.'/components/com_ketshop/layouts/product/'); ?>

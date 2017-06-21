@@ -76,7 +76,7 @@ class plgContentKetshop extends JPlugin
   {
     //Filter the sent event.
 
-    if($context == 'com_ketshop.product') { //PRODUCT
+    if($context == 'com_ketshop.product' || $context == 'com_ketshop.form') { //PRODUCT
       //Check for product order.
       $this->setOrderByTag($context, $data, $isNew);
 
@@ -236,7 +236,7 @@ class plgContentKetshop extends JPlugin
       foreach($post as $key=>$val) {
 	if(preg_match('#^image_src_([0-9]+)$#', $key, $matches)) {
 	  $imageNb = $matches[1];
-	  //Remove "../" from src path as images come from the administrator area.
+	  //Remove "../" from src path in case images come from the administrator area.
 	  $src = preg_replace('#^\.\.\/#', '', $post['image_src_'.$imageNb]);
 	  $width = $post['image_width_'.$imageNb];
 	  $height = $post['image_height_'.$imageNb];
