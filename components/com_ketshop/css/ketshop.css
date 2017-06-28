@@ -263,6 +263,148 @@ div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-
 }
 
 
+/* ///// Product Form /////// */
+
+#jform_tags_chzn {
+  width: 30% !important;
+}
+
+.item-name-label {
+  display: block;
+  float: left;
+  margin: 5px 5px 0 5px;
+  font-weight: bold;
+  color: #404040;
+}
+
+.item-name {
+  float: left;
+  border: 1px solid #ccc;
+  width: 40%;
+  margin-right: 20px;
+}
+
+/* Product attributes */
+
+#attribute-button-separator {
+  /*border: 1px solid #666666;*/
+}
+
+.ketshop-attribute-container {
+  overflow: hidden; /* Block formatting context. */
+  margin-top: 10px;
+}
+
+.attribute-item {
+  overflow: hidden; /* Block formatting context. */
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #c0c0c0;
+}
+
+.attribute-item .btn-wrapper {
+  float: left;
+  margin-right: 20px;
+}
+
+.attribute-item .attribute-name {
+  float: left;
+  border: 1px solid #c0c0c0;
+  width: 40%;
+  margin-right: 20px;
+}
+
+.attribute-separator {
+  overflow:hidden;
+  display:block;
+  clear:both;
+  margin-bottom: 10px;
+  /*border: 1px solid #666666;*/
+}
+
+.attribute-values-label {
+  display: block;
+  float: left;
+  margin: 5px 40px 0 0;
+  font-weight: bold;
+  color: #404040;
+}
+
+.attribute-value-input {
+  border: 1px solid #c0c0c0;
+  margin-right: 30px;
+}
+
+.attribute-value-select {
+  border: 1px solid #c0c0c0;
+  margin-right: 30px;
+}
+
+/* Product images */
+
+#image-button-separator {
+  /*border: 1px solid #666666;*/
+}
+
+.ketshop-image-container {
+  overflow: hidden; /* Block formatting context. */
+  margin-top: 20px;
+}
+
+.image-item {
+  overflow: hidden; /* Block formatting context. */
+  padding-top: 20px;
+  border-top: 1px solid #c0c0c0;
+}
+
+.image-item .btn-wrapper {
+  float: left;
+  margin-right: 20px;
+}
+
+.image-alt-label {
+  display: block;
+  float: left;
+  margin-top: 5px;
+  margin-left: 10px;
+  font-weight: bold;
+  color: #404040;
+}
+
+.image-item .image-alt {
+  float: left;
+  border: 1px solid #c0c0c0;
+  width: 30%;
+  margin-left: 5px;
+  margin-right: 20px;
+}
+
+.image-ordering-label {
+  display: block;
+  float: left;
+  margin-top: 5px;
+  font-weight: bold;
+  color: #404040;
+}
+
+.image-item .image-ordering {
+  float: left;
+  font-weight: bold;
+  text-align: center;
+  color: #404040;
+  width: 3%;
+  margin-left: 5px;
+  margin-right: 30px;
+  border: 1px solid #c0c0c0;
+}
+
+.div-product-image {
+  overflow: hidden; /* Block formatting context. */
+  clear: both;
+  margin: 50px auto 20px auto;
+}
+
+
 /* ///// Icons /////// */
 
 @font-face {

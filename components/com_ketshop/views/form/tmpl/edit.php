@@ -104,12 +104,12 @@ Joomla.submitbutton = function(task)
 	      </div>
 
 	      <div class="tab-pane" id="attributes">
-		<div class="span6" id="attribute">
+		<div class="span10" id="attribute">
 		</div>
 	      </div>
 
 	      <div class="tab-pane" id="images">
-		<div class="span6" id="image">
+		<div class="span10" id="image">
 		<?php echo $this->form->getInput('imageurl'); //Must be loaded to call the overrided media file.
 		      echo $this->form->getControlGroup('img_reduction_rate');
 		?>

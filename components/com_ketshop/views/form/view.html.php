@@ -79,7 +79,7 @@ class KetshopViewForm extends JViewLegacy
     JavascriptHelper::getProductText();
     JavascriptHelper::getCommonText();
     JavascriptHelper::loadFunctions(array('user', 'shortcut', 'attribute_groups'));
-    //$this->setDocument();
+    $this->setDocument();
 
     parent::display($tpl);
   }
@@ -88,7 +88,7 @@ class KetshopViewForm extends JViewLegacy
   protected function setDocument() 
   {
     //Include css file (if needed).
-    //$doc = JFactory::getDocument();
-    //$doc->addStyleSheet(JURI::base().'components/com_ketshop/css/ketshop.css');
+    $doc = JFactory::getDocument();
+    $doc->addStyleSheet(JURI::base().'components/com_ketshop/css/ketshop.css');
   }
 }
