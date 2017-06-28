@@ -30,8 +30,8 @@ $uri = $displayData['uri'];
 			 JText::sprintf('COM_KETSHOP_CHECKED_OUT_BY', $checkoutUser->name).' <br /> '.$date;
 	  ?>
 	      <li class="checked-out-icon">
-		 <a href="#"><span class="hasTooltip icon-checkedout" title="<?php echo JHtml::tooltipText($tooltip.'', 0); ?>">
-		   <?php echo JText::_('JLIB_HTML_CHECKED_OUT'); ?></span></a>
+		 <a href="#"><span class="hasTooltip icon-checkedout" title="<?php echo JHtml::tooltipText($tooltip.'', 0); ?>"></span>
+		   <?php echo JText::_('JLIB_HTML_CHECKED_OUT'); ?></a>
 	      </li>
 	   <?php else : 
 	      //Build the edit link and display it. 

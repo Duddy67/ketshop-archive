@@ -72,6 +72,9 @@ Joomla.submitbutton = function(task)
 		<li><a href="#weight-dimensions" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_WEIGHT_DIMENSIONS') ?></a></li>
 		<li><a href="#attributes" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_ATTRIBUTES') ?></a></li>
 		<li><a href="#images" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_IMAGES') ?></a></li>
+		<?php if($this->item->id) : //Existing product  ?>
+		  <li><a href="#options" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_OPTIONS') ?></a></li>
+		<?php endif; ?>
 		<li><a href="#publishing" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_PUBLISHING') ?></a></li>
 		<li><a href="#language" data-toggle="tab"><?php echo JText::_('JFIELD_LANGUAGE_LABEL') ?></a></li>
 		<li><a href="#metadata" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_METADATA') ?></a></li>
@@ -92,6 +95,8 @@ Joomla.submitbutton = function(task)
 		echo $this->form->getControlGroup('tax_id');
 		echo $this->form->getControlGroup('code');
 		echo $this->form->getControlGroup('producttext');
+		//Hidden field.
+		echo $this->form->getInput('type');
 	      ?>
 	      </div>
 
@@ -115,6 +120,17 @@ Joomla.submitbutton = function(task)
 		?>
 		</div>
 	      </div>
+
+	      <?php if($this->item->id) : //Existing product  ?>
+		  <div class="tab-pane" id="options">
+		    <div class="span12" id="option">
+		      <?php 
+			    echo $this->form->getControlGroup('attribute_group');
+			    echo $this->form->getControlGroup('option_name');
+		      ?>
+		    </div>
+		  </div>
+	      <?php endif; ?>
 
 	      <div class="tab-pane" id="publishing">
 		<?php echo $this->form->getControlGroup('catid'); ?>

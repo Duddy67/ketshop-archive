@@ -18,6 +18,7 @@ class KetshopViewForm extends JViewLegacy
   protected $form = null;
   protected $state = null;
   protected $item = null;
+  protected $config = null;
   protected $return_page = null;
   protected $isNew = 0;
   protected $location = null;
@@ -66,6 +67,8 @@ class KetshopViewForm extends JViewLegacy
 
     $this->params = $params;
 
+    $this->config = JComponentHelper::getParams('com_ketshop');
+
     // Override global params with document specific params
     $this->params->merge($this->item->params);
     $this->user = $user;
@@ -73,6 +76,24 @@ class KetshopViewForm extends JViewLegacy
     if($params->get('enable_category') == 1) {
       $this->form->setFieldAttribute('catid', 'default', $params->get('catid', 1));
       $this->form->setFieldAttribute('catid', 'readonly', 'true');
+    }
+
+    //New item.
+    if($this->form->getValue('id') == 0) {
+      //Get the product type value passed in GET url. 
+      $type = JFactory::getApplication()->input->get->get('type', '', 'string');
+      //Set the type of the product.
+      $this->form->setValue('type', null, $type);
+    }
+    else { //Existing item.
+      //Set the digits format.
+      $digits = $this->config->get('digits_precision');
+      $this->form->setValue('base_price', null, UtilityHelper::formatNumber($this->item->base_price, $digits));
+      $this->form->setValue('sale_price', null, UtilityHelper::formatNumber($this->item->sale_price, $digits));
+      $this->form->setValue('weight', null, UtilityHelper::formatNumber($this->item->weight, $digits));
+      $this->form->setValue('length', null, UtilityHelper::formatNumber($this->item->length, $digits));
+      $this->form->setValue('width', null, UtilityHelper::formatNumber($this->item->width, $digits));
+      $this->form->setValue('height', null, UtilityHelper::formatNumber($this->item->height, $digits));
     }
 
     //Load Javascript functions.
