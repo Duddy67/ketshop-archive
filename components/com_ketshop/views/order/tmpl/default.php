@@ -49,7 +49,7 @@ $status['no_shipping'] = 'COM_KETSHOP_OPTION_NO_SHIPPING_STATUS';
 $status['unfinished'] = 'COM_KETSHOP_OPTION_UNFINISHED_STATUS';
 $status['cartbackup'] = 'COM_KETSHOP_OPTION_CART_BACKUP_STATUS';
 
-$Itemid = JRequest::getVar('Itemid', 0, 'GET', 'int');
+$Itemid = JFactory::getApplication()->input->get('Itemid', 0, 'uint');
 
 $data['billing_address_id'] = $this->item->billing_address_id;
 $addresses = array('shipping' => $this->shippingAddress, 'billing' => $this->billingAddress);

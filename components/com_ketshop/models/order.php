@@ -83,21 +83,19 @@ class KetshopModelOrder extends JModelAdmin
     //Add currency as an attribute to the order item.
     $item->currency = $currency;
 
-    if($item->shippable) {
-      $db = $this->getDbo();
-      $query = $db->getQuery(true);
-      //Get the delivery linked to the order.
-      $query->select('id AS delivery_id, status AS shipping_status, shipping_cost,final_shipping_cost')
-	    ->from('#__ketshop_delivery')
-	    ->where('order_id='.$item->id);
-      $db->setQuery($query);
-      $delivery = $db->loadAssoc();
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    //Get the delivery linked to the order.
+    $query->select('id AS delivery_id, status AS shipping_status, shipping_cost,final_shipping_cost')
+	  ->from('#__ketshop_delivery')
+	  ->where('order_id='.$item->id);
+    $db->setQuery($query);
+    $delivery = $db->loadAssoc();
 
-      $item->delivery_id = $delivery['delivery_id'];
-      $item->shipping_status = $delivery['shipping_status'];
-      $item->shipping_cost = $delivery['shipping_cost'];
-      $item->final_shipping_cost = $delivery['final_shipping_cost'];
-    }
+    $item->delivery_id = $delivery['delivery_id'];
+    $item->shipping_status = $delivery['shipping_status'];
+    $item->shipping_cost = $delivery['shipping_cost'];
+    $item->final_shipping_cost = $delivery['final_shipping_cost'];
 
     return $item;
   }

@@ -12,7 +12,12 @@ JHtml::_('behavior.framework');
 // Create shortcuts.
 $cartAmount = $displayData['cart_amount'];
 $shippingData = $displayData['shipping_data'];
-//var_dump($cart);
+
+$shippingFinalCost = 0;
+if(!empty($shippingData)) {
+   $shippingFinalCost = $shippingData['final_cost'];
+}
+//var_dump($shippingData);
 
 ?>
 
@@ -21,7 +26,7 @@ $shippingData = $displayData['shipping_data'];
   </td></tr>
   <tr><td colspan="<?php echo $displayData['col_span_nb']; ?>">
   <?php //Whatever the tax method, total amount is always computed with all taxes. ?>
-  <?php $totalAmount = $cartAmount['fnl_amt_incl_tax'] + $shippingData['final_cost']; ?>
+  <?php $totalAmount = $cartAmount['fnl_amt_incl_tax'] + $shippingFinalCost; ?>
    <span class="total-amount">
      <?php echo UtilityHelper::formatNumber($totalAmount, $displayData['digits_precision']); ?>
      <?php echo $displayData['currency']; ?>

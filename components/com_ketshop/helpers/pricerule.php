@@ -460,7 +460,7 @@ class PriceruleHelper
 
     //Get all the cart price rules concerning the current user (or the group he's in).
     //The list of result is ordered to determine the level of the rules.
-    $query->select('pr.id,pr.type,pr.operation,pr.value,pr.behavior,pr.ordering,pr.show_rule,pr.children_cat,'. 
+    $query->select('pr.id,pr.type,pr.operation,pr.value,pr.behavior,pr.ordering,pr.show_rule,'. 
 		   'pr.condition, pr.logical_opr, pr.target, pr.recipient,'.$translatedFields.'pr.application')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.

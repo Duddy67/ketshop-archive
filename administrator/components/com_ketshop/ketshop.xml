@@ -42,6 +42,7 @@
 	    <folder>controllers</folder>
 	    <folder>css</folder>
 	    <folder>helpers</folder>
+	    <folder>images</folder>
 	    <folder>js</folder>
 	    <folder>language</folder>
 	    <folder>layouts</folder>
@@ -54,6 +55,7 @@
 	    <filename>index.html</filename>
 	    <!-- Folders  Section -->
 	    <folder>files</folder>
+	    <folder>fonts</folder>
 	    <folder>images</folder>
       </media>
 
@@ -69,6 +71,7 @@
 		    <filename>access.xml</filename>
 		    <filename>config.xml</filename>
 		    <filename>controller.php</filename>
+		    <filename>ketshop.css</filename>
 		    <filename>ketshop.php</filename>
 		    <filename>index.html</filename>
 		    <!-- Folders  Section -->

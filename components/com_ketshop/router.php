@@ -82,6 +82,26 @@ function KetshopParseRoute($segments)
 	   //Form layout is always set to 'edit'.
 	   $vars['layout'] = 'edit';
 	   break;
+    case 'orders':
+	   $vars['view'] = 'orders';
+	   break;
+    case 'order':
+	   $vars['view'] = 'order';
+	   $id = explode(':', $segments[0]);
+	   $vars['order_id'] = (int)$id[0];
+	   break;
+    case 'cart':
+	   $vars['view'] = 'cart';
+	   break;
+    case 'address':
+	   $vars['view'] = 'address';
+	   break;
+    case 'summary':
+	   $vars['view'] = 'summary';
+	   break;
+    case 'payment':
+	   $vars['view'] = 'payment';
+	   break;
   }
 
   return $vars;

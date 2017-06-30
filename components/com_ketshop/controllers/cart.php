@@ -152,27 +152,27 @@ class KetshopControllerCart extends JControllerForm
 
 	//then check them out. 
 	if(!preg_match('#^[0-9]+$#', $minQty) || !preg_match('#^[0-9]+$#', $maxQty)) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_RANGE_QUANTITY', $data['name_'.$productId]));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_RANGE_QUANTITY', $data['name_'.$productId.'_'.$optionId]));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
 
 	//Now check the quantity value. 
 	if(!preg_match('#^[0-9]+$#', $value) || $value == 0) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $data['name_'.$productId]));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $data['name_'.$productId.'_'.$optionId]));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
 
 	//Verify that the value is between min and max quantity.
 	if((int)$value < (int)$minQty) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MIN_QUANTITY', $data['name_'.$productId], $minQty));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MIN_QUANTITY', $data['name_'.$productId.'_'.$optionId], $minQty));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
 
 	if((int)$value > (int)$maxQty) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MAX_QUANTITY', $data['name_'.$productId], $maxQty));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MAX_QUANTITY', $data['name_'.$productId.'_'.$optionId], $maxQty));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
@@ -197,7 +197,7 @@ class KetshopControllerCart extends JControllerForm
       //New quantity is higher or equal than stock capacity or minimum stock threshold.
       if($stockState < 0 || ($stockState <= $cart[$i]['min_stock_threshold'] && !$cart[$i]['allow_order'])) {
 	$app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_QUANTITY_TOO_HIGHT',$newQty[$cart[$i]['id']],
-										      $data['name_'.$cart[$i]['id']]));
+										      $data['name_'.$cart[$i]['id'].'_'.$cart[$i]['opt_id']]));
 	$this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	return false;
       }

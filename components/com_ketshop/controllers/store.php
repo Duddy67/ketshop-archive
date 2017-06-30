@@ -276,7 +276,7 @@ class KetshopControllerStore extends JControllerForm
     $session = JFactory::getSession();
     $cart = $session->get('cart', array(), 'ketshop'); 
     $settings = $session->get('settings', array(), 'ketshop'); 
-    $shippingCost = $finalShippingCost = $addressId = $delivpntId = 0;
+    $shippingCost = $finalShippingCost = $shippingId = $addressId = $delivpntId = 0;
     $deliveryType = 'none';
     $status = 'pending';
 
@@ -318,10 +318,13 @@ class KetshopControllerStore extends JControllerForm
 	}
       }
     }
-    else { // No shipping is required.
-      //$status = 'no_shipping';
+    elseif(!$shippable && (int)$orderId) { // No shipping is required.
+      $status = 'no_shipping';
+      $shippingName = JText::_('COM_KETSHOP_OPTION_NO_SHIPPING_STATUS');
+    }   
+    else { // No order id.
       return 0;
-    }
+    }   
 
     //Get the needed data from the order.
     $db = JFactory::getDbo();

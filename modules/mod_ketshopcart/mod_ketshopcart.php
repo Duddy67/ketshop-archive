@@ -19,7 +19,7 @@ if($jinput->get('view', '') == 'form') {
 }
 
 //Get some useful variables.
-$quantity = ShopHelper::getTotalQuantity();
+$quantity = ShopHelper::getTotalQuantity(false);
 $taxMethod = JComponentHelper::getParams('com_ketshop')->get('tax_method');
 
 //Grab the user session.

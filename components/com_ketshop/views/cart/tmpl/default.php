@@ -38,9 +38,6 @@ if(preg_match('#view=summary#', $data['location'])) {
 
 //Get products in the cart and cart amount.
 $data['products'] = $session->get('cart', array(), 'ketshop'); 
-//echo '<pre>';
-//var_dump($data['products']);
-//echo '</pre>';
 
 
 if(!empty($data['products'])) {
@@ -48,6 +45,9 @@ if(!empty($data['products'])) {
   $settings = $session->get('settings', array(), 'ketshop'); 
   //Get unavailable products if any, (only for pending cart).
   $unavailable = $session->get('unavailable', array(), 'ketshop'); 
+//echo '<pre>';
+//var_dump($settings);
+//echo '</pre>';
 
   $data['shippable'] = ShopHelper::isShippable();
   $data['tax_method'] = $settings['tax_method'];
