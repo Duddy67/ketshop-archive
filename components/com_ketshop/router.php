@@ -96,6 +96,9 @@ function KetshopParseRoute($segments)
     case 'address':
 	   $vars['view'] = 'address';
 	   break;
+    case 'shipment':
+	   $vars['view'] = 'shipment';
+	   break;
     case 'summary':
 	   $vars['view'] = 'summary';
 	   break;
