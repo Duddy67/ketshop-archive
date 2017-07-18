@@ -68,7 +68,7 @@
     var linkId = action+'-'+itemType+'-button-'+idNb;
 
     if(href === undefined) {
-      href = '#';
+      href = 'javascript:void(0);';
     }
 
     //Create the button.
@@ -230,18 +230,6 @@
 
     //Return a valid id number (ie: the highest id number of the container plus 1).
     return newId + 1;
-  };
-
-
-  //Extract from the current url query the value of a given parameter.
-  $.fn.getQueryParamByName = function(name) {
-    //Get the query of the current url. 
-    var query = decodeURIComponent($(location).attr('search'));
-    //Create a regex which capture the value of the given parameter.
-    var regex = new RegExp(name+'=([0-9a-zA-Z_-]+)');
-    var result = regex.exec(query);
-
-    return result[1];
   };
 
 

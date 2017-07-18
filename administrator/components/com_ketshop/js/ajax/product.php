@@ -67,6 +67,17 @@ if($isAdmin) {
     $images[$key] = $image;
   }
 }
+else {
+  //On front-end we must set src with the absolute path or SEF will add a wrong url path.  
+  $length = strlen('administrator/components/com_ketshop/js/ajax/');
+  $length = $length - ($length * 2);
+  $url = substr(JURI::root(), 0, $length);
+
+  foreach($images as $key => $image) {
+    $image['src'] = $url.$image['src'];
+    $images[$key] = $image;
+  }
+}
 
 $data['image'] = $images;
 

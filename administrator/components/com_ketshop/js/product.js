@@ -7,11 +7,11 @@
     var productId = $('#jform_id').val();
 
     if(productId != 0) {
-      //Get the type of the product from the hidden input tag.
+      //Get the type of the product from the form value.
       var productType = $('#jform_type').val();
     } else {
-      //Get the type of the product from the current url query.
-      var productType = $.fn.getQueryParamByName('type');
+      //Get the type of the product from the hidden input tag.
+      var productType = $('#product-type').val();
     }
 
     //Create a container for each item type.
@@ -108,7 +108,7 @@
     //Build the link to the modal window displaying the attribute list.
     var baseUrl = $('#base-url').val();
     var linkToModal = baseUrl+'administrator/index.php?option=com_ketshop&view=attributes&layout=modal&tmpl=component&id_nb='+idNb;
-    $('#attribute-item-'+idNb).createButton('select', '#', linkToModal);
+    $('#attribute-item-'+idNb).createButton('select', 'javascript:void(0);', linkToModal);
 
     //Create the "name" label.
     properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE')};
@@ -256,7 +256,7 @@
     //Build the link to the Joomla image server.
     var baseUrl = $('#base-url').val();
     var link = baseUrl+'administrator/index.php?option=com_media&view=images&tmpl=component&asset=com_ketshop&author='+userId+'&fieldid='+idNb+'&folder=ketshop';
-    $('#image-item-'+idNb).createButton('select', '#', link);
+    $('#image-item-'+idNb).createButton('select', 'javascript:void(0);', link);
 
     //Create the "alt" label.
     var properties = {'title':Joomla.JText._('COM_KETSHOP_IMAGE_ALT_TITLE')};
@@ -327,7 +327,7 @@
     //Note: product_type parameter ask product model to only display normal
     //product type (it prevents to have a bundle product types in the modal list). 
     var linkToModal = 'index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&id_nb='+idNb+'&type=bundleproduct&product_type=normal';
-    $('#bundleproduct-item-'+idNb).createButton('select', '#', linkToModal);
+    $('#bundleproduct-item-'+idNb).createButton('select', 'javascript:void(0);', linkToModal);
 
     //Create the "name" label.
     properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE')};

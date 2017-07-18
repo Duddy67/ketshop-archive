@@ -236,8 +236,15 @@ class plgContentKetshop extends JPlugin
       foreach($post as $key=>$val) {
 	if(preg_match('#^image_src_([0-9]+)$#', $key, $matches)) {
 	  $imageNb = $matches[1];
-	  //Remove "../" from src path in case images come from the administrator area.
-	  $src = preg_replace('#^\.\.\/#', '', $post['image_src_'.$imageNb]);
+
+	  if(JFactory::getApplication()->isAdmin()) {
+	    //Remove "../" from src path in case images come from the administrator area.
+	    $src = preg_replace('#^\.\.\/#', '', $post['image_src_'.$imageNb]);
+	  }
+	  else { //We're on front-end. Remove the domain url.
+	    $src = preg_replace('#^'.JURI::root().'#', '', $post['image_src_'.$imageNb]);
+	  }
+
 	  $width = $post['image_width_'.$imageNb];
 	  $height = $post['image_height_'.$imageNb];
 	  $ordering = $post['image_ordering_'.$imageNb];

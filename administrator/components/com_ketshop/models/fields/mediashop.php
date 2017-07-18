@@ -45,7 +45,8 @@ class JFormFieldMediashop extends JFormField
       $script = array();
       $script[] = 'function jInsertFieldValue(value, id) {';
       //Build the image url.
-      $script[] = '  url=value;';
+      //On front-end we must set src with the absolute path or SEF will add a wrong url path.  
+      $script[] = '  url="'.JURI::root().'"+value;';
 
       if(JFactory::getApplication()->isAdmin()) {
 	//Add "../" to the path as we are in the administrator area.

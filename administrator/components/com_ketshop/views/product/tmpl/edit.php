@@ -125,7 +125,7 @@ Joomla.submitbutton = function(task)
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'attributes', JText::_('COM_KETSHOP_SUBMENU_ATTRIBUTES', true)); ?>
 	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span6" id="attribute">
+	  <div class="span8" id="attribute">
 	  </div>
 	</div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
@@ -164,6 +164,9 @@ Joomla.submitbutton = function(task)
   <input type="hidden" name="task" value="" />
   <input type="hidden" id="base-url" name="base_url" value="<?php echo JURI::root(); ?>" />
   <input type="hidden" id="is-admin" name="is_admin" value="1" />
+  <?php if(!$this->item->id) : //New item. Get the type of the product from the current url query.  ?>
+    <input type="hidden" id="product-type" name="product_type" value="<?php echo JFactory::getApplication()->input->get('type', '', 'string'); ?>" />
+  <?php endif; ?>
   <?php echo JHtml::_('form.token'); ?>
 </form>
 

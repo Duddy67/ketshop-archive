@@ -37,7 +37,13 @@ function KetshopBuildRoute(&$query)
   }
 
   if(isset($query['layout'])) {
+    $segments[] = $query['layout'];
     unset($query['layout']);
+  }
+
+  if(isset($query['type'])) {
+    $segments[] = $query['type'];
+    unset($query['type']);
   }
 
   return $segments;
@@ -81,6 +87,8 @@ function KetshopParseRoute($segments)
 	   $vars['view'] = 'form';
 	   //Form layout is always set to 'edit'.
 	   $vars['layout'] = 'edit';
+	   $type = explode(':', $segments[1]);
+	   $vars['type'] = $type;
 	   break;
     case 'orders':
 	   $vars['view'] = 'orders';
