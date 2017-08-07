@@ -94,6 +94,14 @@ class KetshopHelperQuery
 	      $orderby = 'p.name DESC';
 	      break;
 
+      case 'price' :
+	      $orderby = 'p.sale_price';
+	      break;
+
+      case 'rprice' :
+	      $orderby = 'p.sale_price DESC';
+	      break;
+
       case 'order' :
 	      $orderby = $prefix.'ordering';
 	      break;
@@ -103,11 +111,15 @@ class KetshopHelperQuery
 	      break;
 
       case 'author' :
-	      $orderby = 'p.author';
+	      $orderby = 'author';
 	      break;
 
       case 'rauthor' :
-	      $orderby = 'p.author DESC';
+	      $orderby = 'author DESC';
+	      break;
+
+      case 'hits' :
+	      $orderby = 'p.hits';
 	      break;
 
       default :

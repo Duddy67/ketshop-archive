@@ -42,6 +42,7 @@ class KetshopModelTag extends JModelList
 	      'catid', 'p.catid', 'category_title',
 	      'modified', 'p.modified',
 	      'published', 'p.published',
+	      'hits', 'p.hits',
 	      'tm.ordering',
 	      'publish_up', 'p.publish_up',
 	      'publish_down', 'p.publish_down',

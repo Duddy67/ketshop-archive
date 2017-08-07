@@ -38,6 +38,10 @@ if($params->get('active_layout') == 'default') {
       </label>
       <select name="filter-ordering" id="filter-ordering" onchange="ketshop.submitForm();">
 	<option value=""><?php JText::_('JGLOBAL_SORT_BY'); ?></option>
+	<?php $selected = ($filterOrdering === 'price') ? 'selected="selected"' : ''; ?>
+	<option value="price" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_PRICE_ASC'); ?></option>
+	<?php $selected = ($filterOrdering === 'rprice') ? 'selected="selected"' : ''; ?>
+	<option value="rprice" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_PRICE_DESC'); ?></option>
 	<?php $selected = ($filterOrdering === 'order') ? 'selected="selected"' : ''; ?>
 	<option value="order" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_ORDERING_ASC'); ?></option>
 	<?php $selected = ($filterOrdering === 'rorder') ? 'selected="selected"' : ''; ?>
@@ -60,9 +64,9 @@ if($params->get('active_layout') == 'default') {
 	<?php endif; ?>
 	<?php if($optionDownloads) : ?>
 	  <?php $selected = ($filterOrdering === 'hits') ? 'selected="selected"' : ''; ?>
-	  <option value="downloads" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_HITS_ASC'); ?></option>
+	  <option value="hits" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_HITS_ASC'); ?></option>
 	  <?php $selected = ($filterOrdering === 'rhits') ? 'selected="selected"' : ''; ?>
-	  <option value="rdownloads" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_HITS_DESC'); ?></option>
+	  <option value="rhits" <?php echo $selected; ?>><?php echo JText::_('COM_KETSHOP_ORDERING_HITS_DESC'); ?></option>
 	<?php endif; ?>
       </select>
     </div>
