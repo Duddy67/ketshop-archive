@@ -31,11 +31,6 @@ function KetshopBuildRoute(&$query)
     unset($query['id']);
   }
 
-  if(isset($query['catid'])) {
-    $segments[] = $query['catid'];
-    unset($query['catid']);
-  }
-
   if(isset($query['layout'])) {
     $segments[] = $query['layout'];
     unset($query['layout']);
@@ -45,6 +40,9 @@ function KetshopBuildRoute(&$query)
     $segments[] = $query['type'];
     unset($query['type']);
   }
+
+  unset($query['catid']);
+  unset($query['tagid']);
 
   return $segments;
 }
@@ -80,8 +78,6 @@ function KetshopParseRoute($segments)
 	   $vars['view'] = 'product';
 	   $id = explode(':', $segments[1]);
 	   $vars['id'] = (int)$id[0];
-	   $catid = explode(':', $segments[2]);
-	   $vars['catid'] = (int)$catid[0];
 	   break;
     case 'form':
 	   $vars['view'] = 'form';

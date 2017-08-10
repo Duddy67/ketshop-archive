@@ -142,6 +142,16 @@ class KetshopViewTag extends JViewLegacy
       $item->uri = $this->uri;
       //Needed for the product properties layouts.
       $item->attributes_location = $item->weight_location = $item->dimensions_location = 'summary';
+
+      //Gets all the tag ids linked to the item.
+      $tagIds = array();
+      foreach($item->tags->itemTags as $itemTag) {
+	if($itemTag->published == 1) {
+	  $tagIds[] = $itemTag->id;
+	}
+      }
+
+      $item->tag_ids = $tagIds;
     }
 
     // Check for layout override only if this is not the active menu item

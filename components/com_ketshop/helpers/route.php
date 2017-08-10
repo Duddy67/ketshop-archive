@@ -24,23 +24,30 @@ abstract class KetshopHelperRoute
   /**
    * @param   integer  The route of the product
    */
-  public static function getProductRoute($id, $catid, $language = 0)
+  public static function getProductRoute($id, $itemid, $language = 0, $tagView = false)
   {
     $needles = array('product' => array((int) $id));
 
     //Create the link
     $link = 'index.php?option=com_ketshop&view=product&id='.$id;
 
-    if($catid > 1) {
+    if(!$tagView && $itemid > 1) {
       $categories = JCategories::getInstance('Ketshop');
-      $category = $categories->get($catid);
+      $category = $categories->get($itemid);
 
       if($category) {
 	$needles['category'] = array_reverse($category->getPath());
 	$needles['categories'] = $needles['category'];
-	$link .= '&catid='.$catid;
+	$link .= '&catid='.$itemid;
       }
     }
+    //When the tag view is used, $itemid is passed as an array with the tag ids linked to the song.
+    elseif($tagView && count($itemid) > 1) {
+      $needles['tag'] = $itemid;
+      $link .= '&tagid='.$itemid[0];
+    }
+
+
 
     if($language && $language != "*" && JLanguageMultilang::isEnabled()) {
       self::buildLanguageLookup();
@@ -86,10 +93,14 @@ abstract class KetshopHelperRoute
     if($catid instanceof JCategoryNode) {
       $id = $catid->id;
       $category = $catid;
+      $alias = $catid->alias;
     }
     else {
       $id = (int) $catid;
       $category = JCategories::getInstance('Ketshop')->get($id);
+      $parts = explode(':', $catid);
+      $alias = $parts[1];
+
     }
 
     if($id < 1 || !($category instanceof JCategoryNode)) {
@@ -99,7 +110,7 @@ abstract class KetshopHelperRoute
       $needles = array();
 
       // Create the link
-      $link = 'index.php?option=com_ketshop&view=category&id='.$id;
+      $link = 'index.php?option=com_ketshop&view=category&id='.$id.':'.$alias;
 
       $catids = array_reverse($category->getPath());
       $needles['category'] = $catids;
@@ -125,7 +136,7 @@ abstract class KetshopHelperRoute
 
   public static function getTagRoute($id, $path, $language = 0)
   {
-    if($id < 1) {
+    if((int)$id < 1) {
       $link = '';
     }
     else {
@@ -139,7 +150,7 @@ abstract class KetshopHelperRoute
 	$db = JFactory::getDbo();
 	$query = $db->getQuery(true);
 
-	//Build recursively the path values for the IN MySQL clause (eg: 'item1','item1/item2', etc...). 
+	//Build recursively the path values for the IN MySQL clause (eg: 'item1','item1/item2', etc...).
 	foreach($items as $item) {
 	  $paths .= $slash.$item;
 	  $in .= $db->quote($paths).',';
@@ -149,17 +160,22 @@ abstract class KetshopHelperRoute
 	//Remove comma from the end of the string.
 	$in = substr($in, 0, -1);
 
-	//Gets the parent item ids. 
+	//Gets the parent item ids.
 	$query->select('id')
 	      ->from('#__tags')
-	      ->where('path IN('.$in.')')
-	      ->order('level DESC');
+	      ->where('path IN('.$in.') AND published=1');
+
+	if($language && $language != "*" && JLanguageMultilang::isEnabled()) {
+	  $query->where('language='.$db->quote($language));
+	}
+
+	      $query->order('level DESC');
 	$db->setQuery($query);
 	$ids = $db->loadColumn();
       }
       else {
 	//The tag is a first level item therefore it has no parent.
-	$ids[] = $id;
+	$ids[] = (int)$id;
       }
 
       $needles = array('tag'  => $ids);

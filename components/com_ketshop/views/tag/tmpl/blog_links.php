@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 <ol class="nav nav-tabs nav-stacked">
 <?php foreach ($this->link_items as &$item) : ?>
 	<li>
-	  <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->catid)); ?>">
+	  <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, 0, true)); ?>">
 		      <?php echo $item->name; ?></a>
 	</li>
 <?php endforeach; ?>
