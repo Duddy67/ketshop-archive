@@ -14,17 +14,24 @@ $tagId = 0;
 if(isset($displayData['item']->tag_id)) {
   $tagId = $displayData['item']->tag_id;
 }
+
+$langTag = '';
+if($isMultilang = JLanguageMultilang::isEnabled()) {
+  $langTag = ShopHelper::switchLanguage(true);
+}
 ?>
 
 <ul class="tags inline">
-<?php foreach($tags as $tag) : //Don't need link for the current tag. ?> 
-  <li class="tag-<?php echo $tag->tag_id; ?> tag-list0" itemprop="keywords">
-    <?php if($tagId == $tag->tag_id) : ?> 
-      <span class="label label-warning"><?php echo $this->escape($tag->title); ?></span>
-  <?php else : ?> 
-      <a href="<?php echo JRoute::_(KetshopHelperRoute::getTagRoute($tag->tag_id.':'.$tag->alias, $tag->path));?>" class="label label-success"><?php echo $this->escape($tag->title); ?></a>
+<?php foreach($tags as $tag) : //Shows only tags in the corresponding language (or *) in case of multilingual website. ?> 
+  <?php if(!$isMultilang || ($isMultilang && $tag->language == '*') || ($isMultilang && $tag->language == $langTag)) : ?> 
+    <li class="tag-<?php echo $tag->tag_id; ?> tag-list0" itemprop="keywords">
+      <?php if($tagId == $tag->tag_id) : //Don't need link for the current tag. ?> 
+	<span class="label label-warning"><?php echo $this->escape($tag->title); ?></span>
+    <?php else : ?> 
+	<a href="<?php echo JRoute::_(KetshopHelperRoute::getTagRoute($tag->tag_id.':'.$tag->alias, $tag->path));?>" class="label label-success"><?php echo $this->escape($tag->title); ?></a>
+    <?php endif; ?> 
+    </li>
   <?php endif; ?> 
-  </li>
 <?php endforeach; ?>
 </ul>
 

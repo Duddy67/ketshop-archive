@@ -23,6 +23,17 @@
 			onchange="this.form.submit();" >
 			<option value="">COM_KETSHOP_OPTION_SELECT_USER</option>
 		</field>
+		<field name="item_type" type="list"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_SELECT_ITEM_TYPE</option>
+			<option value="product">COM_KETSHOP_OPTION_PRODUCT_ITEM_TYPE</option>
+			<option value="attribute">COM_KETSHOP_OPTION_ATTRIBUTE_ITEM_TYPE</option>
+			<option value="tax">COM_KETSHOP_OPTION_TAX_ITEM_TYPE</option>
+			<option value="price_rule">COM_KETSHOP_OPTION_PRICE_RULE_ITEM_TYPE</option>
+			<option value="payment_mode">COM_KETSHOP_OPTION_PAYMENT_MODE_ITEM_TYPE</option>
+			<option value="shipping">COM_KETSHOP_OPTION_SHIPPING_ITEM_TYPE</option>
+			<option value="shipper">COM_KETSHOP_OPTION_SHIPPER_ITEM_TYPE</option>
+		</field>
 		<field
 			name="language"
 			type="contentlanguage"

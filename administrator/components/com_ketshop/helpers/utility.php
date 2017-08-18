@@ -12,13 +12,13 @@ defined('_JEXEC') or die; //No direct access to this file.
 
 class UtilityHelper
 {
-  //Return the admin default language which is considered as the shop default
+  //Return the reference language parameter considered as the shop default
   //language.
   public static function getLanguage($tag = false) 
   {
-    //Get the default language code of the admin.
-    $params = JComponentHelper::getParams('com_languages');
-    $langTag = $params->get('administrator');
+    //Get the reference language set in config.
+    $params = JComponentHelper::getParams('com_ketshop');
+    $langTag = $params->get('reference_language');
 
     //Get the xml file path then parse it to get the language name.
     $file = JPATH_BASE.'/language/'.$langTag.'/'.$langTag.'.xml';

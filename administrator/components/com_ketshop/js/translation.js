@@ -12,7 +12,7 @@
       //Restore the form to its original state filled with the initial data 
       //in case the user changes some value then press the F5 key.
       //It also allows to get the item type directly from the form tag.
-      $('#ketshop-form')[0].reset();
+      $('#translation-form')[0].reset();
       itemType = $('#jform_item_type').val();
     }
 
@@ -34,7 +34,7 @@
     } 
 
     //Show or hide some fields according to the chosen item type.
-    if(itemType == 'delivery_point' || itemType == 'shipping' || itemType == 'shipper' || itemType == 'price_rule') {
+    if(itemType == 'shipping' || itemType == 'shipper' || itemType == 'price_rule') {
       $.fn.switchAlias(false);
       $.fn.switchProductDescription(false);
       $.fn.switchDescription(true);
@@ -91,11 +91,11 @@
     if(show) {
       $('#description-editor').css({'visibility':'visible','display':'inline'});
       $('#jform_description-lbl').css({'visibility':'visible','display':'block'});
-      $('#jform_description_').parent().css({'visibility':'visible','display':'block'});
+      $('#jform_description').parent().css({'visibility':'visible','display':'block'});
     } else {
       $('#description-editor').css({'visibility':'hidden','display':'none'});
       $('#jform_description-lbl').css({'visibility':'hidden','display':'none'});
-      $('#jform_description_').parent().css({'visibility':'hidden','display':'none'});
+      $('#jform_description').parent().css({'visibility':'hidden','display':'none'});
     }
   };
 
@@ -104,11 +104,11 @@
     if(show) {
       $('#product-description-editor').css({'visibility':'visible','display':'inline'});
       $('#jform_product_description-lbl').css({'visibility':'visible','display':'block'});
-      $('#jform_product_description_').parent().css({'visibility':'visible','display':'block'});
+      $('#jform_product_description').parent().css({'visibility':'visible','display':'block'});
     } else {
       $('#product-description-editor').css({'visibility':'hidden','display':'none'});
       $('#jform_product_description-lbl').css({'visibility':'hidden','display':'none'});
-      $('#jform_product_description_').parent().css({'visibility':'hidden','display':'none'});
+      $('#jform_product_description').parent().css({'visibility':'hidden','display':'none'});
     }
   };
 
@@ -117,11 +117,11 @@
     if(show) {
       $('#information-editor').css({'visibility':'visible','display':'inline'});
       $('#jform_information-lbl').css({'visibility':'visible','display':'block'});
-      $('#jform_information_').parent().css({'visibility':'visible','display':'block'});
+      $('#jform_information').parent().css({'visibility':'visible','display':'block'});
     } else {
       $('#information-editor').css({'visibility':'hidden','display':'none'});
       $('#jform_information-lbl').css({'visibility':'hidden','display':'none'});
-      $('#jform_information_').parent().css({'visibility':'hidden','display':'none'});
+      $('#jform_information').parent().css({'visibility':'hidden','display':'none'});
     }
   };
 

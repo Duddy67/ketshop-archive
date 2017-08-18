@@ -962,23 +962,22 @@ class ShopHelper
 
     if($itemType == 'product') {
       $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.alias,'.$itemPrefix.'.alias) AS alias';
-      $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.intro_text,'.$itemPrefix.'.intro_text) AS intro_text';
+      $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.description,'.$itemPrefix.'.intro_text) AS intro_text';
 
       //Full_text field as well as all of the meta data are only displayed in product view.
       if(JFactory::getApplication()->input->get->get('view', '', 'string') == 'product') {
-	$translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.full_text,'.$itemPrefix.'.full_text) AS full_text';
+	$translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.full_description,'.$itemPrefix.'.full_text) AS full_text';
 	$translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.metakey,'.$itemPrefix.'.metakey) AS metakey';
 	$translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.metadesc,'.$itemPrefix.'.metadesc) AS metadesc';
 	$translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.metadata,'.$itemPrefix.'.metadata) AS metadata';
 	$translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.xreference,'.$itemPrefix.'.xreference) AS xreference';
       }
     }
-    elseif($itemType == 'shipping' || $itemType == 'shipper' ||
-	   $itemType == 'price_rule' || $itemType == 'delivery_point') {
-       $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.intro_text,'.$itemPrefix.'.intro_text) AS intro_text';
+    elseif($itemType == 'shipping' || $itemType == 'shipper' || $itemType == 'price_rule') {
+       $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.description,'.$itemPrefix.'.description) AS description';
     }
     elseif($itemType == 'payment_mode') {
-       $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.intro_text,'.$itemPrefix.'.intro_text) AS intro_text';
+       $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.description,'.$itemPrefix.'.description) AS description';
        $translatedFields .= ',IF('.$prefix.'.name IS NOT NULL,'.$prefix.'.information,'.$itemPrefix.'.information) AS information';
     }
 

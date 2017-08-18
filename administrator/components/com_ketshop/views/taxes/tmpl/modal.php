@@ -33,7 +33,7 @@ $function = JFactory::getApplication()->input->get('function', 'selectItem');
       <div class="btn-group pull-left">
 	      <input type="text" name="filter_search" id="filter_search" value="<?php echo
 	      $this->escape($this->state->get('filter.search')); ?>" size="30"
-	      title="<?php echo JText::_('COM_JOOSHOP_FILTER_SEARCH_DESC'); ?>" />
+	      title="<?php echo JText::_('COM_KETSHOP_FILTER_SEARCH_DESC'); ?>" />
       </div>
       <div class="btn-group pull-left">
 	      <button type="submit" class="btn hasTooltip" title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>" data-placement="bottom">
@@ -54,7 +54,7 @@ $function = JFactory::getApplication()->input->get('function', 'selectItem');
       <thead>
 	<tr>
 	  <th class="title">
-		  <?php echo JHtml::_('grid.sort', 'COM_JOOSHOP_HEADING_NAME', 't.name', $listDirn, $listOrder); ?>
+		  <?php echo JHtml::_('grid.sort', 'COM_KETSHOP_HEADING_NAME', 't.name', $listDirn, $listOrder); ?>
 	  </th>
 	  <th width="15%">
 		  <?php echo JHtml::_('grid.sort', 'JGRID_HEADING_CREATED_BY', 'user', $listDirn, $listOrder); ?>
@@ -86,7 +86,7 @@ $function = JFactory::getApplication()->input->get('function', 'selectItem');
 		<?php echo $this->escape($item->user); ?>
 	      </td>
 	      <td>
-		<?php echo JHTML::_('date',$item->created, JText::_('COM_JOOSHOP_DATE_FORMAT')); ?>
+		<?php echo JHTML::_('date',$item->created, JText::_('COM_KETSHOP_DATE_FORMAT')); ?>
 	      </td>
 	      <td class="center">
 		<?php echo (int) $item->id; ?>

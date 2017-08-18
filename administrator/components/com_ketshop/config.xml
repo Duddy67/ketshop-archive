@@ -26,6 +26,11 @@
 		description="COM_KETSHOP_FIELD_REDIRECT_URL_1_DESC"
 		size="50" />
 
+	<field name="reference_language" type="text"
+		label="COM_KETSHOP_FIELD_REFERENCE_LANGUAGE_LABEL"
+		description="COM_KETSHOP_FIELD_REFERENCE_LANGUAGE_DESC"
+		default="en-GB" />
+
 	<field name="tax_method" type="list"
 		label="COM_KETSHOP_FIELD_TAX_METHOD_LABEL"
 		description="COM_KETSHOP_FIELD_TAX_METHOD_DESC"

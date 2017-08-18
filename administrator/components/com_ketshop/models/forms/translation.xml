@@ -28,7 +28,6 @@
 		<option value="tax">COM_KETSHOP_OPTION_TAX_ITEM_TYPE</option>
 		<option value="price_rule">COM_KETSHOP_OPTION_PRICE_RULE_ITEM_TYPE</option>
 		<option value="payment_mode">COM_KETSHOP_OPTION_PAYMENT_MODE_ITEM_TYPE</option>
-		<option value="delivery_point">COM_KETSHOP_OPTION_DELIVERY_POINT_ITEM_TYPE</option>
 		<option value="shipping">COM_KETSHOP_OPTION_SHIPPING_ITEM_TYPE</option>
 		<option value="shipper">COM_KETSHOP_OPTION_SHIPPER_ITEM_TYPE</option>
 	</field>
