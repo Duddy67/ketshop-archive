@@ -146,9 +146,15 @@ class KetshopViewTag extends JViewLegacy
       //Gets all the tag ids linked to the item.
       $tagIds = array();
       foreach($item->tags->itemTags as $itemTag) {
-	if($itemTag->published == 1) {
+	//Note: Do not include the tag id matching the main tag id.
+	if($itemTag->published == 1 && $itemTag->id != $item->main_tag_id) {
 	  $tagIds[] = $itemTag->id;
 	}
+      }
+
+      //Add the main tag id to the beginning of the id array.
+      if($item->main_tag_id) {
+	array_unshift($tagIds, $item->main_tag_id);
       }
 
       $item->tag_ids = $tagIds;

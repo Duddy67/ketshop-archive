@@ -82,6 +82,10 @@ Joomla.submitbutton = function(task)
 	</div>
 	<div class="span3">
 	  <?php echo JLayoutHelper::render('joomla.edit.global', $this); ?>
+	  <div class="form-vertical">
+	    <?php echo $this->form->getControlGroup('main_tag_id'); ?>
+	  </div>
+
 	</div>
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>

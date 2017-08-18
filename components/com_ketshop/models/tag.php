@@ -308,7 +308,7 @@ class KetshopModelTag extends JModelList
     $query->select($this->getState('list.select', 'p.id,'.$translatedFields.'p.catid,'.
 	                           'tm.tag_id,p.published,p.checked_out,p.checked_out_time,p.created,'.
 				   'p.created_by,p.access,p.params,p.metadata,p.metakey,p.metadesc,p.hits,'.
-				   'p.publish_up,p.publish_down,p.modified,p.modified_by,'.
+				   'p.main_tag_id,p.publish_up,p.publish_down,p.modified,p.modified_by,'.
 	                           'p.type,p.base_price,p.sale_price,p.min_quantity,p.max_quantity,p.stock,p.stock_subtract,'.
 				   'p.shippable,p.min_stock_threshold,p.max_stock_threshold,p.weight_unit,p.weight,'.
 				   'p.code,p.allow_order,p.dimensions_unit,p.length,p.width,p.height,p.img_reduction_rate,'.

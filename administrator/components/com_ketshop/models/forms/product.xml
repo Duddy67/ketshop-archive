@@ -247,6 +247,12 @@
 	       class="inputbox span12" multiple="true">
 	</field>
 
+	<field name="main_tag_id" type="maintag"
+	       label="COM_KETSHOP_FIELD_MAIN_TAG_ID_LABEL"
+	       description="COM_KETSHOP_FIELD_MAIN_TAG_ID_DESC"
+	       class="inputbox">
+	</field>
+
 	<!-- layout: publishingdata -->
 	<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL" 
 	       description="JGLOBAL_FIELD_ID_DESC"

@@ -119,6 +119,11 @@ class KetshopTableProduct extends JTable
       }
     }
 
+    //Check the selected main tag is part of the current tags.
+    if($this->main_tag_id && !in_array($this->main_tag_id, $this->newTags)) {
+      $this->main_tag_id = 0;
+    }
+
     //Set the alias of the product.
     
     //Create a sanitized alias, (see stringURLSafe function for details).
