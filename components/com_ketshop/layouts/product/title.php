@@ -21,10 +21,10 @@ $nowDate = $displayData['now_date'];
 	    <h2>
 	      <?php if($params->get('link_name') && $params->get('access-view')) : 
 
-		    $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->catid));
+		    $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->catid, $item->language));
 		    //If the tag view is used the getProductRoute function calling is slighly different.
 		    if(isset($item->tag_ids)) {
-		      $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, 0, true));
+		      $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, $item->language, true));
 		    }
 	      ?>
 

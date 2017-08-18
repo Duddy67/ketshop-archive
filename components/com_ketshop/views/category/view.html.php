@@ -76,6 +76,10 @@ class KetshopViewCategory extends JViewCategory
     $this->user = JFactory::getUser();
     $this->uri = JUri::getInstance();
 
+    //Set variables used for a multilangual purpose.
+    $isSiteMultilng = ShopHelper::isSiteMultilingual();
+    $langTag = ShopHelper::switchLanguage(true);
+
     // Prepare the data.
     // Compute the product slugs.
     foreach($this->items as $item) {
@@ -92,6 +96,12 @@ class KetshopViewCategory extends JViewCategory
       $item->uri = $this->uri;
       //Needed for the product properties layouts.
       $item->attributes_location = $item->weight_location = $item->dimensions_location = 'summary';
+
+      //Set the default language value.
+      $item->language = 0;
+      if($isSiteMultilng) {
+        $item->language = $langTag;
+      }
     }
 
     // Check for layout override only if this is not the active menu item

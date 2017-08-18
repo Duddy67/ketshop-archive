@@ -360,6 +360,20 @@ class KetshopModelTag extends JModelList
       $taxName = $taxTranslation->translated_fields;
     }
 
+    if(ShopHelper::isSiteMultilingual()) {
+      $langTag = ShopHelper::switchLanguage(true);
+      $component = JComponentHelper::getComponent('com_ketshop');
+      //Check if there is a menu item (but in a different language than the current one) linked to the main tag of the product. 
+      //If this menu item exists and has an association we might can tell by its key which is the corresponding menu item 
+      //in the current language.  
+      $query->select('a.key AS assoc_menu_item_key')
+            ->join('LEFT', '#__menu AS m ON m.link REGEXP CONCAT("(view=tag).+(id=",p.main_tag_id,")") '.
+                           'AND m.published=1 AND m.component_id='.(int)$component->id.' AND m.language != '.$db->quote($langTag))
+            ->join('LEFT', '#__associations AS a ON a.id=m.id AND context="com_menus.item"')
+            //Just in case there are several menu items linked to the main tag.
+            ->group('p.id');
+    }   
+
     // Join over the tax 
     $query->select('t.rate AS tax_rate,'.$taxName);
     $query->join('LEFT', '#__ketshop_tax AS t ON t.id = p.tax_id');
@@ -467,6 +481,31 @@ class KetshopModelTag extends JModelList
     $tag->images = $images;
 
     return $tag;
+  }
+
+
+  public function getAssocMenuItems($assocKeys, $langTag)
+  {
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    //Get the associated menu items from their association keys.
+    $query->select('a.key, m.link')
+          ->from('#__associations AS a')
+          ->join('INNER', '#__menu AS m ON m.id=a.id')
+          ->where('a.key IN("'.implode('","', $assocKeys).'")')
+          ->where('a.context="com_menus.item" AND m.published=1 AND m.language='.$db->quote($langTag));
+    $db->setQuery($query);
+    $results = $db->loadObjectList();
+
+    foreach($results as $result) {
+      $result->tag_id = 0;
+      //If the associated menu item is linked to a tag view we retrieve the tag id. 
+      if(preg_match('#(view=tag&).+id=([0-9]*)#', $result->link, $matches)) {
+        $result->tag_id = $matches[2];
+      }       
+    }       
+
+    return $results;
   }
 
 

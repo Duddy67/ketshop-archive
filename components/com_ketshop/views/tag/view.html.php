@@ -126,6 +126,11 @@ class KetshopViewTag extends JViewLegacy
     //Get the current url, (needed in the product edit layout).
     $this->uri = JUri::getInstance();
 
+    //Set variables used for a multilangual purpose.
+    $isSiteMultilng = ShopHelper::isSiteMultilingual();
+    $assocKeys = array();
+    $langTag = ShopHelper::switchLanguage(true);
+
     // Prepare the data.
     // Compute the product slugs.
     foreach($this->items as $item) {
@@ -158,6 +163,30 @@ class KetshopViewTag extends JViewLegacy
       }
 
       $item->tag_ids = $tagIds;
+
+      //Set the default language value.
+      $item->language = 0;
+      if($isSiteMultilng) {
+        $item->language = $langTag;
+
+        //Collects the associated menu item key (if any) of each item.
+        if(!empty($item->assoc_menu_item_key) && !in_array($item->assoc_menu_item_key, $assocKeys)) {
+          $assocKeys[] = $item->assoc_menu_item_key;
+        }
+      }
+    }
+
+    if(!empty($assocKeys)) {
+      $assocMenuItems = $this->getModel()->getAssocMenuItems($assocKeys, $langTag);
+      //Binds the results to the products.
+      foreach($this->items as $key => $item) {
+        foreach($assocMenuItems as $assocMenuItem) {
+          if($assocMenuItem->key == $item->assoc_menu_item_key && $assocMenuItem->tag_id) {
+            //Add the "associated main" tag id to the beginning of the id array.
+            array_unshift($this->items[$key]->tag_ids, $assocMenuItem->tag_id);
+          }
+        }
+      }
     }
 
     // Check for layout override only if this is not the active menu item

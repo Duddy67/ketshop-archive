@@ -38,7 +38,7 @@ $productLayoutPath = JPATH_SITE.'/components/com_ketshop/layouts/product/';
 
   <?php if($this->item->attribute_group) : //Check for product options. ?>
     <span class="space-2"></span>
-    <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, 0, true)); ?>">
+    <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language, true)); ?>">
       <span class="label btn-info">
       <?php echo JText::_('COM_KETSHOP_CHOOSE_OPTIONS'); ?>
       </span>
@@ -48,13 +48,13 @@ $productLayoutPath = JPATH_SITE.'/components/com_ketshop/layouts/product/';
 
   <?php if($params->get('show_product_page_link')) :
 	  if($params->get('access-view')) :
-	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, 0, true));
+	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language, true));
 	  else : //Redirect the user to the login page.
 	    $menu = JFactory::getApplication()->getMenu();
 	    $active = $menu->getActive();
 	    $itemId = $active->id;
 	    $link = new JUri(JRoute::_('index.php?option=com_users&view=login&Itemid='.$itemId, false));
-	    $link->setVar('return', base64_encode(JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, 0, true), false)));
+	    $link->setVar('return', base64_encode(JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language, true), false)));
 	  endif; ?>
 
   <?php echo JLayoutHelper::render('product_page', array('item' => $this->item, 'params' => $params, 'link' => $link), $productLayoutPath); ?>

@@ -32,8 +32,14 @@ $params = $displayData['params'];
 	}
     ?>
 
-    <?php if($params->get('linked_image') && $params->get('access-view')) : //Create the image link.?>
-      <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->catid)); ?>">
+    <?php if($params->get('linked_image') && $params->get('access-view')) : //Create the image link.
+	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->catid, $item->language));
+	    //If the tag view is used the getProductRoute function calling is slighly different.
+	    if(isset($item->tag_ids)) {
+	      $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, $item->language, true));
+	    }
+	?>
+      <a href="<?php echo $link; ?>">
     <?php endif; ?>
       <img class="image" src="<?php echo $imgSrc; ?>" width="<?php echo (int)$size['width']; ?>"
 	   height="<?php echo (int)$size['height']; ?>" alt="<?php echo $this->escape($imgAlt); ?>" />
