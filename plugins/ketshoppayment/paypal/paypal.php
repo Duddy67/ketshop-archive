@@ -10,6 +10,7 @@
 defined('_JEXEC') or die('Restricted access');
 // Import the JPlugin class
 jimport('joomla.plugin.plugin');
+require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
 
 
 
@@ -19,15 +20,11 @@ class plgKetshoppaymentPaypal extends JPlugin
   //Grab the event triggered by the payment controller.
   public function onKetshopPaymentPaypal($amounts, $cart, $settings, $utility)
   {
-    //Get the first part of the query where all the basic parameters are set.
-    $paypalQuery = $this->getPaypalQuery();
     //Get the SetExpressCheckout query.
-    $setExpressCheckout = $this->setExpressCheckout($amounts, $cart, $settings);
-    //Concatenate the 2 parts to get the complete query.
-    $paypalQuery = $paypalQuery.$setExpressCheckout;
+    $paypalQuery = $this->setExpressCheckout($amounts, $cart, $settings);
 
     //Execute the query and get the result.
-    $curl = $this->cURLSession($paypalQuery);
+    $curl = $this->cURLSession('SetExpressCheckout', $paypalQuery);
 
     //Load Paypal plugin language from the backend.
     $lang = JFactory::getLanguage();
@@ -35,7 +32,7 @@ class plgKetshoppaymentPaypal extends JPlugin
 
     if(!$curl[0]) { //curl failed
       //Display an error message.
-      $utility['error'] = JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_CURL', $curl[1]);
+      $utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_CURL', $curl[1]);
       $utility['plugin_result'] = false;
       return $utility;
     }
@@ -56,22 +53,22 @@ class plgKetshoppaymentPaypal extends JPlugin
 	$utility['paypal_step'] = 'setExpressCheckout';
 
 	//Get the Paypal server url from the plugin parameters.
-	$paypalServer = $this->params->get('server');
+	$paypalServerUrl = $this->params->get('server_url');
 
 	//Remove slash from the end of the string if any.
-	if(preg_match('#\/$#', $paypalServer)) {
-	  $paypalServer = substr($paypalServer, 0, -1);
+	if(preg_match('#\/$#', $paypalServerUrl)) {
+	  $paypalServerUrl = substr($paypalServerUrl, 0, -1);
 	}
 
 	//Redirect the user on the Paypal web site (add the token into url).
 	//Note: Redirection is perform by the setPayment controller function.
-	$utility['redirect_url'] = $paypalServer.'/webscr&cmd=_express-checkout&token='.$paypalParamsArray['TOKEN'];
+	$utility['redirect_url'] = $paypalServerUrl.'/webscr&cmd=_express-checkout&token='.$paypalParamsArray['TOKEN'];
 	$utility['plugin_result'] = true;
 	return $utility;
       }
       else { //Paypal query has failed.
 	//Display the Paypal error message.
-	$utility['error'] = JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
+	$utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
 	                     $paypalParamsArray['L_SHORTMESSAGE0'], $paypalParamsArray['L_LONGMESSAGE0']);
 	$utility['plugin_result'] = false;
 	return $utility;
@@ -95,29 +92,28 @@ class plgKetshoppaymentPaypal extends JPlugin
 
       //Paypal server has redirected the user on our site and sent us back the
       //token previously created and the payer id.
-      $token = JRequest::getVar('token', '', 'GET', 'str');
+      $token = JFactory::getApplication()->input->get('token', '', 'str');
 
       //Check the token previously created against the one just passed by Paypal.
       if($token !== $utility['paypal_token']) {
 	//Display the Paypal error message.
-	$utility['error'] = JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_TOKEN'); 
+	$utility['error'] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_TOKEN'); 
 	$utility['plugin_result'] = false;
 	return $utility;
       }
 
-      //Get the first part of the query where all the basic parameters are set.
-      $paypalQuery = $this->getPaypalQuery();
-      //Get the GetExpressCheckoutDetails query.
-      $getExpressCheckoutDetails = $this->getExpressCheckoutDetails();
-      //Concatenate the 2 parts to get the complete query.
-      $paypalQuery = $paypalQuery.$getExpressCheckoutDetails;
+      //Once Paypal query has succeeded, we might want more details about the 
+      //transaction. We can get them with the GetExpressCheckoutDetails method.
+
+      //Set the GetExpressCheckoutDetails query.
+      $paypalQuery = array('TOKEN' => $utility['paypal_token']);
 
       //Execute the query and get the result.
-      $curl = $this->cURLSession($paypalQuery);
+      $curl = $this->cURLSession('GetExpressCheckoutDetails', $paypalQuery);
 
       if(!$curl[0]) { //curl failed
 	//Display an error message.
-	$utility['error'] = JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_CURL', $curl[1]);
+	$utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_CURL', $curl[1]);
 	$utility['plugin_result'] = false;
 	return $utility;
       }
@@ -129,11 +125,11 @@ class plgKetshoppaymentPaypal extends JPlugin
 	if($paypalParamsArray['ACK'] === 'Success') {
 	  //Store the paypal params array as we gonna use it later (for payerID
 	  //variable).
-	  $utility['payment_detail'] = $paypalParamsArray;
+	  $utility['transaction_data'] = $paypalParamsArray;
 	}
 	else { //Paypal query has failed.
 	  //Display the Paypal error message.
-	  $utility['error'] = JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
+	  $utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
 			       $paypalParamsArray['L_SHORTMESSAGE0'], $paypalParamsArray['L_LONGMESSAGE0']);
 	  $utility['plugin_result'] = false;
 	  return $utility;
@@ -176,10 +172,10 @@ class plgKetshoppaymentPaypal extends JPlugin
       $output .= '<div id="action-buttons">';
       $output .= '<span class="button">'.
 		 '<a href="index.php?option=com_ketshop&view=payment&task=payment.cancel&payment=paypal" onclick="hideButton(\'action-buttons\')">'.
-			  JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_CANCEL').'</a></span>';
+			  JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_CANCEL').'</a></span>';
       $output .= '<span class="button-separation">&nbsp;</span>';
       $output .= '<input id="submit-button" type="submit" onclick="hideButton(\'action-buttons\')" value="'
-	          .JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_VALIDATE').'" />';
+	          .JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_VALIDATE').'" />';
       $output .= '</div>';
       $output .= '</div>';
       $output .= '</form>';
@@ -196,25 +192,22 @@ class plgKetshoppaymentPaypal extends JPlugin
       //transaction with the DoExpressCheckoutPayment method which is the 
       //last step of the Paypal payment procedure. 
 
-      //Get the first part of the query where all the basic parameters are set.
-      $paypalQuery = $this->getPaypalQuery();
       //Get the DoExpressCheckoutPayment query.
-      $doExpressCheckoutPayment = $this->doExpressCheckoutPayment($amounts, $cart, $settings);
-      //Concatenate the 2 parts to get the complete query.
-      $paypalQuery = $paypalQuery.$doExpressCheckoutPayment;
+      $paypalQuery = $this->doExpressCheckoutPayment($amounts, $cart, $settings, $utility);
 
       //Execute the query and get the result.
-      $curl = $this->cURLSession($paypalQuery);
+      $curl = $this->cURLSession('DoExpressCheckoutPayment', $paypalQuery);
 
       if(!$curl[0]) { //curl failed
 	//Display an error message.
-	$utility['error'] = JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_CURL', $curl[1]);
+	$utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_CURL', $curl[1]);
 	$utility['plugin_result'] = false;
 	return $utility;
       }
       else { //curl succeeded.
 	//Retrieve all the Paypal result into an array.
 	$paypalParamsArray = $this->buildPaypalParamsArray($curl[1]); 
+	$utility['payment_detail'] = 'PayPal Payment';
 
 	//Paypal query has succeeded
 	if($paypalParamsArray['ACK'] === 'Success') {
@@ -227,7 +220,10 @@ class plgKetshoppaymentPaypal extends JPlugin
 	  $utility['payment_result'] = 1;
 	  $utility['plugin_result'] = true;
 	  //Serialize the Paypal data to store it into database.
-	  $utility['payment_detail'] = serialize($paypalParamsArray);
+	  $utility['transaction_data'] = serialize($paypalParamsArray);
+
+	  ShopHelper::createTransaction($amounts, $utility, $settings); 
+
 	  return $utility;
 	}
 	else { //Paypal query has failed.
@@ -241,20 +237,24 @@ class plgKetshoppaymentPaypal extends JPlugin
 	    $utility['redirect_url'] = JRoute::_('index.php?option=com_ketshop&task=finalize.confirmPurchase', false);
 	    $utility['payment_result'] = 1;
 	    $utility['plugin_result'] = true;
+
 	    return $utility;
 	  }
 
 	  //Display the Paypal error message.
-	  $utility['error'] = JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
+	  $utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
 			       $paypalParamsArray['L_SHORTMESSAGE0'], $paypalParamsArray['L_LONGMESSAGE0']);
 	  $utility['plugin_result'] = false;
+
+	  ShopHelper::createTransaction($amounts, $utility, $settings); 
+
 	  return $utility;
 	}		
       }
     }
     else { //Something odd happened.
       //Display an error message.
-      $utility['error'] = JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_ERROR_NO_STEP');
+      $utility['error'] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_NO_STEP');
       $utility['plugin_result'] = false;
       return $utility;
     }
@@ -277,53 +277,52 @@ class plgKetshoppaymentPaypal extends JPlugin
   }
 
 
-  //Build the beginning of the Paypal query with the basic 
-  //parameters such as api, password, signature etc...
-  protected function getPaypalQuery()
-  {
-    //Get the component parameters set into the plugin panel.
-    $paypalApi = $this->params->get('api');
-    $version = $this->params->get('api_version');
-    $user = $this->params->get('user');
-    $password = $this->params->get('password');
-    $signature = $this->params->get('signature');
-
-    //Remove slash from the end of the string if any.
-    if(preg_match('#\/$#', $paypalApi)) {
-      $paypalApi = substr($paypalApi, 0, -1);
-    }
-
-    $query = $paypalApi.'/nvp?VERSION='.$version.'&USER='.$user.
-                               '&PWD='.$password.'&SIGNATURE='.$signature;
-
-    return $query;
-  }
-
-
   //Create a cURL session and execute the query passed in argument.
   //Return an array where:
   //id 0 = boolean (true: succeeded, false: failed).
   //id 1 = string (result of the query if succeed or error message).
-  protected function cURLSession($paypalQuery)
+  protected function cURLSession($method, $paypalQuery)
   {
-    //Initialize the cURL session.
-    $ch = curl_init($paypalQuery);
-    //Ignore the verification of the SSL certificat.
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    //Return transfert into string format.
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    //Execute the url query.
-    $paypalResult = curl_exec($ch);
+    //Our request parameters
+    $requestParams = array('METHOD' => $method,
+			   'VERSION' => $this->params->get('api_version'));
+
+    $credentials = array('USER' => $this->params->get('user'), 
+	                 'PWD' => $this->params->get('password'), 
+			 'SIGNATURE' => $this->params->get('signature'));
+
+    //Concatenates the whole request.
+    $request = array_merge($requestParams, $credentials, $paypalQuery);
+
+    //Building our NVP string
+    $request = http_build_query($request);
+
+    //cURL settings
+    $curlOptions = array (CURLOPT_URL => $this->params->get('api_endpoint'),
+			  CURLOPT_VERBOSE => 1,
+			  CURLOPT_SSL_VERIFYPEER => true,
+			  CURLOPT_SSL_VERIFYHOST => 2,
+			  //CURLOPT_CAINFO => dirname(__FILE__) . '/cacert.pem', //CA cert file
+			  CURLOPT_RETURNTRANSFER => 1,
+			  CURLOPT_POST => 1,
+			  CURLOPT_POSTFIELDS => $request);
+
+    $ch = curl_init();
+
+    curl_setopt_array($ch, $curlOptions);
+
+    //Sending our request - $response will hold the API response
+    $response = curl_exec($ch);
 
     $result = array();
     //Store result.
-    if(!$paypalResult) { //curl failed
+    if(curl_errno($ch)) { //curl failed
       $result[] = false;
       $result[] = curl_error($ch);
     }
     else {
       $result[] = true;
-      $result[] = $paypalResult;
+      $result[] = $response;
     }
 
     //Close the cURL session.
@@ -337,42 +336,25 @@ class plgKetshoppaymentPaypal extends JPlugin
   {
     //Initialize some variables.
     $currencyCode = $settings['currency_alpha'];
-    $countryCode2 = $settings['country_code_2'];
-    //Load Paypal plugin language from the backend.
+    $countryCode = $settings['country_alpha_2'];
+    //Load Paypal plugin language.
     $lang = JFactory::getLanguage();
-    $lang->load('plg_ketshoppayment_paypal', JPATH_ADMINISTRATOR);
+    $lang->load('plg_ketshoppayment_paypal', dirname(__FILE__));
 
     //We can add custom parameter to the query, but we need 
     //GetExpressCheckoutDetails to recover it.
-    $query = '&METHOD=SetExpressCheckout'.
-	     '&CANCELURL='.urlencode(JUri::base().'index.php?option=com_ketshop&view=payment&task=payment.cancel&payment=paypal').
-	     '&RETURNURL='.urlencode(JUri::base().'index.php?option=com_ketshop&view=payment&task=payment.response&payment=paypal');
-
+    $query = array('CANCELURL' => JUri::base().'index.php?option=com_ketshop&view=payment&task=payment.cancelPayment&payment=paypal',
+		   'RETURNURL' => JUri::base().'index.php?option=com_ketshop&view=payment&task=payment.response&payment=paypal');
     //Get the query for the detail order.
-    $query .= $this->buildPaypalDetailOrder($amounts, $cart, $settings);
+    $detailOrder = $this->buildPaypalDetailOrder($amounts, $cart, $settings);
+    $query = array_merge($query, $detailOrder);
 
-    $query .= '&PAYMENTREQUEST_0_CURRENCYCODE='.$currencyCode.
-	      '&PAYMENTREQUEST_0_DESC='.urlencode(JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_SHOP_DESC')).
-	      '&NOSHIPPING=1'.
-	      '&LOCALECODE='.$countryCode2.
-	      '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'.
-	      '&PAYMENTREQUEST_0_CUSTOM=123456789'; //Add custom parameter.
-
-    return $query;
-  }
-
-
-  //Once Paypal query has succeeded, we might want more details about the 
-  //transaction. We can get them with the GetExpressCheckoutDetails method.
-  protected function getExpressCheckoutDetails()
-  {
-    //Get some needed data from the utility session array.
-    $session = JFactory::getSession();
-    $utility = $session->get('utility', array(), 'ketshop'); 
-
-    //Build the query.
-    $query = '&METHOD=GetExpressCheckoutDetails'.
-	     '&TOKEN='.$utility['paypal_token'];
+    $query['PAYMENTREQUEST_0_CURRENCYCODE'] = $currencyCode;
+    $query['PAYMENTREQUEST_0_DESC'] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_SHOP_DESC');
+    $query['NOSHIPPING'] = 1;
+    $query['LOCALECODE'] = $countryCode;
+    $query['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale'; 
+    $query['PAYMENTREQUEST_0_CUSTOM'] = '123456789';
 
     return $query;
   }
@@ -382,22 +364,18 @@ class plgKetshoppaymentPaypal extends JPlugin
   //parameters plus the optional parameters we need. If DoExpressCheckoutPayment method 
   //has succeeded, Paypal return a list of parameters value we can use during 
   //our transaction. 
-  protected function doExpressCheckoutPayment($amounts, $cart, $settings)
+  protected function doExpressCheckoutPayment($amounts, $cart, $settings, $utility)
   {
     $currencyCode = $settings['currency_alpha'];
-    //Get some needed data from the utility session array.
-    $session = JFactory::getSession();
-    $utility = $session->get('utility', array(), 'ketshop'); 
-
-    $query = '&METHOD=DoExpressCheckoutPayment'.
-	     '&TOKEN='.$utility['paypal_token']. //Add the token sent back by Paypal.
-
+    $query = array('TOKEN' => $utility['paypal_token']);
     //Get the query for the detail order.
-    $query .= $this->buildPaypalDetailOrder($amounts, $cart, $settings);
+    $detailOrder = $this->buildPaypalDetailOrder($amounts, $cart, $settings);
+    $query = array_merge($query, $detailOrder);
 
-    $query .= '&PAYMENTREQUEST_0_CURRENCYCODE='.$currencyCode.
-	      '&PayerID='.$utility['payment_detail']['PAYERID']. //Add payment id sent back by Paypal.
-	      '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'; //Indicate a final sale.
+    $query['PAYMENTREQUEST_0_CURRENCYCODE'] = $currencyCode;
+    //Add payment id sent back by Paypal.
+    $query['PayerID'] = $utility['transaction_data']['PAYERID'];
+    $query['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';
 
     return $query;
   }
@@ -411,7 +389,7 @@ class plgKetshoppaymentPaypal extends JPlugin
     $rounding = $settings['rounding_rule'];
     $digits = $settings['digits_precision'];
     $cartAmount = $cartOperation = $shippingOperation = $id = 0;
-    $detailOrder = '';
+    $detailOrder = array();
     //Load Paypal plugin language from the backend.
     $lang = JFactory::getLanguage();
     $lang->load('plg_ketshoppayment_paypal', JPATH_ADMINISTRATOR);
@@ -431,18 +409,18 @@ class plgKetshoppaymentPaypal extends JPlugin
 
       //Display the product detail.
 
-      $detailOrder .= '&L_PAYMENTREQUEST_0_NAME'.$id.'='.urlencode($product['name']).
-	              '&L_PAYMENTREQUEST_0_QTY'.$id.'='.$product['quantity']; 
+      $detailOrder['L_PAYMENTREQUEST_0_NAME'.$id] = $product['name'];
+      $detailOrder['L_PAYMENTREQUEST_0_QTY'.$id] = $product['quantity']; 
 
       //Display the proper description according to the tax method.
       if($taxMethod == 'excl_tax') {
-	$detailOrder .= '&L_PAYMENTREQUEST_0_DESC'.$id.'='.urlencode(JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_EXCL_TAX_PRICE'));
+	$detailOrder['L_PAYMENTREQUEST_0_DESC'.$id] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_EXCL_TAX_PRICE');
       }
       else {
-	$detailOrder .= '&L_PAYMENTREQUEST_0_DESC'.$id.'='.urlencode(JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_INCL_TAX', $product['tax_rate']));
+	$detailOrder['L_PAYMENTREQUEST_0_DESC'.$id] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_INCL_TAX', $product['tax_rate']);
       }
 
-      $detailOrder .= '&L_PAYMENTREQUEST_0_AMT'.$id.'='.UtilityHelper::formatNumber($product['unit_price']);
+      $detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::formatNumber($product['unit_price']);
 
       if($taxMethod == 'excl_tax') {
 	//Increment the id.
@@ -450,10 +428,10 @@ class plgKetshoppaymentPaypal extends JPlugin
         //Calculate the result of the product taxes.
 	$inclTax = $inclTaxResult - ($product['unit_price'] * $product['quantity']);
 	//Display the product taxes as an item. 
-	$detailOrder .= '&L_PAYMENTREQUEST_0_NAME'.$id.'='.urlencode(JText::sprintf('PLG_JOOSHOP_PAYMENT_PAYPAL_INCL_TAX_PRODUCT',
-	                                                                             $product['tax_rate'],$product['quantity'],$product['name'])).
-			'&L_PAYMENTREQUEST_0_QTY'.$id.'=1'.
-			'&L_PAYMENTREQUEST_0_AMT'.$id.'='.UtilityHelper::formatNumber($inclTax);
+	$detailOrder['L_PAYMENTREQUEST_0_NAME'.$id] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_INCL_TAX_PRODUCT',
+	                                                              $product['tax_rate'],$product['quantity'],$product['name']);
+	$detailOrder['L_PAYMENTREQUEST_0_QTY'.$id] = 1;
+	$detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::formatNumber($inclTax);
       }
 
       $id++;
@@ -474,14 +452,14 @@ class plgKetshoppaymentPaypal extends JPlugin
     //Add the sum of the operation applied to the cart as an item.
     //Paypal will substract or add this value.
     if($cartOperation) {
-      $detailOrder .= '&L_PAYMENTREQUEST_0_NAME'.$id.'='.urlencode(JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_CART_OPERATION')).
-	              '&L_PAYMENTREQUEST_0_QTY'.$id.'=1'. 
-	              '&L_PAYMENTREQUEST_0_AMT'.$id.'='.UtilityHelper::formatNumber($cartOperation).
-	              '&L_PAYMENTREQUEST_0_DESC'.$id.'='.urlencode(JText::_('PLG_JOOSHOP_PAYMENT_PAYPAL_CART_OPERATION_DESC'));
+      $detailOrder['L_PAYMENTREQUEST_0_NAME'.$id] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_CART_OPERATION');
+      $detailOrder['L_PAYMENTREQUEST_0_QTY'.$id] = 1; 
+      $detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::formatNumber($cartOperation);
+      $detailOrder['L_PAYMENTREQUEST_0_DESC'.$id] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_CART_OPERATION_DESC');
     }
 
     //Display the cart amount.
-    $detailOrder .= '&PAYMENTREQUEST_0_ITEMAMT='.UtilityHelper::formatNumber($cartAmount);
+    $detailOrder['PAYMENTREQUEST_0_ITEMAMT'] = UtilityHelper::formatNumber($cartAmount);
 
     //Check for shipping.
     if(ShopHelper::isShippable()) {
@@ -495,17 +473,17 @@ class plgKetshoppaymentPaypal extends JPlugin
       //provide variable for that.
 
       if($shippingOperation) {
-	$detailOrder .= '&PAYMENTREQUEST_0_SHIPDISCAMT='.UtilityHelper::formatNumber($shippingOperation).
-			'&PAYMENTREQUEST_0_SHIPPINGAMT='.UtilityHelper::formatNumber($amounts['shipping_cost']);
+	$detailOrder['PAYMENTREQUEST_0_SHIPDISCAMT'] = UtilityHelper::formatNumber($shippingOperation);
+	$detailOrder['PAYMENTREQUEST_0_SHIPPINGAMT'] = UtilityHelper::formatNumber($amounts['shipping_cost']);
       }
       else {
-	$detailOrder .= '&PAYMENTREQUEST_0_SHIPPINGAMT='.UtilityHelper::formatNumber($amounts['final_shipping_cost']);
+	$detailOrder['PAYMENTREQUEST_0_SHIPPINGAMT'] = UtilityHelper::formatNumber($amounts['final_shipping_cost']);
       }
     }
 
     //Display the final total amount.
     $totalAmount = $amounts['fnl_crt_amt_incl_tax'] + $amounts['final_shipping_cost'];
-    $detailOrder .= '&PAYMENTREQUEST_0_AMT='.UtilityHelper::formatNumber($totalAmount);
+    $detailOrder['PAYMENTREQUEST_0_AMT'] = UtilityHelper::formatNumber($totalAmount);
 
     return $detailOrder;
   }
