@@ -41,7 +41,6 @@ class KetshopViewProduct extends JViewLegacy
 
     // Compute the item and category slugs.
     $this->item->slug = $this->item->alias ? ($this->item->id.':'.$this->item->alias) : $this->item->id;
-    $this->item->catslug = $this->item->category_alias ? ($this->item->catid.':'.$this->item->category_alias) : $this->item->catid;
     //Get the possible extra class name.
     $this->pageclass_sfx = htmlspecialchars($this->item->params->get('pageclass_sfx'));
 

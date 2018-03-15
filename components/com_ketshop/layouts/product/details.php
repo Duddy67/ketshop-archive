@@ -51,13 +51,7 @@ $params = $displayData->params;
     <tr><td>
       <?php echo JText::_('COM_KETSHOP_PRODUCT_CATEGORY'); ?>
     </td><td>
-      <?php $title = $this->escape($displayData->category_title); ?>
-      <?php if ($params->get('link_category') && $displayData->catslug) : ?>
-	<?php $url = '<a href="'.JRoute::_(KetshopHelperRoute::getCategoryRoute($displayData->catslug)).'" itemprop="genre">'.$title.'</a>'; ?>
-	<?php echo $url; ?>
-      <?php else : ?>
-	<?php echo '<span itemprop="genre">'.$title.'</span>'; ?>
-      <?php endif; ?>
+      <?php echo '<span itemprop="genre">'.$this->escape($displayData->category_title).'</span>'; ?>
     </td></tr>
   <?php endif; ?>
 
