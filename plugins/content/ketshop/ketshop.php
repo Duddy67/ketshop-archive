@@ -59,6 +59,14 @@ class plgContentKetshop extends JPlugin
       }
     }
 
+    //Removes tags created on the fly from any component.
+    if(!$this->params->get('tags_on_the_fly', 0)) {
+      //Check we have tags before treating data.
+      if(isset($data->newTags)) {
+        KetshopHelper::removeTagsOnTheFly($data->newTags);
+      }   
+    }   
+
     return true;
   }
 
@@ -944,47 +952,29 @@ class plgContentKetshop extends JPlugin
     $query = $db->getQuery(true);
 
     //Check we have tags before treating data.
-    if(isset($jform['tags'])) {
+    if(isset($data->newTags)) {
       //Retrieve all the rows matching the item id.
-      $query->select('product_id, tag_id, IFNULL(ordering, "NULL") AS ordering')
+      $query->select('product_id, tag_id, main_tag_id, IFNULL(ordering, "NULL") AS ordering')
 	    ->from('#__ketshop_product_tag_map')
 	    ->where('product_id='.(int)$data->id);
       $db->setQuery($query);
       $tags = $db->loadObjectList();
 
       $values = array();
-      foreach($jform['tags'] as $tagId) {
-	//Check for newly created tags (ie: id=#new#Title of the tag)
-	if(substr($tagId, 0, 5) == '#new#') {
-	  //Get the title tag then turn it into alias.
-	  $title = substr($tagId, 5);
-	  $alias = JFilterOutput::stringURLSafe($title);
-	  //Get the id of the new tag from its alias.
-	  $query->clear();
-	  $query->select('id')
-		->from('#__tags')
-		->where('alias='.$db->Quote($alias));
-	  $db->setQuery($query);
-	  $tagId = $db->loadResult();
-	  //Skip the tag in case of error.
-	  if(is_null($tagId)) {
-	    continue;
-	  }
-	}
-
+      foreach($data->newTags as $tagId) {
 	$newTag = true; 
 	//In order to preserve the ordering of the old tags we check if 
 	//they match those newly selected.
 	foreach($tags as $tag) {
 	  if($tag->tag_id == $tagId) {
-	    $values[] = $tag->product_id.','.$tag->tag_id.','.$tag->ordering;
+	    $values[] = $tag->product_id.','.$tag->tag_id.','.$data->main_tag_id.','.$tag->ordering;
 	    $newTag = false; 
 	    break;
 	  }
 	}
 
 	if($newTag) {
-	  $values[] = $data->id.','.$tagId.',NULL';
+	  $values[] = $data->id.','.$tagId.','.$data->main_tag_id.',NULL';
 	}
       }
 
@@ -995,7 +985,7 @@ class plgContentKetshop extends JPlugin
       $db->setQuery($query);
       $db->query();
 
-      $columns = array('product_id', 'tag_id', 'ordering');
+      $columns = array('product_id', 'tag_id', 'main_tag_id', 'ordering');
       //Insert a new row for each tag linked to the item.
       $query->clear();
       $query->insert('#__ketshop_product_tag_map')

@@ -242,8 +242,8 @@
 	       label="JFIELD_ACCESS_LABEL"
 	       description="JFIELD_ACCESS_DESC" class="inputbox" />
 
-	<field name="tags" type="tag" label="JTAG" 
-	       description="JTAG_DESC"
+	<field name="tags" type="tags" label="JTAG" 
+	       description="COM_KETSHOP_FIELD_TAG_DESC"
 	       class="inputbox span12" multiple="true">
 	</field>
 
@@ -351,10 +351,8 @@
 	       label="COM_KETSHOP_FIELD_SHOW_TAGS_LABEL"
 	       description="COM_KETSHOP_FIELD_SHOW_TAGS_DESC">
 	       <option value="">JGLOBAL_USE_GLOBAL</option>
-	       <option value="none">JNONE</option>
-	       <option value="standard">COM_KETSHOP_OPTION_STANDARD_MODE</option>
-	       <option value="ketshop">COM_KETSHOP_OPTION_KETSHOP_MODE</option>
-	       <option value="both">COM_KETSHOP_OPTION_BOTH</option>
+	       <option value="1">JSHOW</option>
+	       <option value="0">JHIDE</option>
 	</field>
 
 	<field name="show_intro"
@@ -362,6 +360,26 @@
 	       class="chzn-color"
 	       label="JGLOBAL_SHOW_INTRO_LABEL"
 	       description="COM_KETSHOP_SHOW_INTRO_DESC">
+	       <option value="">JGLOBAL_USE_GLOBAL</option>
+	       <option value="1">JSHOW</option>
+	       <option value="0">JHIDE</option>
+	</field>
+
+	<field name="show_main_tag"
+	       type="list"
+	       class="chzn-color"
+	       label="COM_KETSHOP_SHOW_MAIN_TAG_LABEL"
+	       description="COM_KETSHOP_SHOW_MAIN_TAG_DESC">
+	       <option value="">JGLOBAL_USE_GLOBAL</option>
+	       <option value="1">JSHOW</option>
+	       <option value="0">JHIDE</option>
+	</field>
+
+	<field name="link_main_tag"
+	       type="list"
+	       class="chzn-color"
+	       label="COM_KETSHOP_LINK_MAIN_TAG_LABEL"
+	       description="COM_KETSHOP_LINK_MAIN_TAG_DESC">
 	       <option value="">JGLOBAL_USE_GLOBAL</option>
 	       <option value="1">JSHOW</option>
 	       <option value="0">JHIDE</option>
@@ -377,16 +395,6 @@
 	       <option value="0">JHIDE</option>
 	</field>
 
-	<field name="link_category"
-	       type="list"
-	       class="chzn-color"
-	       label="JGLOBAL_LINK_CATEGORY_LABEL"
-	       description="COM_KETSHOP_LINK_CATEGORY_DESC">
-	       <option value="">JGLOBAL_USE_GLOBAL</option>
-	       <option value="1">JYES</option>
-	       <option value="0">JNO</option>
-	</field>
-
 	<field name="show_parent_category"
 	       type="list"
 	       class="chzn-color"
@@ -395,16 +403,6 @@
 	       <option value="">JGLOBAL_USE_GLOBAL</option>
 	       <option value="1">JSHOW</option>
 	       <option value="0">JHIDE</option>
-	</field>
-
-	<field name="link_parent_category"
-	       type="list"
-	       class="chzn-color"
-	       label="JGLOBAL_LINK_PARENT_CATEGORY_LABEL"
-	       description="COM_KETSHOP_LINK_PARENT_CATEGORY_DESC">
-	       <option value="">JGLOBAL_USE_GLOBAL</option>
-	       <option value="1">JYES</option>
-	       <option value="0">JNO</option>
 	</field>
 
 	<field name="show_image" type="list"
@@ -620,6 +618,7 @@
     </fields>
 
 </form>
+
 
 
 

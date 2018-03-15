@@ -17,6 +17,15 @@ require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
 class plgKetshoppaymentPaypal extends JPlugin
 {
 
+  /**
+   * Load the language file on instantiation.
+   *
+   * @var    boolean
+   * @since  3.1
+   */
+  protected $autoloadLanguage = true;
+
+
   //Grab the event triggered by the payment controller.
   public function onKetshopPaymentPaypal($amounts, $cart, $settings, $utility)
   {
@@ -245,7 +254,13 @@ class plgKetshoppaymentPaypal extends JPlugin
 	  $utility['error'] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
 			       $paypalParamsArray['L_SHORTMESSAGE0'], $paypalParamsArray['L_LONGMESSAGE0']);
 	  $utility['plugin_result'] = false;
+	  $utility['redirect_url'] = JRoute::_('index.php?option=com_ketshop&view=payment&task=payment.cancel&payment=paypal', false);
 
+	  JFactory::getApplication()->enqueueMessage(JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_ERROR_PAYPAL', 
+								     $paypalParamsArray['L_SHORTMESSAGE0'],
+								     $paypalParamsArray['L_LONGMESSAGE0']), 'error');
+
+	  $utility['transaction_data'] = serialize($paypalParamsArray);
 	  ShopHelper::createTransaction($amounts, $utility, $settings); 
 
 	  return $utility;

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop 1.x
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -38,7 +38,7 @@ class com_ketshopInstallerScript
       $rel = ' v-'.$oldRelease.' -> v-'.$this->release;
 
       if(version_compare($this->release, $oldRelease, 'le')) {
-	Jerror::raiseWarning(null, JText::_('COM_KETSHOP_UPDATE_INCORRECT_VERSION').$rel);
+	JFactory::getApplication()->enqueueMessage(JText::_('COM_KETSHOP_UPDATE_INCORRECT_VERSION').$rel, 'error');
 	return false;
       }
     }
@@ -68,7 +68,7 @@ class com_ketshopInstallerScript
     $status = $catModel->save($catData);
  
     if(!$status) {
-      JError::raiseWarning(500, JText::_('Unable to create default content category!'));
+      JFactory::getApplication()->enqueueMessage('Unable to create default content category!', 'warning');
     }
   }
 
@@ -80,7 +80,13 @@ class com_ketshopInstallerScript
    */
   function uninstall($parent) 
   {
-    //
+    //Remove tagging informations from the Joomla table.
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->delete('#__content_types')
+	  ->where('type_alias="com_ketshop.product" OR type_alias="com_ketshop.category"');
+    $db->setQuery($query);
+    $db->query();
   }
 
 
@@ -155,6 +161,23 @@ $db->Quote('{"common":{"core_content_item_id":"id","core_title":"title","core_st
 $db->Quote('KetshopHelperRoute::getCategoryRoute'));
       $db->setQuery($query);
       $db->query();
+
+      //Gets the id of the current user.
+      $userId = JFactory::getUser()->get('id');
+
+      //Updates the created_by field with the id of an existing user.
+
+      $query->clear()
+	    ->update('#__ketshop_country')
+	    ->set('created_by='.(int)$userId);
+      $db->setQuery($query);
+      $db->query();
+
+      $query->clear()
+	    ->update('#__ketshop_currency')
+	    ->set('created_by='.(int)$userId);
+      $db->setQuery($query);
+      $db->query();
     }
   }
 
@@ -165,7 +188,11 @@ $db->Quote('KetshopHelperRoute::getCategoryRoute'));
   function getParam($name)
   {
     $db = JFactory::getDbo();
-    $db->setQuery('SELECT manifest_cache FROM #__extensions WHERE name = "ketshop"');
+    $query = $db->getQuery(true);
+    $query->select('manifest_cache')
+	  ->from('#__extensions')
+	  ->where('element = "com_ketshop"');
+    $db->setQuery($query);
     $manifest = json_decode($db->loadResult(), true);
 
     return $manifest[$name];

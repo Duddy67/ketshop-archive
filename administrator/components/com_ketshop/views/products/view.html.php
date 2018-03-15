@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -29,7 +29,7 @@ class KetshopViewProducts extends JViewLegacy
 
     //Check for errors.
     if(count($errors = $this->get('Errors'))) {
-      JError::raiseError(500, implode('<br />', $errors));
+      JFactory::getApplication()->enqueueMessage($errors, 'error');
       return false;
     }
 
@@ -104,7 +104,7 @@ class KetshopViewProducts extends JViewLegacy
 
   protected function setDocument() 
   {
-    //Include css file.
+    //Include css file (if needed).
     $doc = JFactory::getDocument();
     $doc->addStyleSheet(JURI::base().'components/com_ketshop/ketshop.css');
   }

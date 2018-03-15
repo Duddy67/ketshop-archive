@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -25,10 +25,10 @@ class JFormFieldMaintag extends JFormFieldList
   {
     $options = array();
       
-    //Get the tags currently linked to the product.
+    //Get the tags linked to the item.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('tm.tag_id, t.path')
+    $query->select('tm.tag_id, t.path, t.language')
 	  ->from('#__contentitem_tag_map AS tm')
 	  ->join('LEFT', '#__tags AS t ON t.id=tm.tag_id')
 	  ->where('tm.type_alias = "com_ketshop.product" AND tm.content_item_id='.(int)$this->form->getValue('id'))
@@ -38,12 +38,14 @@ class JFormFieldMaintag extends JFormFieldList
 
     $tags = JHelperTags::convertPathsToNames($tags);
 
-    //Build the first option.
-    $options[] = JHtml::_('select.option', 0, JText::_('COM_KETSHOP_OPTION_SELECT'));
-
     //Build the select options.
     foreach($tags as $tag) {
-      $options[] = JHtml::_('select.option', $tag->tag_id, $tag->text);
+      $langTag = '';
+      if($tag->language !== '*') {
+	$langTag = ' ('.$tag->language.')';
+      }
+
+      $options[] = JHtml::_('select.option', $tag->tag_id, $tag->text.$langTag);
     }
 
     // Merge any additional options in the XML definition.

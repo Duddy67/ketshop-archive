@@ -1,9 +1,10 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
+
 
 defined('_JEXEC') or die; //No direct access to this file.
  
@@ -11,8 +12,10 @@ jimport('joomla.application.component.controllerform');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
  
 
+
 class KetshopControllerProduct extends JControllerForm
 {
+
   //functions which set the product type.
   public function normal()
   {
@@ -20,6 +23,7 @@ class KetshopControllerProduct extends JControllerForm
     $this->add();
     return;
   }
+
 
   public function bundle()
   {
@@ -77,17 +81,9 @@ class KetshopControllerProduct extends JControllerForm
       $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_item.$this->getRedirectToItemAppend($recordId, $urlVar), false));
       return false;
     }
-var_dump($data);
-//return;
-
-    //Get current date and time (equal to NOW() in SQL).
-    //$now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-
-    //Reset the jform data array 
-    //$this->input->post->set('jform', $data);
 
     //Hand over to the parent function.
-    return parent::save($key, $urlVar);
+    return parent::save($key = null, $urlVar = null);
   }
 
 

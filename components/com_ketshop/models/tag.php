@@ -103,10 +103,21 @@ class KetshopModelTag extends JModelList
       $this->setState('filter.access', false);
     }
 
-    // List state information
-    //Get the number of products to display per page.
-    //Note: The LIMIT clause is added in the setQuery function: libraries/joomla/database/query/driver.php
-    $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'uint');
+    // Set limit for query. If list, use parameter. If blog, add blog parameters for limit.
+    //Important: The pagination limit box must be hidden to use the limit value based upon the layout.
+    if(!$params->get('show_pagination_limit') && (($app->input->get('layout') === 'blog') || $params->get('layout_type') === 'blog')) {
+      $limit = $params->get('num_leading_products') + $params->get('num_intro_products') + $params->get('num_links');
+    }
+    else { // list layout or blog layout with the pagination limit box shown.
+      //Get the number of products to display per page.
+      $limit = $params->get('display_num', 10);
+
+      if($params->get('show_pagination_limit')) {
+        //Gets the limit value from the pagination limit box.
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $limit, 'uint');
+      }
+    }
+
     $this->setState('list.limit', $limit);
 
     //Get the limitstart variable (used for the pagination) from the form variable.
@@ -328,6 +339,11 @@ class KetshopModelTag extends JModelList
     $query->select('tag_parent.title AS tag_parent_title, tag_parent.id AS tag_parent_id,'.
 		   'tag_parent.path AS tag_parent_route, tag_parent.alias AS tag_parent_alias')
 	  ->join('LEFT', '#__tags as tag_parent ON tag_parent.id = ta.parent_id');
+
+    // Join over the tags to get the main tag title.
+    $query->select('main_tag.title AS main_tag_title, main_tag.path AS main_tag_route,'.
+                   'main_tag.alias AS main_tag_alias')
+          ->join('LEFT', '#__tags AS main_tag ON main_tag.id = p.main_tag_id');
 
     // Join on category table.
     $query->select('ca.title AS category_title, ca.alias AS category_alias, ca.access AS category_access')

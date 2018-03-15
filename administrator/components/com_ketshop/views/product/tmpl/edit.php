@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -29,8 +29,6 @@ else {
 
 //By default template is named after the product type.
 $template = $this->form->getValue('type');
-
-
 ?>
 
 <script type="text/javascript">
@@ -82,9 +80,12 @@ Joomla.submitbutton = function(task)
 	</div>
 	<div class="span3">
 	  <?php echo JLayoutHelper::render('joomla.edit.global', $this); ?>
-	  <div class="form-vertical">
-	    <?php echo $this->form->getControlGroup('main_tag_id'); ?>
-	  </div>
+
+	  <?php if($this->item->id && !empty($this->item->tags->tags)) : //Shown only if one or more tags are already selected. ?>
+	    <div class="form-vertical">
+	      <?php echo $this->form->getControlGroup('main_tag_id'); ?>
+	    </div>
+	  <?php endif; ?>
 
 	</div>
       </div>

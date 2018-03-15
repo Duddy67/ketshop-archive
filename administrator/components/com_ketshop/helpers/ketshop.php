@@ -1,9 +1,10 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
+
 
 defined('_JEXEC') or die; //No direct access to this file.
 
@@ -94,6 +95,7 @@ class KetshopHelper
     return $result;
   }
 
+
   //Build the user list for the filter.
   public static function getUsers($itemName)
   {
@@ -177,6 +179,25 @@ class KetshopHelper
     }
 
     return true;
+  }
+
+
+  public static function removeTagsOnTheFly(&$newTags)
+  {
+    foreach($newTags as $key => $tagId) {
+      //Check for newly created tags (ie: id=#new#Title of the tag)
+      if(substr($tagId, 0, 5) == '#new#') {
+	//Remove the new tag from the tag data.
+	unset($newTags[$key]);
+      }
+    }
+
+    //Don't return an empty array. Return null instead.
+    if(empty($newTags)) {
+      $newTags = null;
+    }
+
+    return;
   }
 
 
@@ -411,7 +432,6 @@ class KetshopHelper
 
       //If no attribute is present no option can be set.
       if(empty($attribIds)) {
-//file_put_contents('debog_checkproopt.txt', print_r($prodData, true), FILE_APPEND);
 	return false;
       }
 

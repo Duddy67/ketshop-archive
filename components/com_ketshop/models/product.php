@@ -78,13 +78,18 @@ class KetshopModelProduct extends JModelItem
       //Select required fields from the products.
       //During the selection we check if product is new and set its is_new flag.
       $query->select($this->getState('list.select', 'p.id,p.type,'.$translatedFields.'p.code,p.allow_order,p.catid,p.access,'.
-				     'p.base_price,p.sale_price,p.min_quantity,p.max_quantity,p.stock,p.stock_subtract,'.
+				     'p.base_price,p.sale_price,p.min_quantity,p.max_quantity,p.stock,p.stock_subtract,p.main_tag_id,'.
 				     'p.checked_out,p.checked_out_time,p.shippable,p.min_stock_threshold,p.max_stock_threshold,'.
 				     'p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height,p.img_reduction_rate,'.
 				     'p.published,p.publish_up,p.publish_down,p.hits,p.params,p.attribute_group,'.
 				     'p.created_by, IF(p.new_until > NOW(),1,0) AS is_new'))
 	    ->from($db->quoteName('#__ketshop_product').' AS p')
 	    ->where('p.id='.$pk);
+
+      // Join over the tags to get the main tag title.
+      $query->select('main_tag.title AS main_tag_title, main_tag.path AS main_tag_route,'.
+                     'main_tag.alias AS main_tag_alias')
+            ->join('LEFT', '#__tags AS main_tag ON main_tag.id = p.main_tag_id');
 
       // Join on category table.
       $query->select('ca.title AS category_title, ca.alias AS category_alias, ca.access AS category_access')

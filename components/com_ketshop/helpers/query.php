@@ -27,25 +27,18 @@ class KetshopHelperQuery
    */
   public static function orderbyPrimary($orderby)
   {
-    //Set the prefix to use according to the view.
-    $view = JFactory::getApplication()->input->get('view');
-    $prefix = 'ca.'; //Use ketshop table.
-    if($view == 'tag') {
-      $prefix = 'n.'; //Use mapping table.
-    }
-
     switch ($orderby)
     {
       case 'alpha' :
-	      $orderby = $prefix.'path, ';
+	      $orderby = $prefix.'n.path, ';
 	      break;
 
       case 'ralpha' :
-	      $orderby = $prefix.'path DESC, ';
+	      $orderby = $prefix.'n.path DESC, ';
 	      break;
 
       case 'order' :
-	      $orderby = $prefix.'lft, ';
+	      $orderby = $prefix.'n.lft, ';
 	      break;
 
       default :
@@ -68,13 +61,6 @@ class KetshopHelperQuery
   public static function orderbySecondary($orderby, $orderDate = 'created')
   {
     $queryDate = self::getQueryDate($orderDate);
-
-    //Set the prefix to use according to the view.
-    $view = JFactory::getApplication()->input->get('view');
-    $prefix = 'p.'; //Use ketshop table.
-    if($view == 'tag') {
-      $prefix = 'tm.'; //Use mapping table.
-    }
 
     switch ($orderby)
     {
@@ -103,11 +89,11 @@ class KetshopHelperQuery
 	      break;
 
       case 'order' :
-	      $orderby = $prefix.'ordering';
+	      $orderby = 'tm.ordering';
 	      break;
 
       case 'rorder' :
-	      $orderby = $prefix.'ordering DESC';
+	      $orderby = 'tm.ordering DESC';
 	      break;
 
       case 'author' :
@@ -123,7 +109,7 @@ class KetshopHelperQuery
 	      break;
 
       default :
-	      $orderby = $prefix.'ordering';
+	      $orderby = 'tm.ordering';
 	      break;
     }
 

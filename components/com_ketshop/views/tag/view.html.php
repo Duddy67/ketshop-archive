@@ -102,19 +102,21 @@ class KetshopViewTag extends JViewLegacy
 
     // Check for errors.
     if(count($errors = $this->get('Errors'))) {
-      JError::raiseError(500, implode("\n", $errors));
+      $app->enqueueMessage($errors, 'error');
       return false;
     }
 
     if($this->tag == false) {
-      return JError::raiseError(404, JText::_('COM_KETSHOP_TAG_NOT_FOUND'));
+      $app->enqueueMessage(JText::_('COM_KETSHOP_TAG_NOT_FOUND'), 'error');
+      return false;
     }
 
     //Check whether tag access level allows access.
     $this->user = JFactory::getUser();
     $groups = $this->user->getAuthorisedViewLevels();
     if(!in_array($this->tag->access, $groups)) {
-      return JError::raiseError(403, JText::_('JERROR_ALERTNOAUTHOR'));
+      $app->enqueueMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
+      return false;
     }
 
     // Prepare the data
@@ -135,12 +137,7 @@ class KetshopViewTag extends JViewLegacy
     // Compute the product slugs.
     foreach($this->items as $item) {
       $item->slug = $item->alias ? ($item->id.':'.$item->alias) : $item->id;
-      $item->catslug = $item->category_alias ? ($item->catid.':'.$item->category_alias) : $item->catid;
-      $item->parent_slug = ($item->parent_alias) ? ($item->parent_id.':'.$item->parent_alias) : $item->parent_id;
-      // No link for ROOT category 
-      if($item->parent_alias == 'root') {
-	$item->parent_slug = null;
-      }
+      $item->maintagslug = $item->main_tag_alias ? ($item->main_tag_id.':'.$item->main_tag_alias) : $item->main_tag_id;
 
       //Variables needed in the product edit layout.
       $item->user_id = $this->user->get('id');

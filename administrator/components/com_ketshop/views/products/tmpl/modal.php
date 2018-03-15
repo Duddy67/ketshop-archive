@@ -1,17 +1,18 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
-
 defined( '_JEXEC' ) or die; // No direct access
+
 JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.framework', true);
 JHtml::_('formbehavior.chosen', 'select');
-JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
-require_once JPATH_ROOT.'/components/com_ketshop/helpers/route.php';
+
+JLoader::register('KetshopHelperRoute', JPATH_ROOT.'/components/com_ketshop/helpers/route.php');
+require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 
 $jinput = JFactory::getApplication()->input;
 
@@ -212,3 +213,4 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
     <?php echo JHtml::_('form.token'); ?>
   </div>
 </form>
+

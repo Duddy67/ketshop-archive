@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `#__ketshop_product`;
+DROP TABLE IF EXISTS `#__ketshop_product_tag_map`;
 DROP TABLE IF EXISTS `#__ketshop_address`;
 DROP TABLE IF EXISTS `#__ketshop_attribute`;
 DROP TABLE IF EXISTS `#__ketshop_attrib_group`;
@@ -12,9 +14,7 @@ DROP TABLE IF EXISTS `#__ketshop_order_prule`;
 DROP TABLE IF EXISTS `#__ketshop_order_transaction`;
 DROP TABLE IF EXISTS `#__ketshop_payment_mode`;
 DROP TABLE IF EXISTS `#__ketshop_price_rule`;
-DROP TABLE IF EXISTS `#__ketshop_product`;
 DROP TABLE IF EXISTS `#__ketshop_product_option`;
-DROP TABLE IF EXISTS `#__ketshop_product_tag_map`;
 DROP TABLE IF EXISTS `#__ketshop_prod_attrib`;
 DROP TABLE IF EXISTS `#__ketshop_prod_bundle`;
 DROP TABLE IF EXISTS `#__ketshop_prod_image`;

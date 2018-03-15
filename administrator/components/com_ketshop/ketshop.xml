@@ -42,7 +42,6 @@
 	    <folder>controllers</folder>
 	    <folder>css</folder>
 	    <folder>helpers</folder>
-	    <folder>images</folder>
 	    <folder>js</folder>
 	    <folder>language</folder>
 	    <folder>layouts</folder>
@@ -62,7 +61,6 @@
     <administration>
 	    <!-- Administration Menu Section -->
 	    <menu>COM_KETSHOP_MENU</menu>
-
 	    <!-- Note the folder attribute: This attribute describes the folder
 		    to copy FROM in the package to install therefore files copied
 		    in this section are copied from /admin/ in the package -->
@@ -71,9 +69,9 @@
 		    <filename>access.xml</filename>
 		    <filename>config.xml</filename>
 		    <filename>controller.php</filename>
+		    <filename>index.html</filename>
 		    <filename>ketshop.css</filename>
 		    <filename>ketshop.php</filename>
-		    <filename>index.html</filename>
 		    <!-- Folders  Section -->
 		    <folder>controllers</folder>
 		    <folder>helpers</folder>

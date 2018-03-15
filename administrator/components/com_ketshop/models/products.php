@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -59,7 +59,7 @@ class KetshopModelProducts extends JModelList
     $userId = $app->getUserStateFromRequest($this->context.'.filter.user_id', 'filter_user_id');
     $this->setState('filter.user_id', $userId);
 
-    $published = $this->getUserStateFromRequest($this->context.'.filter.published', 'filter_published');
+    $published = $this->getUserStateFromRequest($this->context.'.filter.published', 'filter_published', '');
     $this->setState('filter.published', $published);
 
     $categoryId = $this->getUserStateFromRequest($this->context.'.filter.category_id', 'filter_category_id');
@@ -84,6 +84,7 @@ class KetshopModelProducts extends JModelList
     $id .= ':'.$this->getState('filter.published');
     $id .= ':'.$this->getState('filter.user_id');
     $id .= ':'.$this->getState('filter.category_id');
+    $id .= ':'.$this->getState('filter.tag');
     $id .= ':'.$this->getState('filter.product_type');
 
     return parent::getStoreId($id);
@@ -95,6 +96,7 @@ class KetshopModelProducts extends JModelList
     //Create a new JDatabaseQuery object.
     $db = $this->getDbo();
     $query = $db->getQuery(true);
+    $user = JFactory::getUser();
 
     // Select the required fields from the table.
     $query->select($this->getState('list.select', 'p.id,p.name,p.alias,p.created,p.published,p.catid,p.hits,'.
@@ -144,6 +146,13 @@ class KetshopModelProducts extends JModelList
     // Filter by access level.
     if($access = $this->getState('filter.access')) {
       $query->where('p.access='.(int) $access);
+    }
+
+    // Filter by access level on categories.
+    if(!$user->authorise('core.admin')) {
+      $groups = implode(',', $user->getAuthorisedViewLevels());
+      $query->where('p.access IN ('.$groups.')');
+      $query->where('ca.access IN ('.$groups.')');
     }
 
     //Filter by publication state.
@@ -206,7 +215,7 @@ class KetshopModelProducts extends JModelList
 	    ->join('LEFT', '#__ketshop_product_tag_map AS tm ON p.id=tm.product_id AND tm.tag_id='.(int)$tagId);
 
       //Switch to the mapping table ordering.
-      //Note: Products with NULL ordering are placed at the end of the list.
+      //Note: Products with a NULL ordering value are placed at the end of the list.
       $orderCol = 'ISNULL(tm.ordering) ASC, tm_ordering';
     }
 

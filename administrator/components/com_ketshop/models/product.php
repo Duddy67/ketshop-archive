@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -74,6 +74,28 @@ class KetshopModelProduct extends JModelAdmin
 
 
   /**
+   * Prepare and sanitise the table data prior to saving.
+   *
+   * @param   JTable  $table  A JTable object.
+   *
+   * @return  void
+   *
+   * @since   1.6
+   */
+  protected function prepareTable($table)
+  {
+    // Set the publish date to now
+    if($table->published == 1 && (int)$table->publish_up == 0) {
+      $table->publish_up = JFactory::getDate()->toSql();
+    }
+
+    if($table->published == 1 && intval($table->publish_down) == 0) {
+      $table->publish_down = $this->getDbo()->getNullDate();
+    }
+  }
+
+
+  /**
    * Saves the manually set order of records.
    *
    * @param   array    $pks    An array of primary key ids.
@@ -89,7 +111,8 @@ class KetshopModelProduct extends JModelAdmin
     if(KetshopHelper::checkSelectedFilter('tag', true)) {
 
       if(empty($pks)) {
-	return JError::raiseWarning(500, JText::_($this->text_prefix.'_ERROR_NO_ITEMS_SELECTED'));
+	JFactory::getApplication()->enqueueMessage(JText::_($this->text_prefix.'_ERROR_NO_ITEMS_SELECTED'), 'warning');
+	return false;
       }
 
       //Get the id of the selected tag and the limitstart value.

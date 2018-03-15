@@ -45,20 +45,16 @@ var ketshop = {
   <?php endif; ?>
   <?php if($this->params->get('show_tag_title', 1)) : ?>
 	  <h2 class="category-title">
-	      <?php //echo JHtml::_('content.prepare', $this->tag->title, '', $this->tag->extension.'.tag.title'); ?>
 	      <?php echo JHtml::_('content.prepare', $this->tag->title, ''); ?>
 	  </h2>
   <?php endif; ?>
-  <?php //if($this->params->get('show_tags')) : ?>
-	  <?php //echo JLayoutHelper::render('joomla.content.tags', $this->category->tags->itemTags); ?>
-  <?php //endif; ?>
+
   <?php if($this->params->get('show_tag_description') || $this->params->def('show_tag_image')) : ?>
 	  <div class="category-desc">
 		  <?php if($this->params->get('show_tag_image') && $this->tag->images->get('image_intro')) : ?>
 			  <img src="<?php echo $this->tag->images->get('image_intro'); ?>"/>
 		  <?php endif; ?>
 		  <?php if($this->params->get('show_tag_description') && $this->tag->description) : ?>
-			  <?php //echo JHtml::_('content.prepare', $this->tag->description, '', $this->tag->extension.'.tag'); ?>
 			  <?php echo JHtml::_('content.prepare', $this->tag->description, ''); ?>
 		  <?php endif; ?>
 		  <div class="clr"></div>
@@ -86,7 +82,7 @@ var ketshop = {
 	</div>
       <?php endif; ?>
      
-      <?php echo JLayoutHelper::render('filter_ordering', $this, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+      <?php echo JLayoutHelper::render('filter_ordering', $this); ?>
 
       <?php if($this->params->get('show_pagination_limit')) : ?>
 	<div class="span1">
@@ -164,7 +160,7 @@ var ketshop = {
 	    <?php endif; ?>
 
 	    <?php //Load our own pagination layout. ?>
-	    <?php echo JLayoutHelper::render('product_pagination', $this->pagination, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+	    <?php echo JLayoutHelper::render('product_pagination', $this->pagination); ?>
     </div>
     <?php endif; ?>
 

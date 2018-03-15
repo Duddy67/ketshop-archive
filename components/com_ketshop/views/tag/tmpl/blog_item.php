@@ -10,35 +10,25 @@ JHtml::_('behavior.framework');
 
 //Create shortcut for params.
 $params = $this->item->params;
-//Shorcut for product layout path.
-$productLayoutPath = JPATH_SITE.'/components/com_ketshop/layouts/product/';
 ?>
 
 <div class="product-item">
-  <?php echo JLayoutHelper::render('title', array('item' => $this->item, 'params' => $params, 'now_date' => $this->nowDate), $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('product.title', array('item' => $this->item, 'params' => $params, 'now_date' => $this->nowDate)); ?>
 
-  <?php //echo JLayoutHelper::render('icons', array('item' => $this->item, 'user' => $this->user, 'uri' => $this->uri),
-				    //JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+  <?php echo JLayoutHelper::render('product.image', array('item' => $this->item, 'params' => $params)); ?>
 
-  <?php echo JLayoutHelper::render('image', array('item' => $this->item, 'params' => $params), $productLayoutPath); ?>
-
-  <?php if(($params->get('show_tags') == 'ketshop' || $params->get('show_tags') == 'both') && !empty($this->item->tags->itemTags)) : ?>
-    <?php echo JLayoutHelper::render('tags', array('item' => $this->item), JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+  <?php if($params->get('show_tags') && !empty($this->item->tags->itemTags)) : ?>
+    <?php echo JLayoutHelper::render('tags', array('item' => $this->item)); ?>
   <?php endif; ?>
 
   <?php echo $this->item->intro_text; ?>
 
-  <?php if(($params->get('show_tags') == 'standard' || $params->get('show_tags') == 'both') && !empty($this->item->tags->itemTags)) : ?>
-	  <?php $this->item->tagLayout = new JLayoutFile('joomla.content.tags'); ?>
-	  <?php echo $this->item->tagLayout->render($this->item->tags->itemTags); ?>
-  <?php endif; ?>
-
-  <?php echo JLayoutHelper::render('availability', array('item' => $this->item, 'params' => $params, 'view' => 'tag'), $productLayoutPath); ?>
-  <?php echo JLayoutHelper::render('price', $this->item, $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('product.availability', array('item' => $this->item, 'params' => $params, 'view' => 'tag')); ?>
+  <?php echo JLayoutHelper::render('product.price', $this->item); ?>
 
   <?php if($this->item->attribute_group) : //Check for product options. ?>
     <span class="space-2"></span>
-    <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language, true)); ?>">
+    <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language)); ?>">
       <span class="label btn-info">
       <?php echo JText::_('COM_KETSHOP_CHOOSE_OPTIONS'); ?>
       </span>
@@ -48,19 +38,19 @@ $productLayoutPath = JPATH_SITE.'/components/com_ketshop/layouts/product/';
 
   <?php if($params->get('show_product_page_link')) :
 	  if($params->get('access-view')) :
-	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language, true));
+	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language));
 	  else : //Redirect the user to the login page.
 	    $menu = JFactory::getApplication()->getMenu();
 	    $active = $menu->getActive();
 	    $itemId = $active->id;
 	    $link = new JUri(JRoute::_('index.php?option=com_users&view=login&Itemid='.$itemId, false));
-	    $link->setVar('return', base64_encode(JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language, true), false)));
+	    $link->setVar('return', base64_encode(JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language), false)));
 	  endif; ?>
 
-  <?php echo JLayoutHelper::render('product_page', array('item' => $this->item, 'params' => $params, 'link' => $link), $productLayoutPath); ?>
-  <?php echo JLayoutHelper::render('details', $this->item, $productLayoutPath); ?>
-  <?php echo JLayoutHelper::render('weight_dimensions', $this->item, $productLayoutPath); ?>
-  <?php echo JLayoutHelper::render('attributes', $this->item, $productLayoutPath); ?>
+  <?php echo JLayoutHelper::render('product.product_page', array('item' => $this->item, 'params' => $params, 'link' => $link)); ?>
+  <?php echo JLayoutHelper::render('product.details', $this->item); ?>
+  <?php echo JLayoutHelper::render('product.weight_dimensions', $this->item); ?>
+  <?php echo JLayoutHelper::render('product.attributes', $this->item); ?>
   <?php endif; ?>
 
 

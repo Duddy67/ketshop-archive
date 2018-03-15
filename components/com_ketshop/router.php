@@ -1,116 +1,271 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2017 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
-
 defined('_JEXEC') or die;
+require_once('helpers/route.php');
 
-jimport('joomla.application.categories');
 
 /**
- * Build the route for the com_ketshop component
+ * Routing class of com_ketshop
  *
- * @param	array	An array of URL arguments
- *
- * @return	array	The URL arguments to use to assemble the subsequent URL.
+ * @since  3.3
  */
-function KetshopBuildRoute(&$query)
+class KetshopRouter extends JComponentRouterView
 {
-  $segments = array();
+  protected $noIDs = false;
 
-  if(isset($query['view'])) {
-    $segments[] = $query['view'];
-    unset($query['view']);
+
+  /**
+   * KetShop Component router constructor
+   *
+   * @param   JApplicationCms  $app   The application object
+   * @param   JMenu            $menu  The menu object to work with
+   */
+  public function __construct($app = null, $menu = null)
+  {
+    $params = JComponentHelper::getParams('com_ketshop');
+    $this->noIDs = (bool) $params->get('sef_ids');
+
+    $tags = new JComponentRouterViewconfiguration('tags');
+    $tags->setKey('id');
+    $this->registerView($tags);
+    $tag = new JComponentRouterViewconfiguration('tag');
+    $tag->setKey('id')->setParent($tags, 'tag_id')->setNestable()->addLayout('blog');
+    $this->registerView($tag);
+
+    $product = new JComponentRouterViewconfiguration('product');
+    $product->setKey('id')->setParent($tag, 'tag_id');
+    $this->registerView($product);
+    $form = new JComponentRouterViewconfiguration('form');
+    $form->setKey('p_id');
+    $this->registerView($form);
+
+    parent::__construct($app, $menu);
+
+    $this->attachRule(new JComponentRouterRulesMenu($this));
+
+    if($params->get('sef_advanced', 0)) {
+      $this->attachRule(new JComponentRouterRulesStandard($this));
+      $this->attachRule(new JComponentRouterRulesNomenu($this));
+    }
+    else {
+      JLoader::register('KetshopRouterRulesLegacy', __DIR__.'/helpers/legacyrouter.php');
+      $this->attachRule(new KetshopRouterRulesLegacy($this));
+    }
   }
 
-  if(isset($query['id'])) {
-    $segments[] = $query['id'];
-    unset($query['id']);
+
+  /**
+   * Method to get the segment(s) for a tag 
+   *
+   * @param   string  $id     ID of the tag to retrieve the segments for
+   * @param   array   $query  The request that is built right now
+   *
+   * @return  array|string  The segments of this item
+   */
+  public function getTagSegment($id, $query)
+  {
+    $tag = KetshopHelperRoute::getTag($id);
+
+    if($tag) {
+      $path = KetshopHelperRoute::getTagPath($id);
+      $path[0] = '1:root';
+
+      if($this->noIDs) {
+	foreach($path as &$segment) {
+	  list($id, $segment) = explode(':', $segment, 2);
+	}
+      }
+
+      return $path;
+    }
+
+    return array();
   }
 
-  if(isset($query['layout'])) {
-    $segments[] = $query['layout'];
-    unset($query['layout']);
+
+  /**
+   * Method to get the segment(s) for a tag
+   *
+   * @param   string  $id     ID of the tag to retrieve the segments for
+   * @param   array   $query  The request that is built right now
+   *
+   * @return  array|string  The segments of this item
+   */
+  public function getTagsSegment($id, $query)
+  {
+    return $this->getTagSegment($id, $query);
   }
 
-  if(isset($query['type'])) {
-    $segments[] = $query['type'];
-    unset($query['type']);
+
+  /**
+   * Method to get the segment(s) for a product 
+   *
+   * @param   string  $id     ID of the product to retrieve the segments for
+   * @param   array   $query  The request that is built right now
+   *
+   * @return  array|string  The segments of this item
+   */
+  public function getProductSegment($id, $query)
+  {
+    if(!strpos($id, ':')) {
+      $db = JFactory::getDbo();
+      $dbquery = $db->getQuery(true);
+      $dbquery->select($dbquery->qn('alias'))
+	      ->from($dbquery->qn('#__ketshop_product'))
+	      ->where('id='.$dbquery->q((int) $id));
+      $db->setQuery($dbquery);
+
+      $id .= ':'.$db->loadResult();
+    }
+
+    if($this->noIDs) {
+      list($void, $segment) = explode(':', $id, 2);
+
+      return array($void => $segment);
+    }
+
+    return array((int) $id => $id);
   }
 
-  unset($query['catid']);
-  unset($query['tagid']);
 
-  return $segments;
+  /**
+   * Method to get the segment(s) for a form
+   *
+   * @param   string  $id     ID of the product form to retrieve the segments for
+   * @param   array   $query  The request that is built right now
+   *
+   * @return  array|string  The segments of this item
+   *
+   * @since   3.7.3
+   */
+  public function getFormSegment($id, $query)
+  {
+    return $this->getProductSegment($id, $query);
+  }
+
+
+  /**
+   * Method to get the id for a tag
+   *
+   * @param   string  $segment  Segment to retrieve the ID for
+   * @param   array   $query    The request that is parsed right now
+   *
+   * @return  mixed   The id of this item or false
+   */
+  public function getTagId($segment, $query)
+  {
+    if(isset($query['id'])) {
+      $tag = KetshopHelperRoute::getTag($query['id'], false);
+
+      if($tag) {
+	$children = KetshopHelperRoute::getTagChildren($query['id']);
+
+	foreach($children as $child) {
+	  if($this->noIDs) {
+	    if($child->alias == $segment) {
+	      return $child->id;
+	    }
+	  }
+	  else {
+	    if($child->id == (int)$segment) {
+	      return $child->id;
+	    }
+	  }
+	}
+      }
+    }
+
+    return false;
+  }
+
+
+  /**
+   * Method to get the id for a tag
+   *
+   * @param   string  $segment  Segment to retrieve the ID for
+   * @param   array   $query    The request that is parsed right now
+   *
+   * @return  mixed   The id of this item or false
+   */
+  public function getTagsId($segment, $query)
+  {
+    return $this->getTagId($segment, $query);
+  }
+
+
+  /**
+   * Method to get the id for a product
+   *
+   * @param   string  $segment  Segment of the product to retrieve the ID for
+   * @param   array   $query    The request that is parsed right now
+   *
+   * @return  mixed   The id of this item or false
+   */
+  public function getProductId($segment, $query)
+  {
+    if($this->noIDs) {
+      $db = JFactory::getDbo();
+      $dbquery = $db->getQuery(true);
+      $dbquery->select('p.id')
+	      ->from($dbquery->qn('#__ketshop_product').' AS p')
+	      ->join('INNER', '#__ketshop_product_tag_map AS tm ON p.id=tm.product_id')
+	      ->where('p.alias='.$dbquery->q($segment))
+	      ->where('tm.tag_id='.$dbquery->q($query['id']))
+	      ->where('tm.main_tag_id=p.main_tag_id');
+
+      $db->setQuery($dbquery);
+
+      return (int)$db->loadResult();
+    }
+
+    return (int)$segment;
+  }
 }
 
 
 /**
- * Parse the segments of a URL.
+ * Product router functions
  *
- * @param	array	The segments of the URL to parse.
+ * These functions are proxys for the new router interface
+ * for old SEF extensions.
  *
- * @return	array	The URL attributes to be used by the application.
+ * @param   array  &$query  An array of URL arguments
+ *
+ * @return  array  The URL arguments to use to assemble the subsequent URL.
+ *
+ * @deprecated  4.0  Use Class based routers instead
+ */
+function KetshopBuildRoute(&$query)
+{
+  $app = JFactory::getApplication();
+  $router = new KetshopRouter($app, $app->getMenu());
+
+  return $router->build($query);
+}
+
+
+/**
+ * Product router functions
+ *
+ * These functions are proxys for the new router interface
+ * for old SEF extensions.
+ *
+ * @param   array  $segments  The segments of the URL to parse.
+ *
+ * @return  array  The URL attributes to be used by the application.
+ *
+ * @deprecated  4.0  Use Class based routers instead
  */
 function KetshopParseRoute($segments)
 {
-  $vars = array();
+  $app = JFactory::getApplication();
+  $router = new KetshopRouter($app, $app->getMenu());
 
-  switch($segments[0])
-  {
-    case 'categories':
-	   $vars['view'] = 'categories';
-	   break;
-    case 'category':
-	   $vars['view'] = 'category';
-	   $id = explode(':', $segments[1]);
-	   $vars['id'] = (int)$id[0];
-	   break;
-    case 'tag':
-	   $vars['view'] = 'tag';
-	   $id = explode(':', $segments[1]);
-	   $vars['id'] = (int)$id[0];
-	   break;
-    case 'product':
-	   $vars['view'] = 'product';
-	   $id = explode(':', $segments[1]);
-	   $vars['id'] = (int)$id[0];
-	   break;
-    case 'form':
-	   $vars['view'] = 'form';
-	   //Form layout is always set to 'edit'.
-	   $vars['layout'] = 'edit';
-	   $type = explode(':', $segments[1]);
-	   $vars['type'] = $type;
-	   break;
-    case 'orders':
-	   $vars['view'] = 'orders';
-	   break;
-    case 'order':
-	   $vars['view'] = 'order';
-	   $id = explode(':', $segments[0]);
-	   $vars['order_id'] = (int)$id[0];
-	   break;
-    case 'cart':
-	   $vars['view'] = 'cart';
-	   break;
-    case 'address':
-	   $vars['view'] = 'address';
-	   break;
-    case 'shipment':
-	   $vars['view'] = 'shipment';
-	   break;
-    case 'summary':
-	   $vars['view'] = 'summary';
-	   break;
-    case 'payment':
-	   $vars['view'] = 'payment';
-	   break;
-  }
-
-  return $vars;
+  return $router->parse($segments);
 }
 

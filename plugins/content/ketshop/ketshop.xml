@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.0" type="plugin" group="content" method="upgrade">
-    <name>Plugin KetShop</name>
+    <name>PLG_KETSHOP_XML_PLUGIN_NAME</name>
     <author>Lucas Sanner</author>
     <creationDate>March 2016</creationDate>
     <copyright> Copyright (C) 2016 Lucas Sanner. All rights reserved.</copyright>
     <license>GNU General Public License version 2 or later http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>lucas.sanner@gmail.com</authorEmail>
     <version>1.0</version>
-    <description>PLG_CONTENT_KETSHOP_XML_DESCRIPTION</description>
+    <description>PLG_KETSHOP_XML_DESCRIPTION</description>
 	<files>
 	    <filename plugin="ketshop">ketshop.php</filename>
 	    <filename>index.html</filename>
 	    <folder>language</folder>
 	</files>
+        <config>
+            <fields name="params">
+                <fieldset name="basic">
 
+                    <field name="tags_on_the_fly"
+                           type="radio"
+                           default="0"
+                           class="btn-group btn-group-yesno"
+                           label="PLG_KETSHOP_FIELD_TAGS_ON_THE_FLY_LABEL"
+                           description="PLG_KETSHOP_FIELD_TAGS_ON_THE_FLY_DESC">
+                           <option value="1">JYES</option>
+                           <option value="0">JNO</option>
+                    </field>
+
+                </fieldset>
+            </fields>
+        </config>
 </extension>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop 
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -18,10 +18,10 @@ class KetshopController extends JControllerLegacy
     require_once JPATH_COMPONENT.'/helpers/ketshop.php';
 
     //Display the submenu.
-    KetshopHelper::addSubmenu(JRequest::getCmd('view', 'products'));
+    KetshopHelper::addSubmenu($this->input->get('view', 'products'));
 
     //Set the default view.
-    JRequest::setVar('view', JRequest::getCmd('view', 'ketshop'));
+    $this->input->set('view', $this->input->get('view', 'ketshop'));
 
     //Display the view.
     parent::display();

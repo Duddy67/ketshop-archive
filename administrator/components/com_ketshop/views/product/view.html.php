@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -11,8 +11,8 @@ jimport( 'joomla.application.component.view');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
 require_once JPATH_COMPONENT.'/helpers/utility.php';
 require_once JPATH_COMPONENT.'/helpers/javascript.php';
-
  
+
 class KetshopViewProduct extends JViewLegacy
 {
   protected $item;
@@ -29,7 +29,7 @@ class KetshopViewProduct extends JViewLegacy
 
     //Check for errors.
     if(count($errors = $this->get('Errors'))) {
-      JError::raiseError(500, implode('<br />', $errors));
+      JFactory::getApplication()->enqueueMessage($errors, 'error');
       return false;
     }
 

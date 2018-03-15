@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -17,49 +17,61 @@ defined('_JEXEC') or die;
  */
 abstract class KetshopHelperRoute
 {
-  protected static $lookup;
-
-  protected static $lang_lookup = array();
-
   /**
-   * @param   integer  The route of the product
+   * Get the product route.
+   *
+   * @param   integer  $id        The route of the product item.
+   * @param   array    $tagIds    An array containing the tag ids linked to the product.
+   * @param   integer  $language  The language code.
+   *
+   * @return  string  The product route.
+   *
+   * @since   1.5
    */
-  public static function getProductRoute($id, $itemid, $language = 0, $tagView = false)
+  public static function getProductRoute($id, $tagIds, $language = 0)
   {
-    $needles = array('product' => array((int) $id));
-
     //Create the link
     $link = 'index.php?option=com_ketshop&view=product&id='.$id;
 
-    if(!$tagView && $itemid > 1) {
+    //In some specific cases (eg: the function called from com_tags) the argument passed is 
+    //an integer as the catid of the product.  
+    if(!is_array($tagIds) && (int)$tagIds > 1) {
       $categories = JCategories::getInstance('Ketshop');
-      $category = $categories->get($itemid);
+      $category = $categories->get($tagIds);
 
+      //If the category exists set the link with the main tag id of the product 
+      //instead of its category id.
       if($category) {
-	$needles['category'] = array_reverse($category->getPath());
-	$needles['categories'] = $needles['category'];
-	$link .= '&catid='.$itemid;
+	$db = JFactory::getDbo();
+	$query = $db->getQuery(true);
+	$query->select('main_tag_id')
+	      ->from('#__ketshop_product')
+	      ->where('catid='.(int)$tagIds.' AND id='.(int)$id);
+	$db->setQuery($query);
+	$mainTagId = $db->loadResult();
+	$link .= '&tag_id='.$mainTagId;
       }
     }
-    //When the tag view is used, $itemid is passed as an array with the tag ids linked to the song.
-    elseif($tagView && !empty($itemid)) {
-      $needles['tag'] = $itemid;
-      $link .= '&tagid='.$itemid[0];
-    }
+    elseif(is_array($tagIds) && !empty($tagIds)) {
+      $menu = JFactory::getApplication()->getMenu();
+      $menuTagId = 0;
+      if($active = $menu->getActive()) {
+	$itemId = $active->id;
+	$menuItem = $menu->getItem($itemId);
+	$menuTagId = $menuItem->query['id'];
+      }
 
-
-
-    if($language && $language != "*" && JLanguageMultilang::isEnabled()) {
-      self::buildLanguageLookup();
-
-      if(isset(self::$lang_lookup[$language])) {
-	$link .= '&lang=' . self::$lang_lookup[$language];
-	$needles['language'] = $language;
+      if(in_array($menuTagId, $tagIds)) {
+	$link .= '&tag_id='.$menuTagId;
+      }
+      else {
+	//Falls back on the main tag id (which is always set as the first element of the array).
+	$link .= '&tag_id='.$tagIds[0];
       }
     }
 
-    if($item = self::_findItem($needles)) {
-      $link .= '&Itemid='.$item;
+    if($language && $language !== '*' && JLanguageMultilang::isEnabled()) {
+      $link .= '&lang='.$language;
     }
 
     return $link;
@@ -67,66 +79,35 @@ abstract class KetshopHelperRoute
 
 
   /**
-   * @param   integer  $id		The id of the product.
-   * @param   string	$return	The return page variable.
+   * Get the category route.
+   *
+   * @param   integer  $catid     The category ID.
+   * @param   integer  $language  The language code.
+   *
+   * Note: This function is not used by the com_ketshop component but it might be used by
+   *       the com_tags component.
+   *
+   * @return  string  The category route.
+   *
+   * @since   1.5
    */
-  public static function getFormRoute($id, $return = null)
-  {
-    // Create the link.
-    if($id) {
-      $link = 'index.php?option=com_ketshop&task=product.edit&d_id='.$id;
-    }
-    else {
-      $link = 'index.php?option=com_ketshop&task=product.add&d_id=0';
-    }
-
-    if($return) {
-      $link .= '&return='.$return;
-    }
-
-    return $link;
-  }
-
-
   public static function getCategoryRoute($catid, $language = 0)
   {
     if($catid instanceof JCategoryNode) {
       $id = $catid->id;
-      $category = $catid;
-      $alias = $catid->alias;
     }
     else {
       $id = (int) $catid;
-      $category = JCategories::getInstance('Ketshop')->get($id);
-      $parts = explode(':', $catid);
-      $alias = $parts[1];
-
     }
 
-    if($id < 1 || !($category instanceof JCategoryNode)) {
+    if($id < 1) {
       $link = '';
     }
     else {
-      $needles = array();
+      $link = 'index.php?option=com_ketshop&view=category&id='.$id;
 
-      // Create the link
-      $link = 'index.php?option=com_ketshop&view=category&id='.$id.':'.$alias;
-
-      $catids = array_reverse($category->getPath());
-      $needles['category'] = $catids;
-      $needles['categories'] = $catids;
-
-      if($language && $language != "*" && JLanguageMultilang::isEnabled()) {
-	self::buildLanguageLookup();
-
-	if(isset(self::$lang_lookup[$language])) {
-	  $link .= '&lang=' . self::$lang_lookup[$language];
-	  $needles['language'] = $language;
-	}
-      }
-
-      if ($item = self::_findItem($needles)) {
-	$link .= '&Itemid='.$item;
+      if($language && $language !== '*' && JLanguageMultilang::isEnabled()) {
+	$link .= '&lang='.$language;
       }
     }
 
@@ -134,63 +115,27 @@ abstract class KetshopHelperRoute
   }
 
 
-  public static function getTagRoute($id, $path, $language = 0)
+  /**
+   * Get the tag route.
+   *
+   * @param   integer  $id        The tag ID.
+   * @param   integer  $language  The language code.
+   *
+   *
+   * @return  string  The tag route.
+   *
+   * @since   1.5
+   */
+  public static function getTagRoute($id, $language = 0)
   {
     if((int)$id < 1) {
       $link = '';
     }
     else {
       $link = 'index.php?option=com_ketshop&view=tag&id='.$id;
-      //Converts the tag path into an item array.
-      $items = explode('/', $path);
-      $ids = array();
 
-      if(count($items) > 1) {
-	$paths = $slash = $in = '';
-	$db = JFactory::getDbo();
-	$query = $db->getQuery(true);
-
-	//Build recursively the path values for the IN MySQL clause (eg: 'item1','item1/item2', etc...).
-	foreach($items as $item) {
-	  $paths .= $slash.$item;
-	  $in .= $db->quote($paths).',';
-	  $slash = '/';
-	}
-
-	//Remove comma from the end of the string.
-	$in = substr($in, 0, -1);
-
-	//Gets the parent item ids.
-	$query->select('id')
-	      ->from('#__tags')
-	      ->where('path IN('.$in.') AND published=1');
-
-	if($language && $language != "*" && JLanguageMultilang::isEnabled()) {
-	  $query->where('language='.$db->quote($language));
-	}
-
-	      $query->order('level DESC');
-	$db->setQuery($query);
-	$ids = $db->loadColumn();
-      }
-      else {
-	//The tag is a first level item therefore it has no parent.
-	$ids[] = (int)$id;
-      }
-
-      $needles = array('tag'  => $ids);
-
-      if($language && $language != "*" && JLanguageMultilang::isEnabled()) {
-	self::buildLanguageLookup();
-
-	if(isset(self::$lang_lookup[$language])) {
-	  $link .= '&lang=' . self::$lang_lookup[$language];
-	  $needles['language'] = $language;
-	}
-      }
-
-      if($item = self::_findItem($needles)) {
-	$link .= '&Itemid='.$item;
+      if($language && $language !== '*' && JLanguageMultilang::isEnabled()) {
+	$link .= '&lang='.$language;
       }
     }
 
@@ -198,87 +143,130 @@ abstract class KetshopHelperRoute
   }
 
 
-  protected static function buildLanguageLookup()
+  /**
+   * Get the form route.
+   *
+   * @param   integer  $id  The form ID.
+   *
+   * @return  string  The product route.
+   *
+   * @since   1.5
+   */
+  public static function getFormRoute($id)
   {
-    if(count(self::$lang_lookup) == 0) {
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true)
-	      ->select('l.sef AS sef')
-	      ->select('l.lang_code AS lang_code')
-	      ->from('#__languages AS l');
-
-      $db->setQuery($query);
-      $langs = $db->loadObjectList();
-
-      foreach($langs as $lang) {
-	self::$lang_lookup[$lang->lang_code] = $lang->sef;
-      }
-    }
+    return 'index.php?option=com_ketshop&task=product.edit&s_id='.(int)$id;
   }
 
 
-  protected static function _findItem($needles = null)
+  /**
+   * Returns a tag from a given id.
+   *
+   * @param   integer  $id      The tag ID.
+   * @param   integer  $access  Flag to take into account (or not) the user's access.
+   *
+   * @return  object   The tag object.
+   *
+   * @since   1.5
+   */
+  public static function getTag($id, $access = true)
   {
-    $app = JFactory::getApplication();
-    $menus = $app->getMenu('site');
-    $language = isset($needles['language']) ? $needles['language'] : '*';
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('id, alias')
+            ->from('#__tags')
+            ->where('id='.(int)$id);
 
-    // Prepare the reverse lookup array.
-    if(!isset(self::$lookup[$language])) {
-      self::$lookup[$language] = array();
-
-      $component = JComponentHelper::getComponent('com_ketshop');
-
-      $attributes = array('component_id');
-      $values = array($component->id);
-
-      if($language != '*') {
-	$attributes[] = 'language';
-	$values[] = array($needles['language'], '*');
-      }
-
-      $items = $menus->getItems($attributes, $values);
-
-      if($items) {
-	foreach($items as $item) {
-	  if(isset($item->query) && isset($item->query['view'])) {
-	    $view = $item->query['view'];
-	    if(!isset(self::$lookup[$language][$view])) {
-	      self::$lookup[$language][$view] = array();
-	    }
-	    if(isset($item->query['id'])) {
-	      // here it will become a bit tricky
-	      // language != * can override existing entries
-	      // language == * cannot override existing entries
-	      if(!isset(self::$lookup[$language][$view][$item->query['id']]) || $item->language != '*') {
-		self::$lookup[$language][$view][$item->query['id']] = $item->id;
-	      }
-	    }
-	  }
-	}
-      }
+    if($access) {
+      $user = JFactory::getUser();
+      $groups = implode(',', $user->getAuthorisedViewLevels());
+      $query->where('access IN ('.$groups.')');
     }
 
-    if($needles) {
-      foreach($needles as $view => $ids) {
-	if(isset(self::$lookup[$language][$view])) {
-	  foreach($ids as $id) {
-	    if(isset(self::$lookup[$language][$view][(int) $id])) {
-	      return self::$lookup[$language][$view][(int) $id];
-	    }
-	  }
-	}
-      }
+    $db->setQuery($query);
+    $tag = $db->loadObject();
+
+    return $tag;
+  }
+
+
+  /**
+   * Returns the tag children from a given tag id.
+   * Note: If no tag id is passed the function return the complete tags hierarchy (parents/children) 
+   *       from the top parent tag.
+   *
+   * @param   integer  $id      The tag ID to get the children from.
+   * @param   integer  $access  Flag to take into account (or not) the user's access.
+   *
+   * @return  mixed    The tag children objects or the complete tags hierarchy.
+   *
+   * @since   1.5
+   */
+  public static function getTagChildren($tagId = 0, $access = true)
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('DISTINCT n.id, n.alias, n.parent_id, n.level')
+	  ->from('#__tags AS n, #__tags AS p')
+	  ->where('n.lft BETWEEN p.lft AND p.rgt AND n.level >= 1 AND n.level <= 10');
+
+    if($tagId) {
+      $query->where('n.parent_id='.(int)$tagId);
     }
 
-    // Check if the active menuitem matches the requested language
-    $active = $menus->getActive();
-    if($active && ($language == '*' || in_array($active->language, array('*', $language)) || !JLanguageMultilang::isEnabled())) {
-      return $active->id;
+    if($access) {
+      $user = JFactory::getUser();
+      $groups = implode(',', $user->getAuthorisedViewLevels());
+      $query->where('n.access IN ('.$groups.')');
     }
 
-    // If not found, return language specific home link
-    $default = $menus->getDefault($language);
-    return !empty($default->id) ? $default->id : null;
+    $query->where('n.published=1')
+	  ->order('n.lft');
+    $db->setQuery($query);
+
+    if($tagId) {
+      return $db->loadObjectList();
+    }
+
+    return $db->loadAssocList('id');
+  }
+
+
+  /**
+   * Returns the tag path to the root tag.
+   * Note: The returned path is reversed.
+   *
+   * @param   integer  $id      The tag ID.
+   *
+   * @return  array    The tag path.
+   *
+   * @since   1.5
+   */
+  public static function getTagPath($tagId)
+  {
+    $tags = self::getTagChildren();
+    $path = array();
+    $currentId = $tagId;
+
+    if(!empty($tags)) {
+      //Note: Don't use a foreach loop as it's not possible to reset looping.
+      //Use a while loop instead.
+      while(list($key, $tag) = each($tags)) {
+        if($key == $currentId) {
+          $path[$key] = $tag['id'].':'.$tag['alias'];
+          //Checks for children tags.
+          if($tag['level'] > 1) {
+            //Goes back into the tags hierarchy.
+            $currentId = $tag['parent_id'];
+            //Starts again looping from the top.
+            reset($tags);
+          }
+          else {
+            break;
+          }
+        }
+      }   
+    }   
+
+    return $path;
   }
 }
