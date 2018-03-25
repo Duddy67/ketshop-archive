@@ -31,8 +31,9 @@ if((count($optionIds) == count($displayData->attributes)) || ($displayData->attr
 ?>
 
 <?php if($params->get('show_attributes') && ($params->get('attributes_location') == $displayData->attributes_location || $params->get('attributes_location') == 'both') && !empty($displayData->attributes) && !$allOptions) : ?>
+
   <table class="table table-condensed small">
-  <caption class="text-left font-bold"><?php echo JText::_('COM_KETSHOP_PRODUCT_ATTRIBUTES'); ?></caption>
+
   <?php foreach($displayData->attributes as $key => $attribute) : ?>
     <?php if(empty($optionIds) || !in_array($attribute->attrib_id, $optionIds)) : //Don't display option attributes. ?>
       <tr><td>

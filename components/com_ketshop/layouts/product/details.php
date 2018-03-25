@@ -17,7 +17,6 @@ $params = $displayData->params;
 	 $params->get('show_tax') || $params->get('show_categories')) : ?>
 
   <table class="table table-condensed small">
-  <caption class="text-left font-bold"><?php echo JText::_('COM_KETSHOP_PRODUCT_DETAILS'); ?></caption>
 
   <?php if($params->get('show_code') && !empty($displayData->code)) : ?>
     <tr><td>

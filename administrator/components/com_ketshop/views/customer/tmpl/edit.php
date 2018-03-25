@@ -156,8 +156,8 @@ function setLimitItem(this_)
 
   <?php //Required for the dynamical Javascript setting. ?>
   <input type="hidden" name="form_type" id="form-type" value="jform" />
-  <input type="hidden" name="hidden_region_code_sh" id="hidden-region-code-sh" value="<?php echo $this->form->getValue('country_code_sh'); ?>" />
-  <input type="hidden" name="hidden_region_code_bi" id="hidden-region-code-bi" value="<?php echo $this->form->getValue('country_code_bi'); ?>" />
+  <input type="hidden" name="hidden_region_code_sh" id="hidden-region-code-sh" value="<?php echo $this->form->getValue('region_code_sh'); ?>" />
+  <input type="hidden" name="hidden_region_code_bi" id="hidden-region-code-bi" value="<?php echo $this->form->getValue('region_code_bi'); ?>" />
 
   <input type="hidden" name="task" value="" />
   <input type="hidden" name="limit_item" value="<?php echo $limitItem; ?>" />

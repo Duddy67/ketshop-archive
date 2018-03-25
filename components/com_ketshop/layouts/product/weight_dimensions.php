@@ -30,7 +30,7 @@ if($params->get('show_dimensions')
 
 <?php if($weight || $dimensions) : ?>
   <table class="table table-condensed small">
-  <caption class="text-left font-bold"><?php echo JText::_('COM_KETSHOP_PRODUCT_WEIGHT_DIMENSIONS'); ?></caption>
+
   <?php if($weight) : ?>
     <tr><td>
       <?php echo JText::_('COM_KETSHOP_PRODUCT_WEIGHT'); ?>

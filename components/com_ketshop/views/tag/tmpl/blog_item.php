@@ -13,9 +13,9 @@ $params = $this->item->params;
 ?>
 
 <div class="product-item">
-  <?php echo JLayoutHelper::render('product.title', array('item' => $this->item, 'params' => $params, 'now_date' => $this->nowDate)); ?>
-
-  <?php echo JLayoutHelper::render('product.image', array('item' => $this->item, 'params' => $params)); ?>
+  <?php echo JLayoutHelper::render('product.title', array('item' => $this->item, 'params' => $params, 'now_date' => $this->nowDate)); 
+        echo JLayoutHelper::render('product.image', array('item' => $this->item, 'params' => $params));
+  ?>
 
   <?php if($params->get('show_tags') && !empty($this->item->tags->itemTags)) : ?>
     <?php echo JLayoutHelper::render('tags', array('item' => $this->item)); ?>
@@ -23,8 +23,9 @@ $params = $this->item->params;
 
   <?php echo $this->item->intro_text; ?>
 
-  <?php echo JLayoutHelper::render('product.availability', array('item' => $this->item, 'params' => $params, 'view' => 'tag')); ?>
-  <?php echo JLayoutHelper::render('product.price', $this->item); ?>
+  <?php echo JLayoutHelper::render('product.availability', array('item' => $this->item, 'params' => $params, 'view' => 'tag')); 
+        echo JLayoutHelper::render('product.price', $this->item);
+  ?>
 
   <?php if($this->item->attribute_group) : //Check for product options. ?>
     <span class="space-2"></span>
@@ -47,12 +48,9 @@ $params = $this->item->params;
 	    $link->setVar('return', base64_encode(JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language), false)));
 	  endif; ?>
 
-  <?php echo JLayoutHelper::render('product.product_page', array('item' => $this->item, 'params' => $params, 'link' => $link)); ?>
-  <?php echo JLayoutHelper::render('product.details', $this->item); ?>
-  <?php echo JLayoutHelper::render('product.weight_dimensions', $this->item); ?>
-  <?php echo JLayoutHelper::render('product.attributes', $this->item); ?>
-  <?php endif; ?>
+  <?php echo JLayoutHelper::render('product.product_page', array('item' => $this->item, 'params' => $params, 'link' => $link)); 
+        echo JLayoutHelper::render('product.tabs', $this->item);
 
-
+   endif; ?>
 </div>
 
