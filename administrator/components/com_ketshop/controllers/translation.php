@@ -17,10 +17,11 @@ class KetshopControllerTranslation extends JControllerForm
 
   public function save($key = null, $urlVar = null)
   {
-    //Get the jform data.
+    //Gets the jform data.
     $data = $this->input->post->get('jform', array(), 'array');
-var_dump($data);
-//return;
+
+    //Set some jform fields.
+
     if($data['item_type'] == 'product') {
       //product_description tag is used with product item instead of description
       //tag, so we must delete description tag to avoid having an empty
@@ -31,27 +32,7 @@ var_dump($data);
       $data['alias'] = JFilterOutput::stringURLSafe($data['name']);
     }
 
-    //Set some jform fields.
-    
-    //Get current date and time (equal to NOW() in SQL).
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-    //Update the modification.
-    $data['modified'] = $now;
-
-    if($data['id'] == 0) { //New item
-      //Set the possible undefined parameters.
-      if(empty($data['created'])) {
-	$data['created'] = $now;
-      }
-
-      if(empty($data['created_by'])) {
-	//Get the current user id.
-	$user = JFactory::getUser();
-	$data['created_by'] = $user->id;
-      }
-    }
-
-    //Reset the jform data array 
+    //Saves the modified jform data array 
     $this->input->post->set('jform', $data);
 
     //Hand over to the parent function.
@@ -66,8 +47,11 @@ var_dump($data);
     $user = JFactory::getUser();
 
     //Get the item owner id.
-    $db =& JFactory::getDbo();
-    $query = 'SELECT created_by FROM #__ketshop_translation WHERE id='.$itemId;
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('created_by') 
+          ->from('#__ketshop_translation') 
+	  ->where('id='.(int)$itemId);
     $db->setQuery($query);
     $createdBy = $db->loadResult();
 

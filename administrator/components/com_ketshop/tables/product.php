@@ -95,8 +95,8 @@ class KetshopTableProduct extends JTable
    */
   public function store($updateNulls = false)
   {
-    //Get current date and time (equal to NOW() in SQL).
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    //Gets the current date and time (UTC).
+    $now = JFactory::getDate()->toSql();
     $user = JFactory::getUser();
 
     if($this->id) { // Existing item

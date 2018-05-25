@@ -153,7 +153,7 @@ class KetshopViewProduct extends JViewLegacy
     $model = $this->getModel();
     $model->hit();
 
-    $this->nowDate = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    $this->nowDate = JFactory::getDate()->toSql();
 
     $this->setDocument();
 

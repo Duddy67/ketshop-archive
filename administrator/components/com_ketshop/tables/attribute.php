@@ -39,6 +39,26 @@ class KetshopTableAttribute extends JTable
    */
   public function store($updateNulls = false)
   {
+    //Gets the current date and time (UTC).
+    $now = JFactory::getDate()->toSql();
+    $user = JFactory::getUser();
+
+    if($this->id) { // Existing item
+      $this->modified = $now;
+      $this->modified_by = $user->get('id');
+    }
+    else {
+      // New item. An item created and created_by field can be set by the user,
+      // so we don't touch either of these if they are set.
+      if(!(int)$this->created) {
+	$this->created = $now;
+      }
+
+      if(empty($this->created_by)) {
+	$this->created_by = $user->get('id');
+      }
+    }
+
     //Load a predefined set of unit measurement data from the database. 
     if($this->field_type_2 != 'none' && $this->field_type_2 != 'open_field' && $this->field_type_2 != 'closed_list') {
       $db = JFactory::getDbo();

@@ -106,7 +106,7 @@ class KetshopModelProduct extends JModelItem
       if((!$user->authorise('core.edit.state', 'com_ketshop')) && (!$user->authorise('core.edit', 'com_ketshop'))) {
 	// Filter by start and end dates.
 	$nullDate = $db->quote($db->getNullDate());
-	$nowDate = $db->quote(JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true));
+	$nowDate = $db->quote(JFactory::getDate()->toSql());
 	$query->where('(p.publish_up = '.$nullDate.' OR p.publish_up <= '.$nowDate.')')
 	      ->where('(p.publish_down = '.$nullDate.' OR p.publish_down >= '.$nowDate.')');
       }

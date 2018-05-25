@@ -29,24 +29,7 @@ class KetshopControllerShipping extends JControllerForm
     $data['delivpnt_cost'] = UtilityHelper::formatNumber($data['delivpnt_cost']);
     $data['global_cost'] = UtilityHelper::formatNumber($data['global_cost']);
 
-    //Get current date and time (equal to NOW() in SQL).
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-    //Update the modification.
-    $data['modified'] = $now;
-
-    if($data['id'] == 0) { //New item
-      //Set the possible undefined parameters.
-      if(empty($data['created'])) {
-	$data['created'] = $now;
-      }
-
-      if(empty($data['created_by'])) {
-	//Get the current user id.
-	$user =& JFactory::getUser();
-	$data['created_by'] = $user->id;
-      }
-    }
-    else {
+    if($data['id']) { //Existing item
       if($data['delivery_type'] == 'at_destination') {
 	//It's safe to set unused field to zero.
 	$data['delivpnt_cost'] = 0;
@@ -57,7 +40,7 @@ class KetshopControllerShipping extends JControllerForm
       }
     }
 
-    //Reset the jform data array 
+    //Saves the modified jform data array 
     $this->input->post->set('jform', $data);
 
     //Hand over to the parent function.
@@ -72,8 +55,11 @@ class KetshopControllerShipping extends JControllerForm
     $user = JFactory::getUser();
 
     //Get the item owner id.
-    $db =& JFactory::getDbo();
-    $query = 'SELECT created_by FROM #__ketshop_shipping WHERE id='.$itemId;
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('created_by')
+          ->from('#__ketshop_shipping') 
+	  ->where('id='.(int)$itemId);
     $db->setQuery($query);
     $createdBy = $db->loadResult();
 

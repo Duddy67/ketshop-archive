@@ -47,5 +47,27 @@ class KetshopModelPricerule extends JModelAdmin
 
     return $data;
   }
+
+
+  /**
+   * Prepare and sanitise the table data prior to saving.
+   *
+   * @param   JTable  $table  A JTable object.
+   *
+   * @return  void
+   *
+   * @since   1.6
+   */
+  protected function prepareTable($table)
+  {
+    // Set the publish date to now
+    if($table->published == 1 && (int)$table->publish_up == 0) {
+      $table->publish_up = JFactory::getDate()->toSql();
+    }
+
+    if($table->published == 1 && intval($table->publish_down) == 0) {
+      $table->publish_down = $this->getDbo()->getNullDate();
+    }
+  }
 }
 

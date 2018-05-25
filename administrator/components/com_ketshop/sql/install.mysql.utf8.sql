@@ -183,6 +183,7 @@ CREATE TABLE `#__ketshop_order` (
   `checked_out_time` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -305,6 +306,7 @@ CREATE TABLE `#__ketshop_tax` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -326,6 +328,7 @@ CREATE TABLE `#__ketshop_payment_mode` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -346,6 +349,7 @@ CREATE TABLE `#__ketshop_shipper` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -373,6 +377,7 @@ CREATE TABLE `#__ketshop_translation` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   `language` CHAR(7) NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
@@ -401,6 +406,7 @@ CREATE TABLE `#__ketshop_attribute` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `idx_published` (`published` ASC) ,
   INDEX `idx_created` (`created` ASC) ,
@@ -477,6 +483,7 @@ CREATE TABLE `#__ketshop_currency` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -499,6 +506,7 @@ CREATE TABLE `#__ketshop_country` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -542,6 +550,7 @@ CREATE TABLE `#__ketshop_price_rule` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -603,6 +612,7 @@ CREATE TABLE `#__ketshop_coupon` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -642,6 +652,7 @@ CREATE TABLE `#__ketshop_shipping` (
   `created_by` INT UNSIGNED NOT NULL ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 

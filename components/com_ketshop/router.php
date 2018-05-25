@@ -44,6 +44,14 @@ class KetshopRouter extends JComponentRouterView
     $form->setKey('p_id');
     $this->registerView($form);
 
+    $cart = new JComponentRouterViewconfiguration('cart');
+    $this->registerView($cart);
+    $orders = new JComponentRouterViewconfiguration('orders');
+    $this->registerView($orders);
+    //$order = new JComponentRouterViewconfiguration('order');
+    //$order->setKey('order_id')->setParent($orders);
+    //$this->registerView($order);
+
     parent::__construct($app, $menu);
 
     $this->attachRule(new JComponentRouterRulesMenu($this));

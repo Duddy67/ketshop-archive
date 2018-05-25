@@ -425,7 +425,7 @@ class KetshopModelTag extends JModelList
     if($this->getState('filter.publish_date')) {
       // Filter by start and end dates.
       $nullDate = $db->quote($db->getNullDate());
-      $nowDate = $db->quote(JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true));
+      $nowDate = $db->quote(JFactory::getDate()->toSql());
 
       $query->where('(p.publish_up = '.$nullDate.' OR p.publish_up <= '.$nowDate.')')
 	    ->where('(p.publish_down = '.$nullDate.' OR p.publish_down >= '.$nowDate.')');
@@ -604,7 +604,7 @@ class KetshopModelTag extends JModelList
 	if($this->getState('filter.publish_date')) {
 	  // Filter by start and end dates.
 	  $nullDate = $db->quote($db->getNullDate());
-	  $nowDate = $db->quote(JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true));
+	  $nowDate = $db->quote(JFactory::getDate()->toSql());
 
 	  $query->where('(p.publish_up = '.$nullDate.' OR p.publish_up <= '.$nowDate.')')
 		->where('(p.publish_down = '.$nullDate.' OR p.publish_down >= '.$nowDate.')');

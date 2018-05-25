@@ -664,7 +664,7 @@ class plgContentKetshop extends JPlugin
       if($deliveryId) {
 	$db = JFactory::getDbo();
 	$query = $db->getQuery(true);
-	$now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+	$now = JFactory::getDate()->toSql();
 
 	$fields = array('status='.$db->quote($post['delivery_status']),
 			'delivery_date='.$db->quote($post['delivery_date']),

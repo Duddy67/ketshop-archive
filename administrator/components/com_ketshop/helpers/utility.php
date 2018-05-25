@@ -280,9 +280,9 @@ class UtilityHelper
 
     //In all other cases a new address row must be inserted.
 
-    //Get current date and time (equal to NOW() in SQL).
+    //Gets the current date and time (UTC).
     //A date stamp allows to keep an address history.
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    $now = JFactory::getDate()->toSql();
 
     $columns = array('item_id','street','city','region_code','postcode',
 		     'phone','country_code','continent_code','type',

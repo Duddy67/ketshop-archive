@@ -254,7 +254,7 @@ class KetshopControllerPayment extends JControllerForm
 
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    $now = JFactory::getDate()->toSql();
 
     $columns = array('order_id', 'amounts', 'cart', 'settings', 'utility', 'created');
     $values = (int)$orderId.','.$db->quote(serialize($amounts)).','.$db->quote(serialize($cart)).

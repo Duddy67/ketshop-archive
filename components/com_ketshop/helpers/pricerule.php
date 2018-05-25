@@ -337,8 +337,8 @@ class PriceruleHelper
     //Used as first argument of the logEvent function.
     $codeLocation = 'helpers/pricerule.php';
 
-    //Get current date and time (equal to NOW() in SQL).
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    //Gets current date and time (UTC).
+    $now = JFactory::getDate()->toSql();
 
     //Get the user data.
     $user = JFactory::getUser();
@@ -425,8 +425,8 @@ class PriceruleHelper
     //Used as first argument of the logEvent function.
     $codeLocation = 'helpers/pricerule.php';
 
-    //Get current date and time (equal to NOW() in SQL).
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    //Get current date and time (UTC).
+    $now = JFactory::getDate()->toSql();
 
     if(!$userId) {
       //Get the user data.

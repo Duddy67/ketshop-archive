@@ -18,30 +18,10 @@ class KetshopControllerOrder extends JControllerForm
   public function save($key = null, $urlVar = null)
   {
     //Get the jform data.
-    $data = $this->input->post->get('jform', array(), 'array');
-$post = JFactory::getApplication()->input->post->getArray();
-echo '<pre>';
-var_dump($post);
-echo '</pre>';
-//return;
+    //$data = $this->input->post->get('jform', array(), 'array');
 
-    //Set some jform fields.
-
-    //Get current date and time (equal to NOW() in SQL).
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-
-    //Update the modification.
-    $data['modified'] = $now;
-
-    if($data['id'] == 0) { //New item
-      //Set the possible undefined parameters.
-      if(empty($data['created'])) {
-	$data['created'] = $now;
-      }
-    }
-
-    //Reset the jform data array 
-    $this->input->post->set('jform', $data);
+    //Saves the modified jform data array 
+    //$this->input->post->set('jform', $data);
 
     //Hand over to the parent function.
     return parent::save($key = null, $urlVar = null);

@@ -23,9 +23,7 @@ class KetshopControllerAttribute extends JControllerForm
     $data = $this->input->post->get('jform', array(), 'array');
     $context = "$this->option.edit.$this->context";
     $groups = false;
-echo '<pre>';
-var_dump($post);
-echo '</pre>';
+
     //Detect whether the attribute has been added to a group.
     foreach($post as $key => $val) {
       if(preg_match('#^group_([0-9]+)$#', $key)) {
@@ -79,28 +77,8 @@ echo '</pre>';
     elseif($data['field_type_2'] != 'none') { //Multiselect is not available when field 2 is used.
       $data['multiselect'] = 0;
     }
-//return;
-    //Set some jform fields.
-    
-    //Get current date and time.
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
-    //Update the modification.
-    $data['modified'] = $now;
 
-    if($data['id'] == 0) { //New item
-      //Set the possible undefined parameters.
-      if(empty($data['created'])) {
-	$data['created'] = $now;
-      }
-
-      if(empty($data['created_by'])) {
-	//Get the current user id.
-	$user = JFactory::getUser();
-	$data['created_by'] = $user->id;
-      }
-    }
-
-    //Reset the jform data array 
+    //Saves the modified jform data array 
     $this->input->post->set('jform', $data);
 
     //Hand over to the parent function.

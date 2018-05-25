@@ -835,7 +835,7 @@ class ShopHelper
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
-    $nowDate = $db->quote(JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true));
+    $nowDate = $db->quote(JFactory::getDate()->toSql());
     $columns = array('order_id','payment_mode','amount','result','detail','transaction_data','created');
     $values = (int)$settings['order_id'].','.$db->quote($utility['payment_mode']).','.(float)$amount.','.  
               $db->quote($result).','.$db->quote($detail).','.$db->quote($utility['transaction_data']).','.$nowDate;
@@ -859,7 +859,6 @@ class ShopHelper
   //Function used to trace possible errors and report them into a log file.
   public static function logEvent($location, $type, $criticity, $code = 0, $message = '')
   {
-    //Get current date and time (equal to NOW() in SQL).
     jimport('joomla.utilities.date');
     $now = JFactory::getDate()->toSql();
     //Get the user data.

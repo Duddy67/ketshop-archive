@@ -181,7 +181,7 @@ class KetshopControllerStore extends JControllerForm
     }
 
     jimport('joomla.utilities.date');
-    $now = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    $now = JFactory::getDate()->toSql();
 
     //If the order already exists (ie: we're dealing with a pending cart) we just
     //update the row.

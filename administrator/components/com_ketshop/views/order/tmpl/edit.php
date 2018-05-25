@@ -110,6 +110,7 @@ Joomla.submitbutton = function(task)
 	    <?php
 		  echo $this->form->getControlGroup('created'); 
 		  echo $this->form->getControlGroup('modified'); 
+		  echo $this->form->getControlGroup('modified_by'); 
 		  echo $this->form->getControlGroup('id'); 
 	    ?>
 	  </div>

@@ -312,7 +312,7 @@ class KetshopViewTag extends JViewLegacy
     //Set the filter_ordering parameter for the layout.
     $this->filter_ordering = $this->state->get('list.filter_ordering');
 
-    $this->nowDate = JFactory::getDate('now', JFactory::getConfig()->get('offset'))->toSql(true);
+    $this->nowDate = JFactory::getDate()->toSql();
 
     $this->prepareDocument();
 
