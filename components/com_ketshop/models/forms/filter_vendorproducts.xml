@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field
+			name="search"
+			type="text"
+			label="COM_KETSHOP_SEARCH_IN_TITLE"
+			hint="JSEARCH_FILTER"
+			class="js-stools-search-string"
+		/>
+
+		<field name="published"
+		       type="status"
+		       label="JOPTION_SELECT_PUBLISHED"
+		       description="JOPTION_SELECT_PUBLISHED_DESC"
+		       onchange="this.form.submit();">
+		       <option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+
+		<field name="product_type"
+			type="list"
+			onchange="this.form.submit();" >
+			<option value="">COM_KETSHOP_OPTION_SELECT_TYPE</option>
+			<option value="normal">COM_KETSHOP_PRODUCT_NORMAL_LABEL</option>
+			<option value="bundle">COM_KETSHOP_PRODUCT_BUNDLE_LABEL</option>
+		</field>
+
+		<field name="tag"
+		       type="tag"
+		       mode="nested"
+		       label="JOPTION_FILTER_TAG"
+		       description="JOPTION_FILTER_TAG_DESC"
+		       onchange="this.form.submit();">
+		       <option value="">JOPTION_SELECT_TAG</option>
+		</field>
+	</fields>
+	<fields name="list">
+		<field
+			name="limit"
+			type="limitbox"
+			class="inputbox input-mini"
+			default="25"
+			label="COM_KETSHOP_LIST_LIMIT"
+			description="COM_KETSHOP_LIST_LIMIT_DESC"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>

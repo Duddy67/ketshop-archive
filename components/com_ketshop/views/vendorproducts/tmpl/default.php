@@ -32,7 +32,7 @@ $status['undefined'] = 'COM_KETSHOP_OPTION_UNDEFINED_STATUS';
 $status['cartbackup'] = 'COM_KETSHOP_OPTION_CART_BACKUP_STATUS';
 ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=orders');?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=vendorproducts');?>" method="post" name="adminForm" id="adminForm">
 
 <?php
 // Search tools bar 
@@ -47,23 +47,29 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
   <?php else : ?>
       <table class="table table-striped">
 	<thead>
-	  <th width="20%">
-	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_ORDER_NUMBER', 'order_nb', $listDirn, $listOrder); ?>
+	  <th>
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_NAME', 'vp.name', $listDirn, $listOrder); ?>
 	  </th>
-	  <th width="20%">
-	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_ORDER_STATUS', 'order_status', $listDirn, $listOrder); ?>
+	  <th width="8%">
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_STATUS', 'vp.published', $listDirn, $listOrder); ?>
 	  </th>
-	  <th width="20%">
-	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_PAYMENT_STATUS', 'payment_status', $listDirn, $listOrder); ?>
+	  <th width="12%">
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_BASE_PRICE', 'vp.base_price', $listDirn, $listOrder); ?>
 	  </th>
-	  <th width="20%">
-	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_SHIPPING_STATUS', 'shipping_status', $listDirn, $listOrder); ?>
+	  <th width="12%">
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_SALE_PRICE', 'vp.sale_price', $listDirn, $listOrder); ?>
+	  </th>
+	  <th width="8%">
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_STOCK', 'vp.stock', $listDirn, $listOrder); ?>
+	  </th>
+	  <th width="8%">
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_SALES', 'vp.sales', $listDirn, $listOrder); ?>
 	  </th>
 	  <th width="10%">
-	  <?php echo JHtml::_('searchtools.sort', 'JDATE', 'o.created', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'JDATE', 'vp.created', $listDirn, $listOrder); ?>
 	  </th>
 	  <th width="5%">
-	  <?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_ID', 'o.id', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_ID', 'vp.id', $listDirn, $listOrder); ?>
 	  </th>
 	</thead>
 
@@ -71,17 +77,23 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	<?php foreach ($this->items as $i => $item) : ?>
 
 	<tr class="row-<?php echo $i % 2; ?>"><td>
-		<a href="index.php?option=com_ketshop&task=order.editCustomerNote&order_id=<?php echo $item->id; ?>">
-			<?php echo $this->escape($item->order_nb); ?></a>
+		<a href="index.php?option=com_ketshop&view=vendorproduct&id=<?php echo $item->id; ?>">
+			<?php echo $this->escape($item->name); ?></a>
 		</td>
 		<td>
-		  <?php echo JText::_($status[$item->order_status]); ?>
+		  <?php echo $item->published; ?>
 		</td>
 		<td>
-		  <?php echo JText::_($status[$item->payment_status]); ?>
+		  <?php echo UtilityHelper::formatNumber($item->base_price).' '.$this->shopSettings['currency']; ?>
 		</td>
 		<td>
-		  <?php echo JText::_($status[$item->shipping_status]); ?>
+		  <?php echo UtilityHelper::formatNumber($item->sale_price).' '.$this->shopSettings['currency']; ?>
+		</td>
+		<td class="center">
+		  <?php echo $item->stock; ?>
+		</td>
+		<td class="center">
+		  <?php echo $item->sales; ?>
 		</td>
 		<td>
 		  <?php echo JHTML::_('date',$item->created, JText::_('COM_KETSHOP_DATE_FORMAT')); ?>
@@ -92,7 +104,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 
 	<?php endforeach; ?>
 	<tr>
-	    <td colspan="6"><?php echo $this->pagination->getListFooter(); ?></td>
+	    <td colspan="8"><?php echo $this->pagination->getListFooter(); ?></td>
 	</tr>
 	</tbody>
       </table>

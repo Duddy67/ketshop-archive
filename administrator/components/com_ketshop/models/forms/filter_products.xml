@@ -39,8 +39,7 @@
 		       <option value="">COM_KETSHOP_OPTION_SELECT_USER</option>
 		</field>
 
-		<field
-			name="product_type"
+		<field name="product_type"
 			type="list"
 			onchange="this.form.submit();" >
 			<option value="">COM_KETSHOP_OPTION_SELECT_TYPE</option>

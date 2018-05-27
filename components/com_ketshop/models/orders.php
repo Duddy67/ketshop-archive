@@ -116,7 +116,7 @@ class KetshopModelOrders extends JModelList
     //Filter by payment status.
     $paymentStatus = $this->getState('filter.payment_status');
     if(!empty($paymentStatus)) {
-      $query->where('t.status='.$db->Quote($paymentStatus));
+      $query->where('o.payment_status='.$db->Quote($paymentStatus));
     }
 
     //Filter by shipping status.

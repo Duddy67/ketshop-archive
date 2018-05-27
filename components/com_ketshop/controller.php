@@ -63,7 +63,8 @@ class KetshopController extends JControllerLegacy
 
     //Ensure the no logged-in users cannot access those views.
     if($vName == 'address' || $vName == 'shipment' || $vName == 'payment' || 
-       $vName == 'orders' || $vName == 'order' || $vName == 'summary') {
+       $vName == 'orders' || $vName == 'order' || $vName == 'summary' ||
+       $vName == 'vendorproducts' || $vName == 'vendorproduct') {
       // If the user is a guest, redirect to the login page.
       $user = JFactory::getUser();
       if($user->get('guest') == 1) {

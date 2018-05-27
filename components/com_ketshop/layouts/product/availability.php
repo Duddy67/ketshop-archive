@@ -14,10 +14,11 @@ $item = $displayData['item'];
 $params = $displayData['params'];
 $view = $displayData['view'];
 
-//In case product has options as we're in tag or category view, we don't display the cart icon 
+//In case product has options as we're in tag view, we don't display the cart icon 
 //as the customer has to choose between options on the product page. 
+//The cart icon is no needed in the vendor product view neither.
 $displayCartIcon = true;
-if(($view == 'category' || $view == 'tag') && $item->attribute_group) {
+if($view == 'vendorproduct' || ($view == 'tag' && $item->attribute_group)) {
   $displayCartIcon = false;
 }
 ?>
