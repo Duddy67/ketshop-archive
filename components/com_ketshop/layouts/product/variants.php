@@ -79,7 +79,7 @@ if($displayData->shop_settings['tax_method'] == 'excl_tax') {
 
   <?php if(!empty($html)) : ?>
     <table class="table small">
-    <tr><th><?php echo JText::_('COM_KETSHOP_OPTION'); ?></th>
+    <tr><th><?php echo JText::_('COM_KETSHOP_VARIANT'); ?></th>
     <th><?php echo JText::_('COM_KETSHOP_PRODUCT_REFERENCE'); ?></th>
     <th><?php echo $priceText; ?></th></tr>
     <?php echo $html; ?>
