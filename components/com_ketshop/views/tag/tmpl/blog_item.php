@@ -27,11 +27,11 @@ $params = $this->item->params;
         echo JLayoutHelper::render('product.price', $this->item);
   ?>
 
-  <?php if($this->item->attribute_group) : //Check for product options. ?>
+  <?php if($this->item->attribute_group) : //Check for product variants. ?>
     <span class="space-2"></span>
     <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tag_ids, $this->item->language)); ?>">
       <span class="label btn-info">
-      <?php echo JText::_('COM_KETSHOP_CHOOSE_OPTIONS'); ?>
+      <?php echo JText::_('COM_KETSHOP_CHOOSE_VARIANTS'); ?>
       </span>
     </a>
     <span class="space-2"></span>

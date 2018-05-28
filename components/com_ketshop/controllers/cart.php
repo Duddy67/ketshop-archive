@@ -60,7 +60,7 @@ class KetshopControllerCart extends JControllerForm
     if(empty($data)) {
       //Sanitize sensitive data.
       $id = $this->input->get('prod_id', 0, 'uint');
-      $optId = $this->input->get('opt_id', 0, 'uint');
+      $varId = $this->input->get('var_id', 0, 'uint');
 
       //Check for a valid id.
       if(!(int)$id) {
@@ -77,25 +77,25 @@ class KetshopControllerCart extends JControllerForm
     }
     else { //Product comes from loadCart function.
       $id = (int)$data['id'];
-      $optId = (int)$data['opt_id'];
+      $varId = (int)$data['var_id'];
       $quantity = (int)$data['quantity'];
       $url = $data['url'];
     }
 
-    //Get product according to its product and option id.
-    $product = ShopHelper::getProduct($id, $optId);
+    //Get product according to its product and variant id.
+    $product = ShopHelper::getProduct($id, $varId);
     $app = JFactory::getApplication();
 
     //Check for duplicate product.
     foreach($cart as $cartProduct) {
-      if($cartProduct['id'] == $product['id'] && $cartProduct['opt_id'] == $product['opt_id']) {
-	//Check for option name.
-	$optionName = '';
-	if(!empty($cartProduct['option_name'])) {
-	  $optionName = ' : '.$cartProduct['option_name'];
+      if($cartProduct['id'] == $product['id'] && $cartProduct['var_id'] == $product['var_id']) {
+	//Check for variant name.
+	$variantName = '';
+	if(!empty($cartProduct['variant_name'])) {
+	  $variantName = ' : '.$cartProduct['variant_name'];
 	}
 
-	$app->enqueueMessage(JText::sprintf('COM_KETSHOP_DUPLICATE_PRODUCT', $cartProduct['name'].$optionName));
+	$app->enqueueMessage(JText::sprintf('COM_KETSHOP_DUPLICATE_PRODUCT', $cartProduct['name'].$variantName));
 	$this->setRedirect(JRoute::_('index.php?'.$location, false));
 	return;
       }
@@ -142,37 +142,37 @@ class KetshopControllerCart extends JControllerForm
     $newQty = array();
 
     foreach($data as $key => $value) {
-      //Extract the product and option ids from the variable name.
+      //Extract the product and variant ids from the variable name.
       if(preg_match('#^quantity_([1-9][0-9]*)_([0-9]+)$#', $key, $matches)) {
 	$productId = $matches[1];
-	$optionId = $matches[2];
+	$variantId = $matches[2];
 	//Retrieve some needed variables  
-	$minQty = $data['min_quantity_'.$productId.'_'.$optionId];
-	$maxQty = $data['max_quantity_'.$productId.'_'.$optionId];
+	$minQty = $data['min_quantity_'.$productId.'_'.$variantId];
+	$maxQty = $data['max_quantity_'.$productId.'_'.$variantId];
 
 	//then check them out. 
 	if(!preg_match('#^[0-9]+$#', $minQty) || !preg_match('#^[0-9]+$#', $maxQty)) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_RANGE_QUANTITY', $data['name_'.$productId.'_'.$optionId]));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_RANGE_QUANTITY', $data['name_'.$productId.'_'.$variantId]));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
 
 	//Now check the quantity value. 
 	if(!preg_match('#^[0-9]+$#', $value) || $value == 0) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $data['name_'.$productId.'_'.$optionId]));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_INVALID_QUANTITY', $data['name_'.$productId.'_'.$variantId]));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
 
 	//Verify that the value is between min and max quantity.
 	if((int)$value < (int)$minQty) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MIN_QUANTITY', $data['name_'.$productId.'_'.$optionId], $minQty));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MIN_QUANTITY', $data['name_'.$productId.'_'.$variantId], $minQty));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
 
 	if((int)$value > (int)$maxQty) {
-	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MAX_QUANTITY', $data['name_'.$productId.'_'.$optionId], $maxQty));
+	  $app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_MAX_QUANTITY', $data['name_'.$productId.'_'.$variantId], $maxQty));
 	  $this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	  return false;
 	}
@@ -197,7 +197,7 @@ class KetshopControllerCart extends JControllerForm
       //New quantity is higher or equal than stock capacity or minimum stock threshold.
       if($stockState < 0 || ($stockState <= $cart[$i]['min_stock_threshold'] && !$cart[$i]['allow_order'])) {
 	$app->enqueueMessage(JText::sprintf('COM_KETSHOP_ERROR_QUANTITY_TOO_HIGHT',$newQty[$cart[$i]['id']],
-										      $data['name_'.$cart[$i]['id'].'_'.$cart[$i]['opt_id']]));
+										      $data['name_'.$cart[$i]['id'].'_'.$cart[$i]['var_id']]));
 	$this->setRedirect(JRoute::_('index.php?'.$this->cartView, false));
 	return false;
       }
@@ -222,9 +222,9 @@ class KetshopControllerCart extends JControllerForm
 
   public function removeFromCart()
   {
-    //Retrieve both the id and option id of the product to remove from the GET url.
+    //Retrieve both the id and variant id of the product to remove from the GET url.
     $id = $this->input->get('prod_id', 0, 'uint');
-    $optId = $this->input->get('opt_id', 0, 'uint');
+    $varId = $this->input->get('var_id', 0, 'uint');
     //Get the cart view url.
 
     //Check if it's a valid id.
@@ -248,7 +248,7 @@ class KetshopControllerCart extends JControllerForm
     //Search for the product id to remove.
     for($i = 0; $i < count($cart); $i++) {
       //Check for the array row to remove.
-      if($cart[$i]['id'] == $id && $cart[$i]['opt_id'] == $optId) {
+      if($cart[$i]['id'] == $id && $cart[$i]['var_id'] == $varId) {
 	unset($cart[$i]);
 	//resort the array keys numericaly.
 	$cart = array_values($cart);

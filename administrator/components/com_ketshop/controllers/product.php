@@ -76,8 +76,8 @@ class KetshopControllerProduct extends JControllerForm
     // Populate the row id from the session.
     $data[$key] = $recordId;
 
-    if(!KetshopHelper::checkProductOptions()) {
-      $this->setMessage(JText::_('COM_KETSHOP_OPTION_ATTRIBUTES_MISSING'), 'warning');
+    if(!KetshopHelper::checkProductVariants()) {
+      $this->setMessage(JText::_('COM_KETSHOP_VARIANT_ATTRIBUTES_MISSING'), 'warning');
       $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_item.$this->getRedirectToItemAppend($recordId, $urlVar), false));
       return false;
     }

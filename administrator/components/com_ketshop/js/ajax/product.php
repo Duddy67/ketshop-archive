@@ -82,48 +82,48 @@ else {
 $data['image'] = $images;
 
 
-//Get options linked to the product.
+//Gets the variants linked to the product.
 $query->clear();
-$query->select('opt_id, option_name, base_price, sale_price, sales, code, stock,'.
+$query->select('var_id, variant_name, base_price, sale_price, sales, code, stock,'.
                'availability_delay, weight, length, width, height, published, ordering') 
-      ->from('#__ketshop_product_option')
+      ->from('#__ketshop_product_variant')
       ->where('prod_id='.$productId)
-      ->order('opt_id');
+      ->order('var_id');
 $db->setQuery($query);
-$options = $db->loadAssocList();
+$variants = $db->loadAssocList();
 
-if(!empty($options)) {
-  //Get attributes linked to the options.
+if(!empty($variants)) {
+  //Get attributes linked to the variants.
   $query->clear();
-  $query->select('opt_id, attrib_id, attrib_value') 
-	->from('#__ketshop_opt_attrib')
+  $query->select('var_id, attrib_id, attrib_value') 
+	->from('#__ketshop_var_attrib')
 	->where('prod_id='.$productId)
-	->order('opt_id');
+	->order('var_id');
   $db->setQuery($query);
   $optAttribs = $db->loadAssocList();
 
   $config = JComponentHelper::getParams('com_ketshop');
 
-  //Store the attributes linked to the given option.
-  foreach($options as $key => $option) {
-    $options[$key]['attributes'] = array();
+  //Store the attributes linked to the given variant.
+  foreach($variants as $key => $variant) {
+    $variants[$key]['attributes'] = array();
     foreach($optAttribs as $optAttrib) {
-      if($optAttrib['opt_id'] == $option['opt_id']) {
-	$options[$key]['attributes'][] = $optAttrib;
+      if($optAttrib['var_id'] == $variant['var_id']) {
+	$variants[$key]['attributes'][] = $optAttrib;
       }
     }
 
     //Format some numerical values.
-    $options[$key]['weight'] = UtilityHelper::formatNumber($options[$key]['weight']);
-    $options[$key]['length'] = UtilityHelper::formatNumber($options[$key]['length']);
-    $options[$key]['width'] = UtilityHelper::formatNumber($options[$key]['width']);
-    $options[$key]['height'] = UtilityHelper::formatNumber($options[$key]['height']);
-    $options[$key]['base_price'] = UtilityHelper::formatNumber($options[$key]['base_price'], $config->get('digits_precision'));
-    $options[$key]['sale_price'] = UtilityHelper::formatNumber($options[$key]['sale_price'], $config->get('digits_precision'));
+    $variants[$key]['weight'] = UtilityHelper::formatNumber($variants[$key]['weight']);
+    $variants[$key]['length'] = UtilityHelper::formatNumber($variants[$key]['length']);
+    $variants[$key]['width'] = UtilityHelper::formatNumber($variants[$key]['width']);
+    $variants[$key]['height'] = UtilityHelper::formatNumber($variants[$key]['height']);
+    $variants[$key]['base_price'] = UtilityHelper::formatNumber($variants[$key]['base_price'], $config->get('digits_precision'));
+    $variants[$key]['sale_price'] = UtilityHelper::formatNumber($variants[$key]['sale_price'], $config->get('digits_precision'));
   }
 }
 
-$data['option'] = $options;
+$data['variant'] = $variants;
 
 
 if($productType == 'bundle') {

@@ -85,9 +85,9 @@ class OrderHelper
   /**
    * Separates 2 numbers concatenated with an underscore (eg: 78_5)
    *
-   * @param string  The product and option ids concatenated with an underscore
+   * @param string  The product and variant ids concatenated with an underscore
    *
-   * @return array  The separated product and option ids.
+   * @return array  The separated product and variant ids.
    */
   public static function separateIds($ids)
   {
@@ -95,7 +95,7 @@ class OrderHelper
       return null;
     }
 
-    $separatedIds = array('prod_id' => $matches[1], 'opt_id' => $matches[2]);
+    $separatedIds = array('prod_id' => $matches[1], 'var_id' => $matches[2]);
 
     return $separatedIds;
   }
@@ -115,28 +115,28 @@ class OrderHelper
     $query = $db->getQuery(true);
     $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
 		   'p.type, p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
-		   'op.tax_rate, op.opt_id, op.quantity, op.prod_id, op.option_name, op.cart_rules_impact,'.
-		   'po.published AS opt_published, po.stock AS opt_stock')
+		   'op.tax_rate, op.var_id, op.quantity, op.prod_id, p.variant_name, op.cart_rules_impact,'.
+		   'pv.published AS var_published, pv.stock AS var_stock')
 	  ->from('#__ketshop_order_prod AS op')
 	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
-	  ->join('LEFT', '#__ketshop_product_option AS po ON po.prod_id=op.prod_id AND po.opt_id=op.opt_id')
+	  ->join('LEFT', '#__ketshop_product_variant AS pv ON pv.prod_id=op.prod_id AND pv.var_id=op.var_id')
 	  ->where('op.order_id='.(int)$orderId)
 	  ->where('(op.history=1 OR op.history=2)')
 	  ->order('p.name');
     $db->setQuery($query);
     $products = $db->loadAssocList();
 
-    //Check for product options.
+    //Check for product variants.
     foreach($products as $key => $product) {
-      if($product['opt_id']) {
-	//Replace the values of the main product with those of the option.
-	$products[$key]['published'] = $product['opt_published']; 
-	$products[$key]['stock'] = $product['opt_stock']; 
+      if($product['var_id']) {
+	//Replace the values of the main product with those of the variant.
+	$products[$key]['published'] = $product['var_published']; 
+	$products[$key]['stock'] = $product['var_stock']; 
       }
 
       //Remove unnecessary variables.
-      unset($products[$key]['opt_published']);
-      unset($products[$key]['opt_stock']);
+      unset($products[$key]['var_published']);
+      unset($products[$key]['var_stock']);
     }
 
     return $products;
@@ -191,7 +191,7 @@ class OrderHelper
 	    ->from('#__ketshop_order_prod')
 	    ->where('order_id='.(int)$orderId)
 	    ->where('prod_id='.(int)$product['prod_id'])
-	    ->where('opt_id='.(int)$product['opt_id']);
+	    ->where('var_id='.(int)$product['var_id']);
       $db->setQuery($query);
       $history = $db->loadResult();
 
@@ -374,7 +374,7 @@ class OrderHelper
       $history = 2;
       foreach($initialProducts as $key => $initialProduct) {
 	//Check wether the product is part of the initial order.
-	if($initialProduct['prod_id'] == $product['prod_id'] && $initialProduct['opt_id'] == $product['opt_id']) {
+	if($initialProduct['prod_id'] == $product['prod_id'] && $initialProduct['var_id'] == $product['var_id']) {
 	  $history = 1;
 	  //Remove the product from the array 
 	  unset($initialProducts[$key]);
@@ -383,21 +383,21 @@ class OrderHelper
       }
 
       //Update the product.
-      $values[] = (int)$orderId.','.(int)$product['prod_id'].','.(int)$product['opt_id'].','.$db->Quote($product['name']).
-	          ','.$db->Quote($product['option_name']).','.$db->Quote($product['code']).','.$product['unit_sale_price'].
+      $values[] = (int)$orderId.','.(int)$product['prod_id'].','.(int)$product['var_id'].','.$db->Quote($product['name']).
+	          ','.$db->Quote($product['variant_name']).','.$db->Quote($product['code']).','.$product['unit_sale_price'].
 		  ','.$product['unit_price'].','.$product['cart_rules_impact'].','.(int)$product['quantity'].
 		  ','.$product['tax_rate'].','.(int)$history;
     }
 
     //Set the remaining of the initial products to 0 as they are not part of the current order.
     foreach($initialProducts as $initialProduct) {
-      $values[] = (int)$orderId.','.(int)$initialProduct['prod_id'].','.(int)$initialProduct['opt_id'].','.$db->Quote($initialProduct['name']).
-	          ','.$db->Quote($initialProduct['option_name']).','.$db->Quote($initialProduct['code']).','.$initialProduct['unit_sale_price'].
+      $values[] = (int)$orderId.','.(int)$initialProduct['prod_id'].','.(int)$initialProduct['var_id'].','.$db->Quote($initialProduct['name']).
+	          ','.$db->Quote($initialProduct['variant_name']).','.$db->Quote($initialProduct['code']).','.$initialProduct['unit_sale_price'].
 		  ','.$initialProduct['unit_price'].','.$initialProduct['cart_rules_impact'].','.(int)$initialProduct['quantity'].
 		  ','.$initialProduct['tax_rate'].',0';
     }
 
-    $columns = array('order_id', 'prod_id', 'opt_id', 'name', 'option_name',
+    $columns = array('order_id', 'prod_id', 'var_id', 'name', 'variant_name',
 		     'code', 'unit_sale_price', 'unit_price', 'cart_rules_impact',
 		     'quantity', 'tax_rate', 'history');
 

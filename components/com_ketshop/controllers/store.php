@@ -365,9 +365,9 @@ class KetshopControllerStore extends JControllerForm
     for($i = 0; $i < count($cart); $i++) {
       $products[$i] = array($orderId,
 			    $cart[$i]['id'],
-			    $cart[$i]['opt_id'],
+			    $cart[$i]['var_id'],
 			    $db->Quote($cart[$i]['name']),
-			    $db->Quote($cart[$i]['option_name']),
+			    $db->Quote($cart[$i]['variant_name']),
 			    $db->Quote($cart[$i]['code']),
 			    $cart[$i]['unit_sale_price'],
 			    $cart[$i]['unit_price'],
@@ -449,7 +449,7 @@ class KetshopControllerStore extends JControllerForm
       $values[] = implode(',', $product); //Build SQL values for each product.
     }
 
-    $columns = array('order_id','prod_id','opt_id','name','option_name','code','unit_sale_price',
+    $columns = array('order_id','prod_id','var_id','name','variant_name','code','unit_sale_price',
 	             'unit_price','cart_rules_impact','quantity','tax_rate');
 
     //Insert the products linked to the order.

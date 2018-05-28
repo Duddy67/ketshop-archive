@@ -181,9 +181,9 @@
 		<option value="10">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_10</option>
 	</field>
 
-	<field name="option_name" type="text"
-		label="COM_KETSHOP_FIELD_OPTION_NAME_LABEL"
-		description="COM_KETSHOP_FIELD_OPTION_NAME_DESC"
+	<field name="variant_name" type="text"
+		label="COM_KETSHOP_FIELD_VARIANT_NAME_LABEL"
+		description="COM_KETSHOP_FIELD_VARIANT_NAME_DESC"
 		class="input-xxlarge input-large-text" />
 
 	<field name="tax_id" type="taxlist"

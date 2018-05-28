@@ -136,12 +136,12 @@ Joomla.submitbutton = function(task)
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
       <?php if($this->item->id) : //Existing product  ?>
-	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-options', JText::_('COM_KETSHOP_SUBMENU_PRODUCT_OPTIONS', true)); ?>
+	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-variants', JText::_('COM_KETSHOP_SUBMENU_PRODUCT_VARIANTS', true)); ?>
 	  <div class="row-fluid form-horizontal-desktop">
-	    <div class="span9" id="option">
+	    <div class="span9" id="variant">
 	      <?php 
 		    echo $this->form->getControlGroup('attribute_group');
-		    echo $this->form->getControlGroup('option_name');
+		    echo $this->form->getControlGroup('variant_name');
 	      ?>
 	    </div>
 	  </div>

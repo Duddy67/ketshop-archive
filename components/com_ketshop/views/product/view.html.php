@@ -75,34 +75,34 @@ class KetshopViewProduct extends JViewLegacy
 								       $this->shopSettings['digits_precision']);
     }
 
-    //Get possible product options.
-    $this->item->options = ShopHelper::getProductOptions($this->item);
+    //Get possible product variants.
+    $this->item->variants = ShopHelper::getProductVariants($this->item);
 
-    //Check for product options.
-    if(!empty($this->item->options)) { 
-      foreach($this->item->options as $key => $option) {
-	//Check for options with a price different from the one of the main product. If a
+    //Check for product variants.
+    if(!empty($this->item->variants)) { 
+      foreach($this->item->variants as $key => $variant) {
+	//Check for variants with a price different from the one of the main product. If a
 	//price rule is applied on the main product price, the same price rule must be
-	//applied on the product option price as well.
-	if($option['sale_price'] > 0 && $option['base_price'] > 0 && $this->item->sale_price != $this->item->final_price) {
+	//applied on the product variant price as well.
+	if($variant['sale_price'] > 0 && $variant['base_price'] > 0 && $this->item->sale_price != $this->item->final_price) {
 	  $product = array('id' => $this->item->id, 
-			   'base_price' => $option['base_price'], 
-			   'sale_price' => $option['sale_price'], 
+			   'base_price' => $variant['base_price'], 
+			   'sale_price' => $variant['sale_price'], 
 			   'tax_rate' => $this->item->tax_rate, 
 			   'type' => $this->item->type);
-	  //Compute the catalog price for this product option.
+	  //Compute the catalog price for this product variant.
 	  $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
-	  $this->item->options[$key]['final_price'] = $catalogPrice->final_price;
-	  $this->item->options[$key]['pricerules'] = $catalogPrice->pricerules;
+	  $this->item->variants[$key]['final_price'] = $catalogPrice->final_price;
+	  $this->item->variants[$key]['pricerules'] = $catalogPrice->pricerules;
 	}
 	else {
-	  $this->item->options[$key]['final_price'] = $option['sale_price'];
+	  $this->item->variants[$key]['final_price'] = $variant['sale_price'];
 	}
 
 	if($this->shopSettings['tax_method'] == 'excl_tax') {
-	  $this->item->options[$key]['final_price_with_taxes'] = UtilityHelper::getPriceWithTaxes($this->item->options[$key]['final_price'],
+	  $this->item->variants[$key]['final_price_with_taxes'] = UtilityHelper::getPriceWithTaxes($this->item->variants[$key]['final_price'],
 												  $this->item->tax_rate);
-	  $this->item->options[$key]['final_price_with_taxes'] = UtilityHelper::roundNumber($this->item->options[$key]['final_price_with_taxes'],
+	  $this->item->variants[$key]['final_price_with_taxes'] = UtilityHelper::roundNumber($this->item->variants[$key]['final_price_with_taxes'],
 											    $this->shopSettings['rounding_rule'],
 											    $this->shopSettings['digits_precision']);
 	}
@@ -111,26 +111,26 @@ class KetshopViewProduct extends JViewLegacy
 
     //Get the stock state.
     if($this->item->stock_subtract) {
-      if(empty($this->item->options)) { //Regular product.
+      if(empty($this->item->variants)) { //Regular product.
 	$this->item->stock_state = ShopHelper::getStockState($this->item->min_stock_threshold,
 							     $this->item->max_stock_threshold,
 							     $this->item->stock, $this->item->allow_order);
       }
-      else { //Product with options.      
-        foreach($this->item->options as $key => $option) {
-	  $this->item->options[$key]['stock_state'] = ShopHelper::getStockState($this->item->min_stock_threshold,
+      else { //Product with variants.      
+        foreach($this->item->variants as $key => $variant) {
+	  $this->item->variants[$key]['stock_state'] = ShopHelper::getStockState($this->item->min_stock_threshold,
 										$this->item->max_stock_threshold,
-										$option['stock'], $this->item->allow_order);
+										$variant['stock'], $this->item->allow_order);
 	}
       }
     }
     else { //If product is not subtracted from stock, we assume that the stock is always full.
-      if(empty($this->item->options)) { //Regular product.
+      if(empty($this->item->variants)) { //Regular product.
 	$this->item->stock_state = 'maximum'; 
       }
-      else { //Product with options.      
-        foreach($this->item->options as $key => $option) {
-	  $this->item->options[$key]['stock_state'] = 'maximum';
+      else { //Product with variants.      
+        foreach($this->item->variants as $key => $variant) {
+	  $this->item->variants[$key]['stock_state'] = 'maximum';
 	}
       }
     }

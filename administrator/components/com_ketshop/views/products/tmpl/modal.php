@@ -140,11 +140,11 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>');">
 	    <?php endif; ?>
 		  <?php echo $this->escape($item->name); ?>
-	    <?php if($type == 'order' && !empty($item->option_name)) : //. ?>
-	      <span class="small">&nbsp;<?php echo $this->escape($item->option_name); ?></span>
+	    <?php if($type == 'order' && !empty($item->variant_name)) : //. ?>
+	      <span class="small">&nbsp;<?php echo $this->escape($item->variant_name); ?></span>
 	    <?php endif; ?></a>
 
-	    <?php if($type == 'order' && !empty($item->options)) : //. ?>
+	    <?php if($type == 'order' && !empty($item->variants)) : //. ?>
 	      <div class="small">
 	      <table>
 		<thead><tr>
@@ -154,18 +154,18 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 		  <th><?php echo JText::_('COM_KETSHOP_HEADING_SALE_PRICE'); ?></th>
 		</tr></thead>
 	      
-	      <?php foreach($item->options as $option) :  
-		      $prodIds = $option['prod_id'].'_'.$option['opt_id']; ?>
+	      <?php foreach($item->variants as $variant) :  
+		      $prodIds = $variant['prod_id'].'_'.$variant['var_id']; ?>
 		      <tr><td>
-			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($option['option_name']); ?></a></td>
-			<td><?php echo $option['stock']; ?></td>
+			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($variant['variant_name']); ?></a></td>
+			<td><?php echo $variant['stock']; ?></td>
 			<?php $basePrice = $salePrice = '-';
-			      if($option['base_price'] > 0) { 
-				$basePrice = UtilityHelper::formatNumber($option['base_price']).' '.$currency;
+			      if($variant['base_price'] > 0) { 
+				$basePrice = UtilityHelper::formatNumber($variant['base_price']).' '.$currency;
 			      }
 			
-			      if($option['sale_price'] > 0) { 
-				$salePrice = UtilityHelper::formatNumber($option['sale_price']).' '.$currency;
+			      if($variant['sale_price'] > 0) { 
+				$salePrice = UtilityHelper::formatNumber($variant['sale_price']).' '.$currency;
 			      }
 			?>
 			<td><?php echo $basePrice; ?></td><td><?php echo $salePrice; ?></td></tr>

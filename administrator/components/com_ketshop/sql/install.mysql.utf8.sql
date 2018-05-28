@@ -31,7 +31,7 @@ CREATE TABLE `#__ketshop_product` (
   `tax_id` SMALLINT UNSIGNED NOT NULL ,
   `new_until` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `attribute_group` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
-  `option_name` VARCHAR(225) NOT NULL ,
+  `variant_name` VARCHAR(225) NOT NULL ,
   `stock_locked` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
   `published` TINYINT NOT NULL DEFAULT 0 ,
   `catid` INT UNSIGNED NOT NULL ,
@@ -92,13 +92,13 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
--- Table `#__ketshop_product_option`
+-- Table `#__ketshop_product_variant`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `#__ketshop_product_option`;
-CREATE TABLE `#__ketshop_product_option` (
+DROP TABLE IF EXISTS `#__ketshop_product_variant`;
+CREATE TABLE `#__ketshop_product_variant` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `opt_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `option_name` VARCHAR(225) NOT NULL ,
+  `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `variant_name` VARCHAR(225) NOT NULL ,
   `base_price` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `sale_price` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `code` VARCHAR(80) NOT NULL ,
@@ -116,12 +116,12 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
--- Table `#__ketshop_opt_attrib`
+-- Table `#__ketshop_var_attrib`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `#__ketshop_opt_attrib`;
-CREATE TABLE `#__ketshop_opt_attrib` (
+DROP TABLE IF EXISTS `#__ketshop_var_attrib`;
+CREATE TABLE `#__ketshop_var_attrib` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `opt_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `attrib_value` VARCHAR(80) NOT NULL ,
   `attrib_text` VARCHAR(80) NOT NULL ,
@@ -195,9 +195,9 @@ DROP TABLE IF EXISTS `#__ketshop_order_prod`;
 CREATE TABLE `#__ketshop_order_prod` (
   `order_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `opt_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `name` VARCHAR(80) NULL ,
-  `option_name` VARCHAR(80) NOT NULL ,
+  `variant_name` VARCHAR(80) NOT NULL ,
   `code` VARCHAR(80) NOT NULL ,
   `unit_sale_price` DECIMAL(14,5) UNSIGNED NOT NULL ,
   `unit_price` DECIMAL(14,5) UNSIGNED NOT NULL ,

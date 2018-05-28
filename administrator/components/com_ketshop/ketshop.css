@@ -713,35 +713,35 @@
 }
 
 
-/* Product options */
+/* Product variants */
 
-.ketshop-option-container {
+.ketshop-variant-container {
   margin-top: 10px;
   width: 100%;
 }
 
-.option-item {
+.variant-item {
   overflow: hidden;
   border-top: 1px solid #c0c0c0;
   padding-top: 10px;
   margin-top: 20px;
 }
 
-.option-item .btn-wrapper {
+.variant-item .btn-wrapper {
   float: left;
   margin-top: 30px;
   margin-left: 10px;
 }
 
-.option-div {
+.variant-div {
   margin-right: 10px;
 }
 
-.option-field {
+.variant-field {
   margin-bottom: 15px !important;
 }
 
-.option-label {
+.variant-label {
   display: block;
   float: left;
   margin: 5px;

@@ -52,7 +52,7 @@ $session->set('location', $location, 'ketshop');
 
   <?php echo JLayoutHelper::render('product.availability', array('item' => $this->item, 'params' => $params, 'view' => 'product')); 
         echo JLayoutHelper::render('product.price', $this->item); 
-        echo JLayoutHelper::render('product.options', $this->item); 
+        echo JLayoutHelper::render('product.variants', $this->item); 
         echo JLayoutHelper::render('product.tabs', $this->item);
   ?>
 </div>
@@ -62,5 +62,5 @@ $session->set('location', $location, 'ketshop');
 JHtml::_('jquery.framework'); 
 $doc = JFactory::getDocument();
 //Load the jQuery scripts.
-$doc->addScript(JURI::root().'components/com_ketshop/js/options.js');
+$doc->addScript(JURI::root().'components/com_ketshop/js/variants.js');
 

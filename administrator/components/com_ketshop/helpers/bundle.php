@@ -231,9 +231,9 @@ class BundleHelper
     $products = array();
     foreach($bundleProducts as $bundleProduct) {
       if(!array_key_exists($bundleProduct['id'], $products)) {
-        //Note: For now a product option cannot be part of a bundle, but the opt_id attribute is
+        //Note: For now a product variant cannot be part of a bundle, but the var_id attribute is
 	//      required in the updateStock function. 
-	$bundleProduct['opt_id'] = 0;
+	$bundleProduct['var_id'] = 0;
 	//Update the product quantity (ie: multiplied it with the quantity of the bundle itself).
 	$bundleProduct['quantity'] = $bundleProduct['quantity'] * $bundleData[$bundleProduct['bundle_id']];
 	//The bundle ids are needed in the updateStock function.

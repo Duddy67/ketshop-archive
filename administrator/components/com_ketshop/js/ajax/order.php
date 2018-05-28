@@ -25,7 +25,7 @@ $mainframe->initialise();
 //Get required variables.
 $task = JFactory::getApplication()->input->get->get('task', '', 'string');
 $orderId = JFactory::getApplication()->input->get->get('order_id', 0, 'uint');
-//$optId = JFactory::getApplication()->input->get->get('option_id', 0, 'uint');
+//$optId = JFactory::getApplication()->input->get->get('variant_id', 0, 'uint');
 $products = JFactory::getApplication()->input->get->get('products', array(), 'array');
 $prodIds = JFactory::getApplication()->input->get->get('product_ids', '', 'string');
 $newQty = JFactory::getApplication()->input->get->get('new_qty', 0, 'uint');
@@ -48,7 +48,7 @@ if($task == 'add' || $task == 'remove') {
   //Don't take into account the possible changes (qty, unit price) set in the form. 
   //Get the products directly from the order table. 
   $products = OrderHelper::getProducts($orderId);
-  //Get the product and option id. 
+  //Get the product and variant id. 
   $ids = OrderHelper::separateIds($prodIds);
 
   //The order must contained at least one product.
@@ -61,14 +61,14 @@ if($task == 'add' || $task == 'remove') {
   if($task == 'add') {
     //Check for duplicates.
     foreach($products as $product) {
-      if($product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
+      if($product['prod_id'] == $ids['prod_id'] && $product['var_id'] == $ids['var_id']) {
 	$data['message'] = JText::sprintf('COM_KETSHOP_DUPLICATE_PRODUCT', $product['name']);
 	echo json_encode($data);
 	return;
       }
     }
 
-    $product = ShopHelper::getProduct($ids['prod_id'], $ids['opt_id']);
+    $product = ShopHelper::getProduct($ids['prod_id'], $ids['var_id']);
 
     //Check for stock.
     if($product['stock'] == 0) {
@@ -104,12 +104,12 @@ $addStockQty = $subtractStockQty = array();
 //Set the order products.
 foreach($products as $key => $product) {
   if($task == 'update') {
-    //Set both the product and option ids for this product.
+    //Set both the product and variant ids for this product.
     $ids = OrderHelper::separateIds($product['ids']);
     //Set required id attributes.
     $products[$key]['prod_id'] = $ids['prod_id'];
     $products[$key]['id'] = $ids['prod_id'];
-    $products[$key]['opt_id'] = $ids['opt_id'];
+    $products[$key]['var_id'] = $ids['var_id'];
 
     //Sanitize and check the values passed through the form.
     if(($products[$key]['unit_price'] = filter_var($product['unit_price'], FILTER_VALIDATE_FLOAT)) === false || $product['unit_price'] == 0) {
@@ -160,7 +160,7 @@ foreach($products as $key => $product) {
       $subtractStockQty[] = $product;
     }
   }
-  elseif($task == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['opt_id'] == $ids['opt_id']) {
+  elseif($task == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['var_id'] == $ids['var_id']) {
     OrderHelper::setProductPriceRules($orderId, $product, $task);
     //Add again in the stock.
     ShopHelper::updateStock(array($product), 'add');

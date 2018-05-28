@@ -29,10 +29,10 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       $quantity = $product['quantity']; 
       $taxRate = $product['tax_rate']; 
       $rulesInfo = $product['pricerules']; 
-      $optionName = '';
+      $variantName = '';
 
       if($product['attribute_group']) {
-	$optionName = '<span class="small">'.$product['option_name'].'</span>';
+	$variantName = '<span class="small">'.$product['variant_name'].'</span>';
       }
       //Compute the class name according to $key value (ie: odd or even number).
       $class = ($key % 2) ? 'odd' : 'even';
@@ -41,7 +41,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       <?php /////////////////////// PRODUCT ROW //////////////////////////// ?>
       <tr class="<?php echo $class; ?>"><td>
 	<a href="<?php echo $product['url']; ?>" class="font-bold" target="_blank"><?php echo $product['name']; ?></a>
-	<?php echo $optionName; ?>
+	<?php echo $variantName; ?>
 
 	    <?php /////////////////////// UNIT PRICE //////////////////////////// ?>
 	    <?php if($quantity > 1 || ($layout == 'order_admin' && $canEdit)) : //Check if unit price should be displayed. ?>
@@ -56,8 +56,8 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		  <?php endif; ?>
 
 		  <?php if($layout == 'order_admin' && $canEdit) : // ?>
-		    <input class="unit-price" type="text" name="unit_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-			   id="unit_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+		    <input class="unit-price" type="text" name="unit_price_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+			   id="unit_price_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 			   value="<?php echo UtilityHelper::formatNumber($unitPrice, $displayData['digits_precision']); ?>" />
 		    <span class="unit-price">
 		      <?php echo $displayData['currency']; ?>
@@ -93,19 +93,19 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 
       </td><td class="center">
       <?php if(($layout == 'cart' && !$displayData['locked']) || $canEdit) : //Cart (or order) can be updated. ?>
-	<input class="quantity" type="text" name="quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-	       id="quantity_product_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	<input class="quantity" type="text" name="quantity_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+	       id="quantity_product_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		value="<?php echo $quantity; ?>" />
       <?php else : ?>
 	<span class="muted"><?php echo $quantity; ?></span>
       <?php endif; ?>
 
       <?php if($layout == 'cart' || $canEdit) : //Provide data about quantity. ?>
-	<input type="hidden" name="min_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	<input type="hidden" name="min_quantity_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		value="<?php echo $product['min_quantity']; ?>" />
-	<input type="hidden" name="max_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	<input type="hidden" name="max_quantity_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		value="<?php echo $product['max_quantity']; ?>" />
-	<input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	<input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		value="<?php echo $product['name']; ?>" />
       <?php endif; ?>
       </td>
@@ -152,41 +152,41 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       <?php if($layout == 'cart' || $canEdit) : //Cart or order can be updated. Create a table cell. ?>
 	<td class="center">
 	<?php if($layout == 'cart' && !$displayData['locked']) : //Cart can be updated. ?>
-	  <a class="btn" href="<?php echo 'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&opt_id='.$product['opt_id']; ?>"><span class="icon-shop-bin"><?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
+	  <a class="btn" href="<?php echo 'index.php?option=com_ketshop&task=cart.removeFromCart&prod_id='.$product['id'].'&var_id='.$product['var_id']; ?>"><span class="icon-shop-bin"><?php //echo JText::_('COM_KETSHOP_REMOVE'); ?></a> 
 	<?php endif; ?>
 
 	<?php if($canEdit) : //Order can be updated. ?>
-	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['opt_id']; ?>" href="#"><span class="icon-shop-bin"></a> 
+	  <a class="btn remove-product" id="<?php echo $product['id'].'_'.$product['var_id']; ?>" href="#"><span class="icon-shop-bin"></a> 
 	   <?php //Set all the required data for the order editing. ?>
-	   <input type="hidden" name="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $taxRate; ?>" />
-	   <input type="hidden" name="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="catid_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['catid']; ?>" />
-	   <input type="hidden" name="code_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="code_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['code']; ?>" />
-	   <input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['name']; ?>" />
-	   <input type="hidden" name="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="option_name_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  value="<?php echo $product['option_name']; ?>" />
-	   <input type="hidden" name="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	   <input type="hidden" name="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="tax_rate_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $taxRate; ?>" />
+	   <input type="hidden" name="catid_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="catid_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['catid']; ?>" />
+	   <input type="hidden" name="code_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="code_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['code']; ?>" />
+	   <input type="hidden" name="name_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="name_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['name']; ?>" />
+	   <input type="hidden" name="variant_name_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="variant_name_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  value="<?php echo $product['variant_name']; ?>" />
+	   <input type="hidden" name="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="unit_sale_price_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		  value="<?php echo $product['unit_sale_price']; ?>" />
-	   <input type="hidden" name="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	   <input type="hidden" name="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="initial_quantity_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		  value="<?php echo $product['quantity']; ?>" />
-	   <input type="hidden" name="stock_subtract_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="stock_subtract_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	   <input type="hidden" name="stock_subtract_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="stock_subtract_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		  value="<?php echo $product['stock_subtract']; ?>" />
-	   <input type="hidden" name="stock_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="stock_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['stock']; ?>" />
-	   <input type="hidden" name="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
+	   <input type="hidden" name="stock_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="stock_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['stock']; ?>" />
+	   <input type="hidden" name="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		  value="<?php echo $product['attribute_group']; ?>" />
-	   <input type="hidden" name="alias_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="alias_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['alias']; ?>" />
-	   <input type="hidden" name="type_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>"
-		  id="type_<?php echo $product['id']; ?>_<?php echo $product['opt_id']; ?>" value="<?php echo $product['type']; ?>" />
+	   <input type="hidden" name="alias_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="alias_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['alias']; ?>" />
+	   <input type="hidden" name="type_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
+		  id="type_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['type']; ?>" />
 	<?php endif; ?>
 	</td>
       <?php endif; ?>

@@ -48,8 +48,8 @@ class KetshopModelAttribute extends JModelAdmin
     return $data;
   }
 
-  //Check if the current attribute is used as a product option.
-  public function isUsed($asOption = false) 
+  //Check if the current attribute is used as a product variant.
+  public function isUsed($asVariant = false) 
   {
     $attribute = $this->getItem();
 
@@ -59,8 +59,8 @@ class KetshopModelAttribute extends JModelAdmin
 
       $query->select('COUNT(*)');
 
-      if($asOption) {
-	$query->from('#__ketshop_opt_attrib');
+      if($asVariant) {
+	$query->from('#__ketshop_var_attrib');
       }
       else {
 	$query->from('#__ketshop_prod_attrib');

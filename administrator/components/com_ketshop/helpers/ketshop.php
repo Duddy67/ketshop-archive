@@ -273,28 +273,28 @@ class KetshopHelper
   }
 
 
-  public static function setProductOptions($prodId, $prodData)
+  public static function setProductVariants($prodId, $prodData)
   {
-    $options = $optIds = $optValues = $attribValues = array();
+    $variants = $varIds = $varValues = $attribValues = array();
     $isEmpty = true;
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
-    //First check if some options have been set and store all the id of the already 
-    //existing options (eg: which are not new).
-    foreach($prodData as $key => $optId) {
-      if(preg_match('#^option_id_([0-9]+)$#', $key)) {
-	if($optId) { //Option already exists.
-	  $optIds[] = $optId;
+    //First check if some variants have been set and store all the id of the already 
+    //existing variants (eg: which are not new).
+    foreach($prodData as $key => $varId) {
+      if(preg_match('#^variant_id_([0-9]+)$#', $key)) {
+	if($varId) { //Variant already exists.
+	  $varIds[] = $varId;
 	}
-        //One or more options have been set.
+        //One or more variants have been set.
 	$isEmpty = false;
       }
     }
 
-    //If no option has been set we reset values (just in case).
+    //If no variant has been set we reset values (just in case).
     if($isEmpty) {
-      $fields = array('attribute_group=0', 'option_name=""'); 
+      $fields = array('attribute_group=0', 'variant_name=""'); 
       $query->update('#__ketshop_product')
 	    ->set($fields)
 	    ->where('id='.(int)$prodId);
@@ -302,16 +302,16 @@ class KetshopHelper
       $db->query();
     }
 
-    //First delete all the previous options linked to the product.
+    //First delete all the previous variants linked to the product.
     $query->clear();
-    $query->delete('#__ketshop_product_option')
+    $query->delete('#__ketshop_product_variant')
 	  ->where('prod_id='.(int)$prodId);
     $db->setQuery($query);
     $db->query();
 
-    //Same for the previous attributes linked to the options.
+    //Same for the previous attributes linked to the variants.
     $query->clear();
-    $query->delete('#__ketshop_opt_attrib')
+    $query->delete('#__ketshop_var_attrib')
 	  ->where('prod_id='.(int)$prodId);
     $db->setQuery($query);
     $db->query();
@@ -335,31 +335,31 @@ class KetshopHelper
     $fieldData = $db->loadAssocList('attrib_id');
 
     foreach($prodData as $key => $value) {
-      if(preg_match('#^option_id_([0-9]+)$#', $key, $matches)) {
-	$optNb = $matches[1];
-	$optId = $prodData['option_id_'.$optNb];
+      if(preg_match('#^variant_id_([0-9]+)$#', $key, $matches)) {
+	$varNb = $matches[1];
+	$varId = $prodData['variant_id_'.$varNb];
 
-	//Option is new.
-	if(!$optId) {
-	  //Search for a unique option id.
-	  $optId = 1;
-	  while(in_array($optId, $optIds)) {
-	    $optId++;
+	//Variant is new.
+	if(!$varId) {
+	  //Search for a unique variant id.
+	  $varId = 1;
+	  while(in_array($varId, $varIds)) {
+	    $varId++;
 	  }
           //Store the new id.
-	  $optIds[] = $optId;
+	  $varIds[] = $varId;
 	}
 
 	//Store values to insert.
-	$optValues[] = (int)$prodId.','.(int)$optId.','.$db->Quote($prodData['option_name_'.$optNb]).','.(int)$prodData['stock_'.$optNb].
-			','.$prodData['base_price_'.$optNb].','.$prodData['sale_price_'.$optNb].','.$db->Quote($prodData['code_'.$optNb]).
-			','.$db->Quote($prodData['published_'.$optNb]).','.(int)$prodData['availability_delay_'.$optNb].
-			','.$prodData['weight_'.$optNb].','.$prodData['length_'.$optNb].','.$prodData['width_'.$optNb].
-			','.$prodData['height_'.$optNb].','.$prodData['ordering_'.$optNb];
+	$varValues[] = (int)$prodId.','.(int)$varId.','.$db->Quote($prodData['variant_name_'.$varNb]).','.(int)$prodData['stock_'.$varNb].
+			','.$prodData['base_price_'.$varNb].','.$prodData['sale_price_'.$varNb].','.$db->Quote($prodData['code_'.$varNb]).
+			','.$db->Quote($prodData['published_'.$varNb]).','.(int)$prodData['availability_delay_'.$varNb].
+			','.$prodData['weight_'.$varNb].','.$prodData['length_'.$varNb].','.$prodData['width_'.$varNb].
+			','.$prodData['height_'.$varNb].','.$prodData['ordering_'.$varNb];
 
-	//Now search for the attributes linked to this option.
+	//Now search for the attributes linked to this variant.
 	foreach($prodData as $k => $val) {
-	  if(preg_match('#^attribute_([0-9]+)_'.$optNb.'$#', $k, $matches)) {
+	  if(preg_match('#^attribute_([0-9]+)_'.$varNb.'$#', $k, $matches)) {
 	    $attribId = $matches[1];
 
 	    $text = '';
@@ -378,27 +378,27 @@ class KetshopHelper
 	    }
 
 	    //Store values to insert.
-	    $attribValues[] = (int)$prodId.','.(int)$optId.','.(int)$attribId.','.$db->Quote($val).','.$db->Quote($text);
+	    $attribValues[] = (int)$prodId.','.(int)$varId.','.(int)$attribId.','.$db->Quote($val).','.$db->Quote($text);
 	  }
 	}
       }
     }
 
-    //Insert a new row for each option linked to the product.
-    $columns = array('prod_id', 'opt_id', 'option_name', 'stock',
+    //Insert a new row for each variant linked to the product.
+    $columns = array('prod_id', 'var_id', 'variant_name', 'stock',
 		     'base_price', 'sale_price', 'code', 'published', 'availability_delay',
 		     'weight', 'length', 'width', 'height', 'ordering');
     $query->clear();
-    $query->insert('#__ketshop_product_option')
+    $query->insert('#__ketshop_product_variant')
 	  ->columns($columns)
-	  ->values($optValues);
+	  ->values($varValues);
     $db->setQuery($query);
     $db->query();
 
-    //Insert a new row for each attribute linked to the product options.
-    $columns = array('prod_id', 'opt_id', 'attrib_id', 'attrib_value', 'attrib_text');
+    //Insert a new row for each attribute linked to the product variants.
+    $columns = array('prod_id', 'var_id', 'attrib_id', 'attrib_value', 'attrib_text');
     $query->clear();
-    $query->insert('#__ketshop_opt_attrib')
+    $query->insert('#__ketshop_var_attrib')
 	  ->columns($columns)
 	  ->values($attribValues);
     $db->setQuery($query);
@@ -408,14 +408,14 @@ class KetshopHelper
   }
 
 
-  public static function checkProductOptions()
+  public static function checkProductVariants()
   {
     //Get all of the POST data.
     $post = JFactory::getApplication()->input->post->getArray();
     $prodOpt = false;
-    //Detect if at least one product option has been set.
+    //Detect if at least one product variant has been set.
     foreach($post as $key => $val) {
-      if(preg_match('#^option_id_([0-9]+)$#', $key)) {
+      if(preg_match('#^variant_id_([0-9]+)$#', $key)) {
 	$prodOpt = true;
 	break;
       }
@@ -430,15 +430,15 @@ class KetshopHelper
 	}
       }
 
-      //If no attribute is present no option can be set.
+      //If no attribute is present no variant can be set.
       if(empty($attribIds)) {
 	return false;
       }
 
-      //Get the id of the selected option attribute group.
+      //Get the id of the selected variant attribute group.
       $attribGroupId = $post['jform']['attribute_group'];
 
-      //Get the id of the option attributes 
+      //Get the id of the variant attributes 
       $db = JFactory::getDbo();
       $query = $db->getQuery(true);
       $query->select('attrib_id')
@@ -447,7 +447,7 @@ class KetshopHelper
       $db->setQuery($query);
       $optAttribIds = $db->loadColumn();
 
-      //Check that all option attributes are also present as attribute of the main product.
+      //Check that all variant attributes are also present as attribute of the main product.
       foreach($optAttribIds as $optAttribId) {
 	if(!in_array($optAttribId, $attribIds)) {
 	  return false;

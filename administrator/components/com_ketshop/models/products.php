@@ -100,7 +100,7 @@ class KetshopModelProducts extends JModelList
 
     // Select the required fields from the table.
     $query->select($this->getState('list.select', 'p.id,p.name,p.alias,p.created,p.published,p.catid,p.hits,'.
-				   'p.base_price,p.sale_price,p.type,p.stock,p.option_name,'. 
+				   'p.base_price,p.sale_price,p.type,p.stock,p.variant_name,'. 
 				   'p.access,p.ordering,p.created_by,p.checked_out,p.checked_out_time'))
 	  ->from('#__ketshop_product AS p');
 
@@ -195,7 +195,7 @@ class KetshopModelProducts extends JModelList
 
 	//Check for bundle product calling.
         if(JFactory::getApplication()->input->get->get('type', '', 'string') == 'bundleproduct') {
-	  $query->where('p.attribute_group = 0'); //We don't use products with options as bundle products.
+	  $query->where('p.attribute_group = 0'); //We don't use products with variants as bundle products.
 	}
       }
       else { //Filter by type.
@@ -225,14 +225,14 @@ class KetshopModelProducts extends JModelList
   }
 
 
-  public function getProductOptions($id)
+  public function getProductVariants($id)
   {
     //Create a new JDatabaseQuery object.
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    $query->select('prod_id, opt_id, option_name, base_price, sale_price, code, stock')
-	  ->from('#__ketshop_product_option')
+    $query->select('prod_id, var_id, variant_name, base_price, sale_price, code, stock')
+	  ->from('#__ketshop_product_variant')
 	  ->where('prod_id='.(int)$id);
     $db->setQuery($query);
 

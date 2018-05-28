@@ -172,11 +172,11 @@ class KetshopControllerFinalize extends JControllerForm
     $WHEN1 = $WHEN2 = '';
     
     foreach($products as $product) {
-      //Check for product options. 
-      if($product['opt_id']) { //Set the sales of the product option.
-	$WHEN1 .= 'WHEN prod_id='.$product['id'].' AND opt_id = '.$product['opt_id'].' THEN sales + '.$product['quantity'].' ';
+      //Check for product variants. 
+      if($product['var_id']) { //Set the sales of the product variant.
+	$WHEN1 .= 'WHEN prod_id='.$product['id'].' AND var_id = '.$product['var_id'].' THEN sales + '.$product['quantity'].' ';
       }
-      else { //Product without options (set the product sales).
+      else { //Product without variants (set the product sales).
 	$WHEN2 .= 'WHEN id='.$product['id'].' THEN sales + '.$product['quantity'].' ';
       }
     }
@@ -185,7 +185,7 @@ class KetshopControllerFinalize extends JControllerForm
     $query = $db->getQuery(true);
 
     if(!empty($WHEN1)) {
-      $query->update('#__ketshop_product_option')
+      $query->update('#__ketshop_product_variant')
 	    ->set('sales = CASE '.$WHEN1.' ELSE sales END ');
       $db->setQuery($query);
       $db->query();
@@ -256,12 +256,12 @@ class KetshopControllerFinalize extends JControllerForm
 	$inclTaxPrice = $unitPrice * $quantity;
       }
 
-      $optionName = '';
+      $variantName = '';
       if($cart[$i]['attribute_group']) {
-	$optionName = ' : '.$cart[$i]['option_name'];
+	$variantName = ' : '.$cart[$i]['variant_name'];
       }
 
-      $body .= JText::sprintf('COM_KETSHOP_EMAIL_PRODUCT_ROW',$cart[$i]['name'].$optionName, $quantity,
+      $body .= JText::sprintf('COM_KETSHOP_EMAIL_PRODUCT_ROW',$cart[$i]['name'].$variantName, $quantity,
 			       $inclTaxPrice, $currency, JText::_('COM_KETSHOP_INCLUDING_TAXES'), $taxRate);
     }
 

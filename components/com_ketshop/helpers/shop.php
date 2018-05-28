@@ -18,7 +18,7 @@ class ShopHelper
 {
   //Get product data from its id.
   //(Called from addToCart controller function).
-  public static function getProduct($productId, $optionId)
+  public static function getProduct($productId, $variantId)
   {
     //Used as first argument of the logEvent function.
     $codeLocation = 'helpers/ketshop.php';
@@ -31,15 +31,15 @@ class ShopHelper
 		   'p.alias,p.attribute_group,p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height');
 
 
-    //Get some data according to the option id.
-    if($optionId == 0) { //Get data from the product table (default).
-      $query->select('p.code,p.stock,p.availability_delay,p.option_name');
+    //Get some data according to the variant id.
+    if($variantId == 0) { //Get data from the product table (default).
+      $query->select('p.code,p.stock,p.availability_delay,p.variant_name');
     }
-    else { //Get data from the product options table.
-      $query->select('po.code,po.base_price AS opt_base_price,po.sale_price AS opt_sale_price,'.
-	             'po.stock,po.availability_delay,po.option_name,po.weight AS opt_weight,'.
-		     'po.length AS opt_length, po.width AS opt_width, po.height AS opt_height')
-	    ->join('INNER', '#__ketshop_product_option AS po ON po.prod_id='.(int)$productId.' AND po.opt_id='.(int)$optionId);
+    else { //Get data from the product variants table.
+      $query->select('pv.code,pv.base_price AS var_base_price,pv.sale_price AS var_sale_price,'.
+	             'pv.stock,pv.availability_delay,pv.variant_name,pv.weight AS var_weight,'.
+		     'pv.length AS var_length, pv.width AS var_width, pv.height AS var_height')
+	    ->join('INNER', '#__ketshop_product_variant AS pv ON pv.prod_id='.(int)$productId.' AND pv.var_id='.(int)$variantId);
     }
 
     $query->from('#__ketshop_product AS p')
@@ -54,36 +54,36 @@ class ShopHelper
       return false;
     }
 
-    if($optionId) {
-      //Check if option has a different price
-      if($product['opt_sale_price'] > 0 && $product['opt_base_price'] > 0) {
-	$product['unit_sale_price'] = $product['opt_sale_price'];
-	$product['sale_price'] = $product['opt_sale_price'];
-	$product['base_price'] = $product['opt_base_price'];
+    if($variantId) {
+      //Check if variant has a different price
+      if($product['var_sale_price'] > 0 && $product['var_base_price'] > 0) {
+	$product['unit_sale_price'] = $product['var_sale_price'];
+	$product['sale_price'] = $product['var_sale_price'];
+	$product['base_price'] = $product['var_base_price'];
       }
 
       //a different weight
-      if($product['opt_weight'] > 0) {
-	$product['weight'] = $product['opt_weight'];
+      if($product['var_weight'] > 0) {
+	$product['weight'] = $product['var_weight'];
       }
 
       //a different dimension 
-      if($product['opt_length'] > 0 && $product['opt_width'] > 0 && $product['opt_height'] > 0) {
-	$product['length'] = $product['opt_length'];
-	$product['width'] = $product['opt_width'];
-	$product['height'] = $product['opt_height'];
+      if($product['var_length'] > 0 && $product['var_width'] > 0 && $product['var_height'] > 0) {
+	$product['length'] = $product['var_length'];
+	$product['width'] = $product['var_width'];
+	$product['height'] = $product['var_height'];
       }
 
       //Remove unused variables
-      unset($product['opt_base_price']);
-      unset($product['opt_sale_price']);
-      unset($product['opt_weight']);
-      unset($product['opt_length']);
-      unset($product['opt_width']);
-      unset($product['opt_height']);
+      unset($product['var_base_price']);
+      unset($product['var_sale_price']);
+      unset($product['var_weight']);
+      unset($product['var_length']);
+      unset($product['var_width']);
+      unset($product['var_height']);
     }
 
-    $product['opt_id'] = $optionId;
+    $product['var_id'] = $variantId;
     //Get the possible price rules linked to the product.
     $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
 
@@ -555,9 +555,9 @@ class ShopHelper
   }
 
 
-  public static function getProductOptions($product)
+  public static function getProductVariants($product)
   {
-    //Check first that the product has options.
+    //Check first that the product has variants.
     if(!$product->attribute_group) {
       return array();
     }
@@ -565,23 +565,23 @@ class ShopHelper
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
-    //Get the option values of the main product.
-    $query->select('id AS prod_id, option_name, base_price, sale_price, code,'.
+    //Get the variant values of the main product.
+    $query->select('id AS prod_id, variant_name, base_price, sale_price, code,'.
 	           'stock, availability_delay, weight, length, width, height')
 	  ->from('#__ketshop_product')
 	  ->where('id='.(int)$product->id);
     $db->setQuery($query);
-    $mainProdOpt = $db->loadAssoc();
+    $mainProdVar = $db->loadAssoc();
 
     //Since the main product has already an id 
-    //we set its option id to zero.
-    $mainProdOpt['opt_id'] = 0; 
-    $mainProdOpt['stock_state'] = ''; 
-    //Reset prices to zero to use the regular price as option.
-    $mainProdOpt['base_price'] = 0.00; 
-    $mainProdOpt['sale_price'] = 0.00; 
+    //we set its variant id to zero.
+    $mainProdVar['var_id'] = 0; 
+    $mainProdVar['stock_state'] = ''; 
+    //Reset prices to zero to use the regular price as variant.
+    $mainProdVar['base_price'] = 0.00; 
+    $mainProdVar['sale_price'] = 0.00; 
 
-    //Get the option attributes of the main product according to the attribute group.
+    //Get the variant attributes of the main product according to the attribute group.
     $query->clear();
     $query->select('pa.prod_id, pa.attrib_id, pa.field_value_1 AS attrib_value, pa.field_text_1 AS attrib_text')
 	  ->from('#__ketshop_attrib_group AS ag')
@@ -591,43 +591,43 @@ class ShopHelper
 	  ->where('pa.prod_id='.(int)$product->id)
 	  ->order('a.ordering ASC');
     $db->setQuery($query);
-    $mainProdOpt['attributes'] = $db->loadAssocList();
+    $mainProdVar['attributes'] = $db->loadAssocList();
 
-    //Get all the options linked to this product.
+    //Get all the variants linked to this product.
     $query->clear();
     $query->select('*')
-	  ->from('#__ketshop_product_option')
+	  ->from('#__ketshop_product_variant')
 	  ->where('prod_id='.(int)$product->id)
 	  ->where('published=1')
 	  ->order('ordering ASC');
     $db->setQuery($query);
-    $options = $db->loadAssocList();
+    $variants = $db->loadAssocList();
 
-    //Get all the attributes linked to the options.
+    //Get all the attributes linked to the variants.
     $query->clear();
     $query->select('va.*')
-	  ->from('#__ketshop_opt_attrib AS va')
+	  ->from('#__ketshop_var_attrib AS va')
 	  ->join('LEFT', '#__ketshop_attribute AS a ON a.id=va.attrib_id')
 	  ->where('va.prod_id='.(int)$product->id)
 	  ->order('a.ordering ASC');
     $db->setQuery($query);
     $optAttribs = $db->loadAssocList();
 
-    //Store attributes into corresponding options.
-    foreach($options as $key => $option) {
-      $options[$key]['attributes'] = array();
-      $options[$key]['stock_state'] = '';
+    //Store attributes into corresponding variants.
+    foreach($variants as $key => $variant) {
+      $variants[$key]['attributes'] = array();
+      $variants[$key]['stock_state'] = '';
       foreach($optAttribs as $optAttrib) {
-	if($optAttrib['opt_id'] == $option['opt_id']) {
-	  $options[$key]['attributes'][] = $optAttrib;
+	if($optAttrib['var_id'] == $variant['var_id']) {
+	  $variants[$key]['attributes'][] = $optAttrib;
 	}
       }
     }
 
-    //Insert the main product option at the top of the option array.
-    array_unshift($options, $mainProdOpt);
+    //Insert the main product variant at the top of the variant array.
+    array_unshift($variants, $mainProdVar);
 
-    return $options;
+    return $variants;
   }
 
 
@@ -662,8 +662,8 @@ class ShopHelper
 	  //The bundle products will be treated later on.
 	  continue;
 	}
-	elseif($product['opt_id']) { //Product option
-	  $when1 .= 'WHEN prod_id='.$product['id'].' AND opt_id = '.$product['opt_id'].' THEN stock '.$operation;
+	elseif($product['var_id']) { //Product variant
+	  $when1 .= 'WHEN prod_id='.$product['id'].' AND var_id = '.$product['var_id'].' THEN stock '.$operation;
 	}
 	else { //Normal product
 	  $when2 .= 'WHEN id='.$product['id'].' THEN stock '.$operation;
@@ -694,11 +694,11 @@ class ShopHelper
       }
     }
 
-    //Update the stock according to the product (normal or product option).
+    //Update the stock according to the product (normal or product variant).
 
     if(!empty($when1)) {
       $query->clear();
-      $query->update('#__ketshop_product_option')
+      $query->update('#__ketshop_product_variant')
 	    ->set('stock = CASE '.$when1.' ELSE stock END ')
 	    ->where('prod_id IN('.implode(',', $prodIds).')');
       $db->setQuery($query);
@@ -753,17 +753,17 @@ class ShopHelper
 
   public static function canOrderProduct($product)
   {
-    if(empty($product->options)) { //Regular product.
+    if(empty($product->variants)) { //Regular product.
       $stock = $product->stock;
       $stockState = $product->stock_state;
     }
-    else { //Product with options.
+    else { //Product with variants.
       $stock = 0;
       $stockState = 'minimum';
-      foreach($product->options as $option) {
-	$stock += $option['stock'];
-	if($option['stock_state'] != 'minimum') {
-	  $stockState = $option['stock_state'];
+      foreach($product->variants as $variant) {
+	$stock += $variant['stock'];
+	if($variant['stock_state'] != 'minimum') {
+	  $stockState = $variant['stock_state'];
 	}
       }
     }

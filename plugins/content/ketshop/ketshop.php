@@ -25,28 +25,28 @@ class plgContentKetshop extends JPlugin
 	//Delete the stock attribute so that its new value is not taken into account.
 	unset($data->stock);
 
-	//The product has options.
+	//The product has variants.
 	if($data->attribute_group) {
-	  //Get the current product options.
+	  //Get the current product variants.
 	  $db = JFactory::getDbo();
 	  $query = $db->getQuery(true);
-	  $query->select('opt_id, stock')
-		->from('#__ketshop_product_option')
+	  $query->select('var_id, stock')
+		->from('#__ketshop_product_variant')
 		->where('prod_id='.(int)$data->id);
 	  $db->setQuery($query);
-	  $productOptions = $db->loadAssocList('opt_id');
+	  $productVariants = $db->loadAssocList('var_id');
 
 	  $jinput = JFactory::getApplication()->input;
 	  $post = $jinput->post->getArray();
-	  //Check the edited product options and replace their stock value accordingly. 
+	  //Check the edited product variants and replace their stock value accordingly. 
 	  foreach($post as $key => $value) {
-	    if(preg_match('#^option_id_([0-9]+)$#', $key, $matches)) {
-	      $optNb = $matches[1];
-	      $optId = $post['option_id_'.$optNb];
+	    if(preg_match('#^variant_id_([0-9]+)$#', $key, $matches)) {
+	      $varNb = $matches[1];
+	      $varId = $post['variant_id_'.$varNb];
 
-	      if(isset($productOptions[$optId])) {
+	      if(isset($productVariants[$varId])) {
 		//Replace the new stock value with the old one.
-		$jinput->post->set('stock_'.$optNb, $productOptions[$optId]['stock']);
+		$jinput->post->set('stock_'.$varNb, $productVariants[$varId]['stock']);
 	      }
 	    }
 	  }
@@ -282,9 +282,9 @@ class plgContentKetshop extends JPlugin
 	  BundleHelper::updateBundle('all', $bundleIds);
 	}
 
-	//Check for product options.
-	//Note: Only existing products can set options.
-	KetshopHelper::setProductOptions($data->id, $post);
+	//Check for product variants.
+	//Note: Only existing products can set variants.
+	KetshopHelper::setProductVariants($data->id, $post);
       }
 
       return true;
@@ -772,16 +772,16 @@ class plgContentKetshop extends JPlugin
       $db->setQuery($query);
       $db->query();
 
-      //Remove the product id from the product option mapping table.
+      //Remove the product id from the product variant mapping table.
       $query->clear();
-      $query->delete('#__ketshop_product_option');
+      $query->delete('#__ketshop_product_variant');
       $query->where('prod_id='.(int)$data->id);
       $db->setQuery($query);
       $db->query();
 
-      //Remove the product id from the option attribute mapping table.
+      //Remove the product id from the variant attribute mapping table.
       $query->clear();
-      $query->delete('#__ketshop_opt_attrib');
+      $query->delete('#__ketshop_var_attrib');
       $query->where('prod_id='.(int)$data->id);
       $db->setQuery($query);
       $db->query();

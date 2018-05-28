@@ -18,9 +18,9 @@
     $('#attribute').getContainer();
 
     if(productType == 'normal' && productId != 0) {
-      $('#option').getContainer();
-      //Remove all option items whenever group changes.
-      $('#jform_attribute_group').change( function() { $('#option-container').removeItem(); });
+      $('#variant').getContainer();
+      //Remove all variant items whenever group changes.
+      $('#jform_attribute_group').change( function() { $('#variant-container').removeItem(); });
     }
 
     if(productType == 'bundle') {
@@ -32,7 +32,7 @@
     //Set as function the global variables previously declared in edit.php file.
     checkAlias = $.fn.checkAlias;
     checkAttrValType = $.fn.checkAttrValType;
-    checkOptionValType = $.fn.checkOptionValType;
+    checkVariantValType = $.fn.checkVariantValType;
 
     //If the product item exists we need to get the data of the dynamical items.
     if(productId != 0) {
@@ -54,7 +54,7 @@
 	    $.each(results.image, function(i, result) { $.fn.createItem('image', result); });
 
 	    $.each(results.attribute, function(i, result) { $.fn.createItem('attribute', result); });
-	    $.each(results.option, function(i, result) { $.fn.createItem('option', result); });
+	    $.each(results.variant, function(i, result) { $.fn.createItem('variant', result); });
 
 	    if(productType == 'bundle') {
 	      $.each(results.product, function(i, result) { $.fn.createItem('bundleproduct', result); });
@@ -385,8 +385,8 @@
   };
 
 
-  $.fn.checkOptionValType = function() {
-    var fieldTypes = {'ordering':'unsigned_int','option_name':'string','stock':'unsigned_int',
+  $.fn.checkVariantValType = function() {
+    var fieldTypes = {'ordering':'unsigned_int','variant_name':'string','stock':'unsigned_int',
                       'base_price':'unsigned_float','sale_price':'unsigned_float','code':'string',
                       'availability_delay':'unsigned_int','weight':'unsigned_float','length':'unsigned_float',
                       'width':'unsigned_float','height':'unsigned_float'};
@@ -398,7 +398,7 @@
 	if(!$.fn.checkValueType(tag.value, fieldTypes[key])) {
 	  ret = false;
 	  //Show off the concerned field.
-	  alertRed(tag.id, 'product-options');
+	  alertRed(tag.id, 'product-variants');
 
 	  alert(Joomla.JText._('COM_KETSHOP_ERROR_INCORRECT_VALUE_TYPE')+' : '+tag.value+'\r'+Joomla.JText._('COM_KETSHOP_EXPECTED_VALUE_TYPE')+' : '+fieldTypes[key]);
 
@@ -411,9 +411,9 @@
       }
     }
 
-    //Some options have been set.
-    //Check that the option name field of the main product has been set.
-    if(!empty && $('#jform_option_name').val() == '') {
+    //Some variants have been set.
+    //Check that the variant name field of the main product has been set.
+    if(!empty && $('#jform_variant_name').val() == '') {
       alert(Joomla.JText._('COM_KETSHOP_OPTION_NAME_MAIN_PRODUCT_EMPTY'));
       return false;
     }
@@ -422,7 +422,7 @@
   };
 
 
-  $.fn.createOptionItem = function(idNb, data) {
+  $.fn.createVariantItem = function(idNb, data) {
     //Get the selected attribute group id.
     var attribGroupId = $('#jform_attribute_group').val();
     //Get all the attribute groups.
@@ -432,7 +432,7 @@
     //Check if all groups are empty.
     if(!attribGroups.length) {
       //Remove the container newly created.
-      $('#option-container').removeItem();
+      $('#variant-container').removeItem();
 
       alert(Joomla.JText._('COM_KETSHOP_ALL_ATTRIBUTE_GROUPS_EMPTY'));
       return false;
@@ -448,7 +448,7 @@
     //Check for empty group.
     if(!attribGroup.length) {
       //Remove the container newly created.
-      $('#option-container').removeItem();
+      $('#variant-container').removeItem();
 
       if(attribGroupId != 0) {
 	alert(Joomla.JText._('COM_KETSHOP_ATTRIBUTE_GROUP_EMPTY'));
@@ -460,15 +460,15 @@
       return false;
     }
 
-    //First create divs in which we'll put all the option fields.
-    var properties = {'id':'option-left-div-'+idNb};
-    $('#option-item-'+idNb).createHTMLTag('<div>', properties, 'span3 option-div');
+    //First create divs in which we'll put all the variant fields.
+    var properties = {'id':'variant-left-div-'+idNb};
+    $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
 
-    properties = {'id':'option-center-div-'+idNb};
-    $('#option-item-'+idNb).createHTMLTag('<div>', properties, 'span3 option-div');
+    properties = {'id':'variant-center-div-'+idNb};
+    $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
 
-    properties = {'id':'option-right-div-'+idNb};
-    $('#option-item-'+idNb).createHTMLTag('<div>', properties, 'span3 option-div');
+    properties = {'id':'variant-right-div-'+idNb};
+    $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
 
     //Build a drop down list for each attribute.
     for(var i = 0; i < attribGroup.length; i++) {
@@ -477,13 +477,13 @@
       var field_text_1 = attribGroup[i].field_text_1.split('|');
       //Note: Store the attribute id just before the id number.
       properties = {'name':'attribute_'+attribGroup[i].id+'_'+idNb, 'id':'attribute-'+attribGroup[i].id+'-'+idNb};
-      $('#option-right-div-'+idNb).createHTMLTag('<select>', properties, 'option-field');
+      $('#variant-right-div-'+idNb).createHTMLTag('<select>', properties, 'variant-field');
 
       //Fill the drop down list with the attribute values.
       var options = '';
       for(var j = 0; j < field_value_1.length; j++) {
 	var selected = '';
-	if(data.opt_id) { //Item exists.
+	if(data.var_id) { //Item exists.
 	  //Check if this value is selected.
 	  for(var k = 0; k < data.attributes.length; k++) {
 	    //Attribute id must be checked too.
@@ -503,24 +503,24 @@
       //Create the attribute name tag.
       properties = {'title':attribGroup[i].name, 'id':'attribute-name-'+attribGroup[i].id+'-'+idNb};
       var newTag = $('<span>').attr(properties);
-      newTag.addClass('option-label');
+      newTag.addClass('variant-label');
       $('#attribute-'+attribGroup[i].id+'-'+idNb).before(newTag);
       $('#attribute-name-'+attribGroup[i].id+'-'+idNb).text(attribGroup[i].name);
     }
 
-    //Create the hidden input tag to store the option id.
-    properties = {'type':'hidden', 'name':'option_id_'+idNb, 'id':'option-id-'+idNb, 'value':data.opt_id};
-    $('#option-item-'+idNb).createHTMLTag('<input>', properties);
+    //Create the hidden input tag to store the variant id.
+    properties = {'type':'hidden', 'name':'variant_id_'+idNb, 'id':'variant-id-'+idNb, 'value':data.var_id};
+    $('#variant-item-'+idNb).createHTMLTag('<input>', properties);
 
     //Associative array where keys are field names and values are field ids.
-    var fields = {'published':'published','ordering':'ordering','option_name':'option-name',
+    var fields = {'published':'published','ordering':'ordering','variant_name':'variant-name',
                   'stock':'stock','base_price':'base-price','sale_price':'sale-price',
 		  'sales':'sales','code':'code','availability_delay':'availability-delay',
 		  'weight':'weight','length':'length','width':'width','height':'height'};
 
     var i = 0; //Needed for position.
 
-    //Build option fields.
+    //Build variant fields.
     for(var key in fields) {
       var fieldName = key;
       var fieldId = fields[key];
@@ -533,7 +533,7 @@
       //The published value is managed with a select tag.
       if(fieldName == 'published') {
 	properties = {'name':fieldId+'_'+idNb, 'id':fieldId+'-'+idNb};
-	$('#option-'+position+'-div-'+idNb).createHTMLTag('<select>', properties, 'option-field');
+	$('#variant-'+position+'-div-'+idNb).createHTMLTag('<select>', properties, 'variant-field');
 	options = '';
 	for(var j = 0; j < 2; j++) {
 	  selected = '';
@@ -547,7 +547,7 @@
       }
       else { //Build a text input.
 	properties = {'type':'text', 'name':fieldName+'_'+idNb, 'id':fieldId+'-'+idNb, 'value':data[fieldName]};
-	$('#option-'+position+'-div-'+idNb).createHTMLTag('<input>', properties, 'option-field');
+	$('#variant-'+position+'-div-'+idNb).createHTMLTag('<input>', properties, 'variant-field');
 
 	//Sales field is not allowed to be edited.	
 	if(fieldName == 'sales') {
@@ -559,7 +559,7 @@
       properties =
       {'title':Joomla.JText._('COM_KETSHOP_'+fieldName.toUpperCase()+'_TITLE'), 'id':fieldId+'-'+idNb+'-lbl'};
       newTag = $('<span>').attr(properties);
-      newTag.addClass('option-label');
+      newTag.addClass('variant-label');
       $('#'+fieldId+'-'+idNb).before(newTag);
       $('#'+fieldId+'-'+idNb+'-lbl').text(Joomla.JText._('COM_KETSHOP_'+fieldName.toUpperCase()+'_LABEL'));
 
@@ -567,7 +567,7 @@
     }
 
     //Create the item removal button.
-    $('#option-item-'+idNb).createButton('remove');
+    $('#variant-item-'+idNb).createButton('remove');
 
   };
 
