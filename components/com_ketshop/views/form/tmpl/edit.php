@@ -73,7 +73,7 @@ Joomla.submitbutton = function(task)
 		<li><a href="#attributes" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_ATTRIBUTES') ?></a></li>
 		<li><a href="#images" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_IMAGES') ?></a></li>
 		<?php if($this->item->id) : //Existing product  ?>
-		  <li><a href="#options" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_OPTIONS') ?></a></li>
+		  <li><a href="#variants" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_VARIANTS') ?></a></li>
 		<?php endif; ?>
 		<li><a href="#publishing" data-toggle="tab"><?php echo JText::_('COM_KETSHOP_TAB_PUBLISHING') ?></a></li>
 		<li><a href="#language" data-toggle="tab"><?php echo JText::_('JFIELD_LANGUAGE_LABEL') ?></a></li>
@@ -122,11 +122,11 @@ Joomla.submitbutton = function(task)
 	      </div>
 
 	      <?php if($this->item->id) : //Existing product  ?>
-		  <div class="tab-pane" id="options">
-		    <div class="span12" id="option">
+		  <div class="tab-pane" id="variants">
+		    <div class="span12" id="variant">
 		      <?php 
 			    echo $this->form->getControlGroup('attribute_group');
-			    echo $this->form->getControlGroup('option_name');
+			    echo $this->form->getControlGroup('variant_name');
 		      ?>
 		    </div>
 		  </div>
