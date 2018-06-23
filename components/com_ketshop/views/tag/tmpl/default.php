@@ -61,10 +61,10 @@ var ketshop = {
 	    <?php echo JText::_('COM_KETSHOP_'.$this->params->get('filter_field').'_FILTER_LABEL').'&#160;'; ?>
 	  </label>
 	  <input type="text" name="filter-search" id="filter-search" value="<?php echo $this->escape($this->state->get('list.filter')); ?>"
-		  class="inputbox" onchange="ketshop.submitForm();" title="<?php echo JText::_('COM_KETSHOP_FILTER_SEARCH_DESC'); ?>"
+		  class="inputbox" title="<?php echo JText::_('COM_KETSHOP_FILTER_SEARCH_DESC'); ?>"
 		  placeholder="<?php echo JText::_('COM_KETSHOP_'.$this->params->get('filter_field').'_FILTER_LABEL'); ?>" />
 
-	  <button type="submit" class="btn hasTooltip" title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>">
+	  <button type="submit" onclick="ketshop.submitForm();" class="btn hasTooltip" title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>">
 		  <i class="icon-search"></i>
 	  </button>
 	  <button type="button" class="btn hasTooltip js-stools-btn-clear" onclick="ketshop.clearSearch();"
@@ -116,6 +116,18 @@ var ketshop = {
     <?php endif; ?>
 
     <input type="hidden" name="limitstart" value="" />
+    <input type="hidden" id="token" name="<?php echo JSession::getFormToken(); ?>" value="1" />
     <input type="hidden" name="task" value="" />
   </form>
 </div><!-- list -->
+
+<?php
+
+if($this->params->get('filter_field') == 'name') {
+  //Loads the JQuery autocomplete file.
+  JHtml::_('script', 'media/jui/js/jquery.autocomplete.min.js');
+  //Loads our js script.
+  $doc = JFactory::getDocument();
+  $doc->addScript(JURI::base().'components/com_ketshop/js/autocomplete.js');
+}
+

@@ -77,6 +77,23 @@ class KetshopController extends JControllerLegacy
     //Display the view.
     parent::display($cachable, $safeurlparams);
   }
+
+
+  /**
+   * Checks whether the token is valid before sending the Ajax request to the corresponding Json view.
+   *
+   * @return  mixed	The Ajax request result or an error message if the token is
+   * 			invalid.  
+   */
+  public function ajax() 
+  {
+    if(!JSession::checkToken('get')) {
+      echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+    }
+    else {
+      parent::display();
+    }
+  }
 }
 
 

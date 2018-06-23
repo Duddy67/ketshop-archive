@@ -655,6 +655,37 @@ file_put_contents('debog_file.txt', print_r($items, true));
 
     return true;
   }
+
+
+  /**
+   * Returns product name suggestions for a given search request.
+   *
+   * @param   string $search 	The request search to get the matching title suggestions.
+   * @param   int  $pk  	Optional primary key of the current tag.
+   *
+   * @return  mixed		An array of suggestion results.
+   *
+   */
+  public function getAutocompleteSuggestions($search, $pk = 0)
+  {
+    $pk = (!empty($pk)) ? $pk : (int) $this->getState('tag.id');
+    $results = array();
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    $query->select('p.name AS value, p.id AS data')
+	  ->from('#__ketshop_product AS p')
+	  ->join('LEFT', '#__ketshop_product_tag_map AS tm ON p.id=tm.product_id')
+	  ->where('tm.tag_id='.(int)$pk)
+	  ->where('p.published=1')
+	  ->where('p.name LIKE '.$db->Quote($search.'%'))
+	  ->order('p.name DESC');
+    $db->setQuery($query);
+    //Requested to get the JQuery autocomplete working properly.
+    $results['suggestions'] = $db->loadAssocList();
+
+    return $results;
+  }
 }
 
 
