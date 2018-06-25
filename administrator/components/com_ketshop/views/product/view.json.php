@@ -24,8 +24,6 @@ class KetshopViewProduct extends JViewLegacy
     $model = $this->getModel();
     $results = array();
 
-    $uri = JUri::getInstance();
-    file_put_contents('debog_url_query.txt', print_r($uri->toString(), true));
     //Calls the corresponding functions.
     if($context == 'product_elements') {
       //Gathers all the elements linked to the product.
