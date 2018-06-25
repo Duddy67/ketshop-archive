@@ -38,7 +38,6 @@ class JFormFieldProduct extends JFormField
     // Initialize variables.
     $html = array();
 
-//file_put_contents('debog_item_form.txt', print_r($this->form, true));
     // Initialize some field attributes.
     $attr = $this->element['class'] ? ' class="'.(string)$this->element['class'].'"' : '';
     $attr .= $this->element['size'] ? ' size="'.(int)$this->element['size'].'"' : '';

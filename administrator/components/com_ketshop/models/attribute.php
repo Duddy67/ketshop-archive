@@ -77,5 +77,22 @@ class KetshopModelAttribute extends JModelAdmin
     return false;
   }
 
+
+  public function getAttributeGroups($pk = null) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    //Gets the group ids linked to the attribute.
+    $query->select('group_id')
+	  ->from('#__ketshop_attrib_group')
+	  ->where('attrib_id='.(int)$pk)
+	  ->order('group_id');
+    $db->setQuery($query);
+
+    return $db->loadColumn();
+  }
 }
 

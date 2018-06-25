@@ -19,17 +19,20 @@
 
     //If the attribute item exists we need to get the data of the dynamical items.
     if(attributeId != 0) {
-      var urlQuery = {'attribute_id':attributeId};
+      //Gets the token's name as value.
+      var token = $('#token').attr('name');
+      //Sets up the ajax query.
+      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'attribute_id':attributeId};
+
       //Ajax call which get item data previously set.
       $.ajax({
 	  type: 'GET', 
-	  url: 'components/com_ketshop/js/ajax/attributegroup.php', 
 	  dataType: 'json',
 	  data: urlQuery,
 	  //Get results as a json array.
 	  success: function(results, textStatus, jqXHR) {
 	    //Create an item type for each result retrieved from the database.
-	    $.each(results, function(i, result) { $.fn.createItem('group', result); });
+	    $.each(results.data, function(i, result) { $.fn.createItem('group', result); });
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
 	    //Display the error.

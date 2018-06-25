@@ -47,5 +47,48 @@ class KetshopModelShipping extends JModelAdmin
 
     return $data;
   }
+
+
+  public function getDeliveryPointAddress($pk = null) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    $query->select('street, city, postcode, region_code, country_code, phone')
+	  ->from('#__ketshop_address')
+	  ->where('item_id='.(int)$pk)
+	  ->where('item_type="delivery_point"');
+    $db->setQuery($query);
+
+    return $db->loadAssoc();
+  }
+
+
+  public function getDestinationData($pk = null) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+    $data = array();
+    $itemTypes = array('postcode' => array('from', 'to', 'cost'), 'city' => array('name', 'cost'),
+		       'region' => array('code', 'cost'), 'country' => array('code', 'cost'),
+		       'continent' => array('code', 'cost'));
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    //Gets data for each item type.
+    foreach($itemTypes as $key => $fields) {
+      $query->clear()
+	    ->select(implode(',', $db->quoteName($fields)))
+            ->from('#__ketshop_ship_'.$key)
+            ->where('shipping_id='.(int)$pk);
+      $db->setQuery($query);
+      $data[$key] = $db->loadAssocList();
+    }
+
+    return $data;
+  }
+
 }
 

@@ -162,7 +162,7 @@ class KetshopModelTag extends JModelList
     $userId = $user->get('id');
     $guest = $user->get('guest');
     $groups = $user->getAuthorisedViewLevels();
-file_put_contents('debog_file.txt', print_r($items, true)); 
+
     // Convert the params field into an object, saving original in _params
     foreach($items as $key => $item) {
       //Get the product parameters only.

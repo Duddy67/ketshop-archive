@@ -37,27 +37,26 @@
     //If the product item exists we need to get the data of the dynamical items.
     if(productId != 0) {
       var isAdmin = $('#is-admin').val();
-      //Set the url parameters for the Ajax call.
-      var urlQuery = {'product_id':productId, 'product_type':productType, 'is_admin':isAdmin};
-      var baseUrl = $('#base-url').val();
+
+      //Gets the token's name as value.
+      var token = $('#token').attr('name');
+      //Sets up the ajax query.
+      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'product_elements', 'product_id':productId, 'product_type':productType, 'is_admin':isAdmin};
 
       //Ajax call which get item data previously set.
       $.ajax({
 	  type: 'GET', 
-	  url: baseUrl+'administrator/components/com_ketshop/js/ajax/product.php', 
 	  dataType: 'json',
 	  data: urlQuery,
 	  //Get results as a json array.
 	  success: function(results, textStatus, jqXHR) {
 	    //Create an item type for each result type retrieved from the database.
-
-	    $.each(results.image, function(i, result) { $.fn.createItem('image', result); });
-
-	    $.each(results.attribute, function(i, result) { $.fn.createItem('attribute', result); });
-	    $.each(results.variant, function(i, result) { $.fn.createItem('variant', result); });
+	    $.each(results.data.image, function(i, result) { $.fn.createItem('image', result); });
+	    $.each(results.data.attribute, function(i, result) { $.fn.createItem('attribute', result); });
+	    $.each(results.data.variant, function(i, result) { $.fn.createItem('variant', result); });
 
 	    if(productType == 'bundle') {
-	      $.each(results.product, function(i, result) { $.fn.createItem('bundleproduct', result); });
+	      $.each(results.data.product, function(i, result) { $.fn.createItem('bundleproduct', result); });
 	    }
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
@@ -72,23 +71,24 @@
 
   $.fn.checkAlias = function() {
     var rtn;
-    var id = $('#jform_id').val();
+    var productId = $('#jform_id').val();
     var catid = $('#jform_catid').val();
     var name = $('#jform_name').val();
     var alias = $('#jform_alias').val();
+    //Gets the token's name as value.
+    var token = $('#token').attr('name');
+    //Sets up the ajax query.
+    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'check_alias', 'product_id':productId, 'catid':catid, 'name':name, 'alias':alias};
 
-    //Set the url parameters for the Ajax call.
-    var urlQuery = {'id':id, 'catid':catid, 'name':name, 'alias':alias};
     //Ajax call which check for unique alias.
     $.ajax({
 	type: 'GET', 
-	url: 'components/com_ketshop/js/ajax/checkalias.php', 
 	dataType: 'json',
 	async: false, //We need a synchronous calling here.
 	data: urlQuery,
 	//Get result.
-	success: function(result, textStatus, jqXHR) {
-	  rtn = result;
+	success: function(results, textStatus, jqXHR) {
+	  rtn = results.data;
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.
@@ -229,18 +229,20 @@
     $('#attribute-field-value-1-'+idNb).remove();
     $('#attribute-field-value-2-'+idNb).remove();
 
-    var baseUrl = $('#base-url').val();
+    //Gets the token's name as value.
+    var token = $('#token').attr('name');
+    //Sets up the ajax query.
+    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'attribute_fields', 'attribute_id':id};
 
     //Get the fields and their values from database.
     $.ajax({
 	type: 'GET', 
-	url: baseUrl+'administrator/components/com_ketshop/js/ajax/attribute.php', 
 	dataType: 'json',
-	data: {'attribute_id':id},
+	data: urlQuery,
 	//Get results as a json array.
-	success: function(result, textStatus, jqXHR) {
+	success: function(results, textStatus, jqXHR) {
 	  //Load the fields of the selected attribute.
-	  $.fn.loadAttributeFields(idNb, result);
+	  $.fn.loadAttributeFields(idNb, results.data);
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.

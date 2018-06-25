@@ -53,7 +53,7 @@ class KetshopControllerSummary extends JControllerForm
 	  }
 	}
       }
-//file_put_contents('debog_shippers.txt', print_r($shippers, true));
+
       $session->set('shippers', $shippers, 'ketshop'); 
     }
 

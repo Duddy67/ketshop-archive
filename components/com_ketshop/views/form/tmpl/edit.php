@@ -165,7 +165,7 @@ Joomla.submitbutton = function(task)
     <?php if(!$this->item->id) : //New item. Get the type of the product from the current url query.  ?>
       <input type="hidden" id="product-type" name="product_type" value="<?php echo JFactory::getApplication()->input->get('type', '', 'string'); ?>" />
     <?php endif; ?>
-    <?php echo JHtml::_('form.token'); ?>
+    <?php echo JHtml::_('form.token', array('id' => 'token')); ?>
     </fieldset>
   </form>
 </div>

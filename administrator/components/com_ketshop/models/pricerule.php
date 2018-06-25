@@ -69,5 +69,93 @@ class KetshopModelPricerule extends JModelAdmin
       $table->publish_down = $this->getDbo()->getNullDate();
     }
   }
+
+
+  public function getRecipientData($pk = null, $recipientType) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    //Sets attribute and table names according to the recipient type. 
+    $name = 'name';
+    $table = '#__users';
+    if($recipientType == 'customer_group') {
+      $name = 'title AS name';
+      $table = '#__usergroups';
+    }
+
+    $query->select('item_id AS id,'.$name)
+	  ->from('#__ketshop_prule_recipient')
+	  ->join('INNER', $table.' ON id=item_id')
+	  ->where('prule_id='.(int)$pk);
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
+  }
+
+
+  public function getTargetData($pk = null, $targetType) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    //Sets attribute and table names according to the target type. 
+    $name = 'name';
+    $table = '#__ketshop_product';
+    if($targetType == 'product_cat') {
+      $name = 'title AS name';
+      $table = '#__categories';
+    }
+
+    $query->select('item_id AS id,'.$name)
+	  ->from('#__ketshop_prule_target')
+	  ->join('INNER', $table.' ON id=item_id')
+	  ->where('prule_id='.(int)$pk);
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
+  }
+
+
+  public function getConditionData($pk = null, $conditionType) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    //Build the SQL query according to the condition type.
+    $join = '';
+    if($conditionType == 'total_prod_amount') {
+      $select = 'item_id AS id, operator, item_amount';
+    } elseif($conditionType == 'total_prod_qty') {
+      $select = 'item_id AS id, operator, item_qty';
+    } elseif($conditionType == 'product_cat_amount') {
+      $select = 'item_id AS id, title AS name, operator, item_amount';
+      $join = '#__categories ON id=item_id';
+    } elseif($conditionType == 'product_cat') {
+      $select = 'item_id AS id, title AS name, operator, item_qty';
+      $join = '#__categories ON id=item_id';
+    } else {
+      $select = 'item_id AS id, name, operator, item_qty';
+      $join = '#__ketshop_product ON id=item_id';
+    }
+
+    $query->select($select)
+	  ->from('#__ketshop_prule_condition');
+
+    if(!empty($join)) {
+      $query->join('INNER', $join);
+    }
+
+    $query->where('prule_id='.(int)$pk);
+    $db->setQuery($query);
+
+    return $db->loadObjectList();
+  }
 }
 

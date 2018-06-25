@@ -22,30 +22,31 @@
       $('#shipping-form')[0].reset();
       deliveryType = $('#jform_delivery_type').val();
 
-      //Set the the url parameters according to the current delivery type.
+      //Gets the token's name as value.
+      var token = $('#token').attr('name');
+      //Sets up the ajax query.
+      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'shipping_id':shippingId, 'item_type':'at_destination'};
+
       if(deliveryType == 'at_delivery_point') {
-	var urlQuery = {'shipping_id':shippingId, 'item_type':'deliverypoint'};
-      } else {
-	var urlQuery = {'shipping_id':shippingId};
-      }
+	urlQuery.item_type = 'deliverypoint';
+      } 
 
       //Ajax call which get item data previously set.
       $.ajax({
 	  type: 'GET', 
-	  url: 'components/com_ketshop/js/ajax/shipping.php', 
 	  dataType: 'json',
 	  data: urlQuery,
 	  //Get results as a json array.
 	  success: function(results, textStatus, jqXHR) {
 	    //Create an item type for each result retrieved from the database.
 	    if(deliveryType == 'at_delivery_point') {
-	      $.fn.setAddress(results);
+	      $.fn.setAddress(results.data);
 	    } else {
-	      $.each(results.postcode, function(i, result) { $.fn.createItem('postcode', result); });
-	      $.each(results.city, function(i, result) { $.fn.createItem('city', result); });
-	      $.each(results.region, function(i, result) { $.fn.createItem('region', result); });
-	      $.each(results.country, function(i, result) { $.fn.createItem('country', result); });
-	      $.each(results.continent, function(i, result) { $.fn.createItem('continent', result); });
+	      $.each(results.data.postcode, function(i, result) { $.fn.createItem('postcode', result); });
+	      $.each(results.data.city, function(i, result) { $.fn.createItem('city', result); });
+	      $.each(results.data.region, function(i, result) { $.fn.createItem('region', result); });
+	      $.each(results.data.country, function(i, result) { $.fn.createItem('country', result); });
+	      $.each(results.data.continent, function(i, result) { $.fn.createItem('continent', result); });
 	    }
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {

@@ -9,6 +9,7 @@
 defined('_JEXEC') or die; //No direct access to this file.
 jimport('joomla.application.component.modeladmin');
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php';
+require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
 
 
 class KetshopModelProduct extends JModelAdmin
@@ -178,6 +179,188 @@ class KetshopModelProduct extends JModelAdmin
     }
 
     return parent::canEditState($record);
+  }
+
+
+  public function getAttributeData($pk = null) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+
+    //Get fields and values of the attributes linked to a given product. 
+    //Note: Conditions are used here to assign values to the correct field.
+    //In case of a drop down list, data from "pa" table is set as
+    //the selected value(s) and data from "a" table is set as the values of the drop down list.
+    //In case of an input field, data from "pa" table is set as the field value
+    //and the selected value is empty.
+    $query->select('pa.attrib_id AS id,a.name,a.published,a.field_type_1,a.value_type,a.field_text_1,a.field_type_2,a.field_text_2,'.
+		   'IF(a.field_type_1 != "open_field",pa.field_value_1,"") AS selected_value_1,'.
+		   'IF(a.field_type_2 != "open_field",pa.field_value_2,"") AS selected_value_2,'.
+		   'IF(a.field_type_1 != "open_field",a.field_value_1,pa.field_value_1) AS field_value_1,'.
+		   'IF(a.field_type_2 != "open_field",a.field_value_2,pa.field_value_2) AS field_value_2')
+	  ->from('#__ketshop_prod_attrib AS pa ')
+	  ->join('INNER', '#__ketshop_attribute AS a ON a.id = pa.attrib_id')
+	  ->where('pa.prod_id='.$pk)
+	  ->order('a.ordering');
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
+  }
+
+
+  public function getImageData($pk = null, $isAdmin) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    $query->select('src, width, height, alt, ordering') 
+	  ->from('#__ketshop_prod_image')
+	  ->where('prod_id='.$pk)
+	  ->order('ordering');
+    $db->setQuery($query);
+    $images = $db->loadAssocList();
+
+    if($isAdmin) {
+      //Add "../" to the path of each image as we are in the administrator area.
+      foreach($images as $key => $image) {
+	$image['src'] = '../'.$image['src'];
+	$images[$key] = $image;
+      }
+    }
+    else {
+      //On front-end we must set src with the absolute path or SEF will add a wrong url path.  
+      $length = strlen('administrator/components/com_ketshop/js/ajax/');
+      $length = $length - ($length * 2);
+      $url = substr(JURI::root(), 0, $length);
+
+      foreach($images as $key => $image) {
+	$image['src'] = $url.$image['src'];
+	$images[$key] = $image;
+      }
+    }
+
+    return $images;
+  }
+
+
+  public function getVariantData($pk = null) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    $query->select('var_id, variant_name, base_price, sale_price, sales, code, stock,'.
+		   'availability_delay, weight, length, width, height, published, ordering') 
+	  ->from('#__ketshop_product_variant')
+	  ->where('prod_id='.$pk)
+	  ->order('var_id');
+    $db->setQuery($query);
+    $variants = $db->loadAssocList();
+
+    if(!empty($variants)) {
+      //Get attributes linked to the variants.
+      $query->clear();
+      $query->select('var_id, attrib_id, attrib_value') 
+	    ->from('#__ketshop_var_attrib')
+	    ->where('prod_id='.$pk)
+	    ->order('var_id');
+      $db->setQuery($query);
+      $varAttribs = $db->loadAssocList();
+
+      $config = JComponentHelper::getParams('com_ketshop');
+
+      //Store the attributes linked to the given variant.
+      foreach($variants as $key => $variant) {
+	$variants[$key]['attributes'] = array();
+	foreach($varAttribs as $varAttrib) {
+	  if($varAttrib['var_id'] == $variant['var_id']) {
+	    $variants[$key]['attributes'][] = $varAttrib;
+	  }
+	}
+
+	//Format some numerical values.
+	$variants[$key]['weight'] = UtilityHelper::formatNumber($variants[$key]['weight']);
+	$variants[$key]['length'] = UtilityHelper::formatNumber($variants[$key]['length']);
+	$variants[$key]['width'] = UtilityHelper::formatNumber($variants[$key]['width']);
+	$variants[$key]['height'] = UtilityHelper::formatNumber($variants[$key]['height']);
+	$variants[$key]['base_price'] = UtilityHelper::formatNumber($variants[$key]['base_price'], $config->get('digits_precision'));
+	$variants[$key]['sale_price'] = UtilityHelper::formatNumber($variants[$key]['sale_price'], $config->get('digits_precision'));
+      }
+    }
+
+    return $variants;
+  }
+
+
+  public function getBundleProducts($pk = null) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    $query->select('prod_id AS id, name, quantity, stock') 
+	  ->from('#__ketshop_prod_bundle')
+	  ->join('INNER', '#__ketshop_product ON id=prod_id')
+	  ->where('bundle_id='.$pk)
+	  ->order('prod_id');
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
+  }
+
+
+  //The aim of this Ajax function is to simulate the checking for an unique alias in the table file. 
+  //This avoid the users to loose the attributes and images they've just set in case of
+  //error (handle in tables/product.php).
+  public function checkAlias($pk = null, $catid, $name, $alias) 
+  {
+    $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
+    $return = 1;
+
+    //Create a sanitized alias, (see stringURLSafe function for details).
+    $alias = JFilterOutput::stringURLSafe($alias);
+    //In case no alias has been defined, create a sanitized alias from the name field.
+    if(empty($alias)) {
+      $alias = JFilterOutput::stringURLSafe($name);
+    }
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    //Check for unique alias.
+    $query->select('COUNT(*)')
+	  ->from('#__ketshop_product')
+	  ->where('alias='.$db->Quote($alias).' AND catid='.(int)$catid.' AND id!='.(int)$pk);
+    $db->setQuery($query);
+
+    if($db->loadResult()) {
+      $return = 0;
+    }
+
+    return $return;
+  }
+
+
+  public function getAttributeFields($attributeId) 
+  {
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    //Get the fields and their values of the selected attribute.
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('field_type_1,value_type,field_value_1,field_text_1,multiselect,field_type_2,field_value_2,field_text_2,published')
+	  ->from('#__ketshop_attribute')
+	  ->where('id='.(int)$attributeId);
+    $db->setQuery($query);
+    //Get results as an associative array.
+    $attributeFields = $db->loadAssoc();
+    //Add empty selected value for each fields as no value has been selected yet.
+    $attributeFields['selected_value_1'] = '';
+    $attributeFields['selected_value_2'] = '';
+
+    return $attributeFields;
   }
 }
 

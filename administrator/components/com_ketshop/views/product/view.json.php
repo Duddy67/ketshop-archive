@@ -1,0 +1,63 @@
+<?php
+/**
+ * @package KetShop
+ * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @license GNU General Public License version 3, or later
+ */
+
+defined( '_JEXEC' ) or die; // No direct access
+ 
+jimport( 'joomla.application.component.view');
+ 
+
+/**
+ * JSON Product View class. Mainly used for Ajax request. 
+ */
+class KetshopViewProduct extends JViewLegacy
+{
+  public function display($tpl = null)
+  {
+    $jinput = JFactory::getApplication()->input;
+    //Collects the required variables.
+    $context = $jinput->get('context', '', 'string');
+    $productId = $jinput->get('product_id', 0, 'uint');
+    $model = $this->getModel();
+    $results = array();
+
+    $uri = JUri::getInstance();
+    file_put_contents('debog_url_query.txt', print_r($uri->toString(), true));
+    //Calls the corresponding functions.
+    if($context == 'product_elements') {
+      //Gathers all the elements linked to the product.
+      $productType = $jinput->get('product_type', '', 'string');
+      $isAdmin = $jinput->get('is_admin', 0, 'uint');
+
+      $results['attribute'] = $model->getAttributeData($productId);
+      $results['image'] = $model->getImageData($productId, $isAdmin);
+      $results['variant'] = $model->getVariantData($productId);
+
+      if($productType == 'bundle') {
+	$results['product'] = $model->getBundleProducts($productId);
+      }
+    }
+    elseif($context == 'check_alias') {
+      $catid = $jinput->get('catid', 0, 'uint');
+      $name = $jinput->get('name', '', 'string');
+      $alias = $jinput->get('alias', '', 'string');
+      $results = $model->checkAlias($productId, $catid, $name, $alias);
+    }
+    elseif($context == 'attribute_fields') {
+      $attributeId = $jinput->get('attribute_id', 0, 'uint');
+      $results = $model->getAttributeFields($attributeId);
+    }
+    else {
+      echo new JResponseJson($results, JText::_('COM_KETSHOP_ERROR_UNKNOWN_CONTEXT'), true);
+      return;
+    }
+
+    echo new JResponseJson($results);
+  }
+}
+
+
+

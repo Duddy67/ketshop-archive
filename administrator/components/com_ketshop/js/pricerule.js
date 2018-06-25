@@ -19,21 +19,25 @@
       //in case the user changes some value then press the F5 key.
       //It also allows to get the price rule type directly from the form tag.
       $('#pricerule-form')[0].reset();
-      //Get the price rule type previously set and the target value as well. 
+      //Gets the price rule type previously set and the target value as well. 
       var priceRuleType = $('#jform_type').val();
-      var target = $('#jform_target').val();
+      var targetType = $('#jform_target').val();
       $.fn.initForm(priceRuleType);
       //Target select tag options are destroyed then rebuild during the
       //initialisation. So we must set target select tag again to the correct value. 
-      $('#jform_target').val(target);
+      $('#jform_target').val(targetType);
 
-      //Set the the url parameters according to the current delivery type.
-      var urlQuery = {'pricerule_id':priceRuleId, 'pricerule_type':priceRuleType};
+      var recipientType = $('#jform_recipient').val();
+      var conditionType = $('#jform_condition').val();
+
+      //Gets the token's name as value.
+      var token = $('#token').attr('name');
+      //Sets up the ajax query.
+      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'pricerule_id':priceRuleId, 'pricerule_type':priceRuleType, 'target_type':targetType, 'condition_type':conditionType, 'recipient_type':recipientType};
 
       //Ajax call which get item data previously set.
       $.ajax({
 	  type: 'GET', 
-	  url: 'components/com_ketshop/js/ajax/pricerule.php', 
 	  dataType: 'json',
 	  data: urlQuery,
 	  //Get results as a json array.
@@ -41,12 +45,12 @@
 
 	    //Create an item type for each result retrieved from the database.
 	    if(priceRuleType == 'cart') {
-	      $.each(results.condition, function(i, result) { $.fn.createItem('condition', result); });
+	      $.each(results.data.condition, function(i, result) { $.fn.createItem('condition', result); });
 	    } else { //catalog
-	      $.each(results.target, function(i, result) { $.fn.createItem('target', result); });
+	      $.each(results.data.target, function(i, result) { $.fn.createItem('target', result); });
 	    }
-	    //Récipient items are common to both of the price rule types.
-	    $.each(results.recipient, function(i, result) { $.fn.createItem('recipient', result); });
+	    //Recipient items are common to both of the price rule types.
+	    $.each(results.data.recipient, function(i, result) { $.fn.createItem('recipient', result); });
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
 	    //Display the error.
@@ -435,7 +439,7 @@
     }
   };
 
-  //Check the price rule dynamical items.
+  //Check the price rule's dynamical items.
   $.fn.checkPriceRule = function() {
     //Get the Bootstrap recipient tag. 
     var $recipientTab = $('[data-toggle="tab"][href="#pricerule-recipient"]');

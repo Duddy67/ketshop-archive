@@ -117,7 +117,7 @@ Joomla.submitbutton = function(task)
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
   <input type="hidden" name="task" value="" />
-  <?php echo JHtml::_('form.token'); ?>
+  <?php echo JHtml::_('form.token', array('id' => 'token')); ?>
 </form>
 
 <?php

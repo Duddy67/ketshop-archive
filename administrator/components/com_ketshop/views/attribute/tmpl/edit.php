@@ -96,7 +96,7 @@ Joomla.submitbutton = function(task)
   <input type="hidden" name="used_as_attribute" id="used-as-attribute" value="<?php echo $this->usedAsAttribute; ?>" />
   <input type="hidden" name="used_as_option" id="used-as-option" value="<?php echo $this->usedAsOption; ?>" />
   <input type="hidden" name="task" value="" />
-  <?php echo JHtml::_('form.token'); ?>
+  <?php echo JHtml::_('form.token', array('id' => 'token')); ?>
 </form>
 
 <?php

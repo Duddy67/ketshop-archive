@@ -12,10 +12,10 @@
 
   $.fn.addProduct = function(id) {
     var urlQuery = $.fn.getUrlQuery();
-    urlQuery.task = 'add';
+    urlQuery.context = 'add';
 
-    //Note: Product id can be a single integer or a coupled figures in case of product option (eg: 41_2)  
-    //      For more convenience we add a zero product option to single product ids.
+    //Note: Product id can be a single integer or a coupled figures in case of product variant (eg: 41_2)  
+    //      For more convenience we add a zero product variant value to single product ids.
     var regex = /^[0-9]+$/;
     if(regex.test(id)) {
       id = id+'_0';
@@ -30,7 +30,7 @@
   $.fn.removeProduct = function(element) {
     if(confirm(Joomla.JText._('COM_KETSHOP_REMOVE_PRODUCT'))) {
       var urlQuery = $.fn.getUrlQuery();
-      urlQuery.task = 'remove';
+      urlQuery.context = 'remove';
       urlQuery.product_ids = element.id;
       $.fn.runAjax(urlQuery);
     }
@@ -39,7 +39,7 @@
 
   $.fn.updateOrder = function() {
     var urlQuery = $.fn.getUrlQuery();
-    urlQuery.task = 'update';
+    urlQuery.context = 'update';
     $.fn.runAjax(urlQuery);
   };
 
@@ -55,9 +55,11 @@
   $.fn.getUrlQuery = function() {
     var orderId = $('#jform_id').val();
     var userId = $('#user_id').val();
+    //Gets the token's name as value.
+    var token = $('#token').attr('name');
+    //Sets up the ajax query.
+    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'order_id':orderId, 'user_id':userId, 'products':[]};
 
-    var urlQuery = {'order_id':orderId, 'user_id':userId, 'products':[]};
-    //
     $('[id^="unit_price_"]').each(function() {
       //
       var ids = this.id.substring(11);
@@ -67,7 +69,7 @@
       var taxRate = $('#tax_rate_'+ids).val();
       var catid = $('#catid_'+ids).val();
       var name = $('#name_'+ids).val();
-      var optionName = $('#option_name_'+ids).val();
+      var variantName = $('#variant_name_'+ids).val();
       var code = $('#code_'+ids).val();
       var unitSalePrice = $('#unit_sale_price_'+ids).val();
       var minQty = parseInt($('input[name=min_quantity_'+ids+']').val());
@@ -82,7 +84,7 @@
       urlQuery.products.push({'ids':ids, 'unit_price':unitPrice,
 			      'quantity':quantity, 'tax_rate':taxRate,
 			      'catid':catid, 'name':name,
-			      'option_name':optionName,
+			      'variant_name':variantName,
 			      'code':code, 'unit_sale_price':unitSalePrice,
 			      'min_quantity':minQty,'max_quantity':maxQty, 
 			      'initial_quantity':initialQty,
@@ -98,7 +100,6 @@
 
     $.ajax({
 	type: 'GET', 
-	url: 'components/com_ketshop/js/ajax/order.php', 
 	dataType: 'json',
 	data: urlQuery,
 	beforeSend: function(jqXHR, settings) {
@@ -110,15 +111,22 @@
 	},
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
-	  //Display warning message if any.
+	  //Display warning messages sent through JResponseJson.
 	  if(results.message) {
 	    alert(results.message);
+	  }
+
+	  if(results.messages) {
+	    Joomla.renderMessages(results.messages);
+	  }
+
+	  if(!results.success) {
 	    return;
 	  }
 
 	  //Refresh the order table with new data.
 	  $('#order-edit').empty();
-	  $('#order-edit').html(results.render);
+	  $('#order-edit').html(results.data.render);
 	  //location.reload();
 	},
 	error: function(jqXHR, textStatus, errorThrown) {

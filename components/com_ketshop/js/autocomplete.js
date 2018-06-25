@@ -10,7 +10,7 @@
     $('#filter-search').devbridgeAutocomplete({
       minChars: 2,
       lookup: function (query, done) {
-	//Calls the ajax function of the component global controller.
+	//Sets up the ajax query.
 	var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'search':query};
 	$.ajax({
 	    type: 'GET', 
