@@ -752,8 +752,18 @@
 		    type="radio"
 		    class="btn-group btn-group-yesno"
 		    default="1"
-		    label="JGLOBAL_PAGINATION_RESULTS_LABEL"
-		    description="JGLOBAL_PAGINATION_RESULTS_DESC">
+		    label="COM_KETSHOP_PAGINATION_RESULTS_LABEL"
+		    description="COM_KETSHOP_PAGINATION_RESULTS_DESC">
+		    <option value="1">JSHOW</option>
+		    <option value="0">JHIDE</option>
+	    </field>
+
+	    <field name="show_pagination_pages"
+		    type="radio"
+		    class="btn-group btn-group-yesno"
+		    default="1"
+		    label="COM_KETSHOP_PAGINATION_PAGES_LABEL"
+		    description="COM_KETSHOP_PAGINATION_PAGES_DESC">
 		    <option value="1">JSHOW</option>
 		    <option value="0">JHIDE</option>
 	    </field>

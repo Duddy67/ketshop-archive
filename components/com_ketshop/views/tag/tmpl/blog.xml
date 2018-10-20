@@ -245,8 +245,16 @@
 		</field>
 
 		<field name="show_pagination_results" type="list"
-			label="JGLOBAL_PAGINATION_RESULTS_LABEL"
-			description="JGLOBAL_PAGINATION_RESULTS_DESC">
+			label="COM_KETSHOP_PAGINATION_RESULTS_LABEL"
+			description="COM_KETSHOP_PAGINATION_RESULTS_DESC">
+			<option value="">JGLOBAL_USE_GLOBAL</option>
+			<option value="0">JHIDE</option>
+			<option value="1">JSHOW</option>
+		</field>
+
+		<field name="show_pagination_pages" type="list"
+			label="COM_KETSHOP_PAGINATION_PAGES_LABEL"
+			description="COM_KETSHOP_PAGINATION_PAGES_DESC">
 			<option value="">JGLOBAL_USE_GLOBAL</option>
 			<option value="0">JHIDE</option>
 			<option value="1">JSHOW</option>

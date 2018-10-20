@@ -472,6 +472,13 @@ div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-
   border-bottom: 1px solid #000;
 }
 
+.pagination {
+  margin-bottom: 5px !important;
+}
+
+.songbook-results {
+  overflow: hidden;
+}
 
 /* ///// Icons /////// */
 
