@@ -7,7 +7,7 @@
     var token = $('#token').attr('name');
 
     //Runs the JQuery autocomplete.
-    $('#filter-search').devbridgeAutocomplete({
+    $('#filter_search').devbridgeAutocomplete({
       minChars: 2,
       lookup: function (query, done) {
 	//Sets up the ajax query.

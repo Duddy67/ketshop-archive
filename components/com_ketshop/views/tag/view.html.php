@@ -314,6 +314,10 @@ class KetshopViewTag extends JViewLegacy
 
     $this->nowDate = JFactory::getDate()->toSql();
 
+    // Creates a new JForm object
+    $this->filterForm = new JForm('FilterForm');
+    $this->filterForm->loadFile(JPATH_SITE.'/components/com_ketshop/models/forms/filter_tag.xml');
+
     $this->prepareDocument();
 
     $this->setDocument();

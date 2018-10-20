@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="filter">
+		<field name="filter_search"
+		       type="text"
+		       label="COM_KETSHOP_SEARCH_IN_TITLE"
+		       class="js-stools-search-string" />
+
+		<field name="filter_ordering" type="list"
+			label="COM_KETSHOP_SORTING_FILTER_LABEL"
+			onchange="this.form.submit();" default="" >
+			<option value=""></option>
+			<option value="price">COM_KETSHOP_ORDERING_PRICE_ASC</option>
+			<option value="rprice">COM_KETSHOP_ORDERING_PRICE_DESC</option>
+			<option value="order">COM_KETSHOP_ORDERING_ORDERING_ASC</option>
+			<option value="rorder">COM_KETSHOP_ORDERING_ORDERING_DESC</option>
+			<option value="alpha">COM_KETSHOP_ORDERING_NAME_ASC</option>
+			<option value="ralpha">COM_KETSHOP_ORDERING_NAME_DESC</option>
+			<option value="author">COM_KETSHOP_ORDERING_AUTHOR_ASC</option>
+			<option value="rauthor">COM_KETSHOP_ORDERING_AUTHOR_DESC</option>
+			<option value="date">COM_KETSHOP_ORDERING_DATE_ASC</option>
+			<option value="rdate">COM_KETSHOP_ORDERING_DATE_DESC</option>
+			<option value="hits">COM_KETSHOP_ORDERING_HITS_ASC</option>
+			<option value="rhits">COM_KETSHOP_ORDERING_HITS_DESC</option>
+		</field>
+
+		<field name="limit"
+	               type="limitbox"
+		       class="inputbox input-small"
+		       default="25"
+		       label="COM_KETSHOP_LIST_LIMIT"
+		       description="COM_KETSHOP_LIST_LIMIT_DESC"
+		       onchange="this.form.submit();"/>
+	</fieldset>
+</form>
