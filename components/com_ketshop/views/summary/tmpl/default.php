@@ -90,11 +90,11 @@ $data['addresses'] = $this->addresses;
     <table class="table product-row end-table">
 
       <?php //Display layouts. ?>
-      <?php echo JLayoutHelper::render('product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
-      <?php echo JLayoutHelper::render('product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
-      <?php echo JLayoutHelper::render('cart_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
-      <?php echo JLayoutHelper::render('shipping_cost', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
-      <?php echo JLayoutHelper::render('total_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+      <?php echo JLayoutHelper::render('order.product_header', $data); ?>
+      <?php echo JLayoutHelper::render('order.product_rows', $data); ?>
+      <?php echo JLayoutHelper::render('order.cart_amount', $data); ?>
+      <?php echo JLayoutHelper::render('order.shipping_cost', $data); ?>
+      <?php echo JLayoutHelper::render('order.total_amount', $data); ?>
 
     </table>
 

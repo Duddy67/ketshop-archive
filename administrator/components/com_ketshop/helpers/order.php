@@ -567,11 +567,11 @@ class OrderHelper
 
     //Uses the layout patterns used in front-end for the cart view to generate the HTML render.
     $render = '';
-    $render .= JLayoutHelper::render('product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
-    $render .= JLayoutHelper::render('product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
-    $render .= JLayoutHelper::render('cart_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
-    $render .= JLayoutHelper::render('shipping_cost', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
-    $render .= JLayoutHelper::render('total_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('order.product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('order.product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('order.cart_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('order.shipping_cost', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
+    $render .= JLayoutHelper::render('order.total_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/');
 
     return $render;
   }

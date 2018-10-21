@@ -72,7 +72,7 @@ if(!empty($data['products'])) {
     <table class="table product-row end-table">
 
     <?php //Display table header layout. ?>
-    <?php echo JLayoutHelper::render('product_header', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+    <?php echo JLayoutHelper::render('order.product_header', $data); ?>
 
     <?php if(!empty($unavailable)) : //. ?>
 
@@ -98,9 +98,9 @@ if(!empty($data['products'])) {
     <?php endif; ?>
 
     <?php //Display layouts. ?>
-    <?php echo JLayoutHelper::render('product_rows', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
-    <?php echo JLayoutHelper::render('cart_amount', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
-    <?php echo JLayoutHelper::render('shipping_cost', $data, JPATH_SITE.'/components/com_ketshop/layouts/'); ?>
+    <?php echo JLayoutHelper::render('order.product_rows', $data); ?>
+    <?php echo JLayoutHelper::render('order.cart_amount', $data); ?>
+    <?php echo JLayoutHelper::render('order.shipping_cost', $data); ?>
 
       <?php //Display shipping message according to the situation. ?>
       <tr><td colspan="<?php echo $data['col_span_nb']; ?>">
