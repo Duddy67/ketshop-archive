@@ -18,7 +18,7 @@ $params = $this->item->params;
   ?>
 
   <?php if($params->get('show_tags') && !empty($this->item->tags->itemTags)) : ?>
-    <?php echo JLayoutHelper::render('tags', array('item' => $this->item)); ?>
+    <?php echo JLayoutHelper::render('product.tags', array('item' => $this->item)); ?>
   <?php endif; ?>
 
   <?php echo $this->item->intro_text; ?>

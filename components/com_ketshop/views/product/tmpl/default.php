@@ -34,12 +34,12 @@ $session->set('location', $location, 'ketshop');
   <?php endif; ?>
 
   <?php echo JLayoutHelper::render('product.title', array('item' => $item, 'params' => $params, 'now_date' => $this->nowDate)); 
-        echo JLayoutHelper::render('icons', array('item' => $this->item, 'user' => $this->user, 'uri' => $this->uri)); 
+        echo JLayoutHelper::render('product.icons', array('item' => $this->item, 'user' => $this->user, 'uri' => $this->uri)); 
         echo JLayoutHelper::render('product.image', array('item' => $this->item, 'params' => $params));
   ?>
 
   <?php if($params->get('show_tags') && !empty($this->item->tags->itemTags)) : ?>
-    <?php echo JLayoutHelper::render('tags', array('item' => $this->item)); ?>
+    <?php echo JLayoutHelper::render('product.tags', array('item' => $this->item)); ?>
   <?php endif; ?>
 
   <?php if($item->params->get('show_intro')) : ?>
