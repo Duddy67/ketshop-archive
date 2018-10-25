@@ -125,9 +125,11 @@ class KetshopModelTag extends JModelList
     $this->setState('list.start', $limitstart);
 
     // Optional filter text
-    $this->setState('list.filter_search', $app->input->getString('filter_search'));
-    //Get the value of the select list and load it in the session.
-    $this->setState('list.filter_ordering', $app->input->getString('filter_ordering'));
+    $filterSearch = $this->getUserStateFromRequest($this->context.'.list.filter_search', 'filter_search');
+    $this->setState('list.filter_search', $filterSearch);
+    //Gets the value of the select list and load it in the session.
+    $filterOrdering = $this->getUserStateFromRequest($this->context.'.list.filter_ordering', 'filter_ordering');
+    $this->setState('list.filter_ordering', $filterOrdering);
 
     //Check if the user is root. 
     $user = JFactory::getUser();
@@ -432,16 +434,16 @@ class KetshopModelTag extends JModelList
     }
 
     // Filter by search in title
-    $search = $this->getState('list.filter_search');
+    $filterSearch = $this->getState('list.filter_search');
     //Get the field to search by.
     $field = $this->getState('params')->get('filter_field');
-    if(!empty($search)) {
-      if(stripos($search, 'code:') === 0) {
-	$query->where('p.code = '.$db->quote(substr($search, 5)));
+    if(!empty($filterSearch)) {
+      if(stripos($filterSearch, 'code:') === 0) {
+	$query->where('p.code = '.$db->quote(substr($filterSearch, 5)));
       }
       else {
-	$search = $db->quote('%'.$db->escape($search, true).'%');
-	$query->where('(p.'.$field.' LIKE '.$search.')');
+	$filterSearch = $db->quote('%'.$db->escape($filterSearch, true).'%');
+	$query->where('(p.'.$field.' LIKE '.$filterSearch.')');
       }
     }
 
@@ -473,7 +475,7 @@ class KetshopModelTag extends JModelList
     }
 
     $query->order($orderBy);
-//echo $query;
+
     return $query;
   }
 
