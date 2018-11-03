@@ -219,12 +219,10 @@ class KetshopRouter extends JComponentRouterView
     if($this->noIDs) {
       $db = JFactory::getDbo();
       $dbquery = $db->getQuery(true);
-      $dbquery->select('p.id')
-	      ->from($dbquery->qn('#__ketshop_product').' AS p')
-	      ->join('INNER', '#__ketshop_product_tag_map AS tm ON p.id=tm.product_id')
-	      ->where('p.alias='.$dbquery->q($segment))
-	      ->where('tm.tag_id='.$dbquery->q($query['id']))
-	      ->where('tm.main_tag_id=p.main_tag_id');
+      $dbquery->select('id')
+	      ->from($dbquery->qn('#__ketshop_product'))
+              //Note: Alias is unique for each item.
+	      ->where('alias='.$dbquery->q($segment));
 
       $db->setQuery($dbquery);
 

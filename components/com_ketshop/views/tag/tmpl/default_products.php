@@ -41,13 +41,13 @@ JHtml::_('behavior.framework');
 		$active = $menu->getActive();
 		$itemId = $active->id;
 		$link1 = JRoute::_('index.php?option=com_users&view=login&Itemid='.$itemId);
-		$returnURL = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, $item->language));
+		$returnURL = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tagid, $item->language));
 		$link = new JUri($link1);
 		$link->setVar('return', base64_encode($returnURL));
 	      endif; ?>
 
 	<?php if($item->params->get('access-view')) : //Set the link to the product page.
-	      $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, $item->language));
+	      $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tagid, $item->language));
 	  endif; ?>
 
 	  <a href="<?php echo $link;?>"><?php echo $this->escape($item->name); ?></a>

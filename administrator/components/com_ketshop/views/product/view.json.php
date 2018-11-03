@@ -39,10 +39,9 @@ class KetshopViewProduct extends JViewLegacy
       }
     }
     elseif($context == 'check_alias') {
-      $catid = $jinput->get('catid', 0, 'uint');
       $name = $jinput->get('name', '', 'string');
       $alias = $jinput->get('alias', '', 'string');
-      $results = $model->checkAlias($productId, $catid, $name, $alias);
+      $results = $model->checkAlias($productId, $name, $alias);
     }
     elseif($context == 'attribute_fields') {
       $attributeId = $jinput->get('attribute_id', 0, 'uint');

@@ -201,6 +201,42 @@ class KetshopHelper
   }
 
 
+  public static function checkMainTags($pks)
+  {
+
+    $ids = array();
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    foreach($pks as $pk) {
+      // Find node and all children keys
+      $query->clear();
+      $query->select('c.id')
+	    ->from('#__tags AS node')
+	    ->leftJoin('#__tags AS c ON node.lft <= c.lft AND c.rgt <= node.rgt')
+	    ->where('node.id = '.(int)$pk);
+      $db->setQuery($query);
+      $results = $db->loadColumn();
+
+      $ids = array_unique(array_merge($ids,$results), SORT_REGULAR);
+    }
+
+    //Checks that no product item is using one of the tags as main tag.
+    $query->clear();
+    $query->select('COUNT(*)')
+	  ->from('#__ketshop_product')
+	  ->where('main_tag_id IN('.implode(',', $ids).')');
+    $db->setQuery($query);
+
+    if($db->loadResult()) {
+      JFactory::getApplication()->enqueueMessage(JText::_('COM_KETSHOP_WARNING_TAG_USED_AS_MAIN_TAG'), 'warning');
+      return false;
+    }
+
+    return true;
+  }
+
+
   /**
    * Update a mapping table according to the variables passed as arguments.
    *

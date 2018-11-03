@@ -137,6 +137,10 @@ class KetshopModelProducts extends JModelList
       if(stripos($search, 'id:') === 0) {
 	$query->where('p.id = '.(int) substr($search, 3));
       }
+      elseif(stripos($search, 'al:') === 0) { //Searches by alias
+        $search = $db->Quote('%'.$db->escape(substr($search, 3), true).'%');
+        $query->where('(p.alias LIKE '.$search.')');
+      }
       else {
 	$search = $db->Quote('%'.$db->escape($search, true).'%');
 	$query->where('(p.name LIKE '.$search.')');

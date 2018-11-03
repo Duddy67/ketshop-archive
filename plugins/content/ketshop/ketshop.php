@@ -16,6 +16,25 @@ require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/bundle.ph
 
 class plgContentKetshop extends JPlugin
 {
+  /**
+   * Constructor.
+   *
+   * @param   object  &$subject  The object to observe
+   * @param   array   $config    An optional associative array of configuration settings.
+   *
+   * @since   3.7.0
+   */
+  public function __construct(&$subject, $config)
+  {
+    //Loads the component language file.
+    $lang = JFactory::getLanguage();
+    $langTag = $lang->getTag();
+    $lang->load('com_ketshop', JPATH_ROOT.'/administrator/components/com_ketshop', $langTag);
+
+    parent::__construct($subject, $config);
+  }
+
+
 
   public function onContentBeforeSave($context, $data, $isNew)
   {
@@ -73,6 +92,23 @@ class plgContentKetshop extends JPlugin
 
   public function onContentBeforeDelete($context, $data)
   {
+    if($context == 'com_tags.tag') {
+      //Ensures that the deleted tag is not used as main tag by one or more products.
+      if(!KetshopHelper::checkMainTags(array($data->id))) {
+	return false;
+      }
+      else {
+	$db = JFactory::getDbo();
+	$query = $db->getQuery(true);
+
+	//Delete all the rows linked to the tag id. 
+	$query->delete('#__ketshop_product_tag_map')
+	      ->where('tag_id='.(int)$data->id);
+	$db->setQuery($query);
+	$db->query();
+      }
+    }
+
     return true;
   }
 
@@ -913,7 +949,14 @@ class plgContentKetshop extends JPlugin
       $db->query();
     }
     elseif($context == 'com_tags.tag') {
-      //
+      $db = JFactory::getDbo();
+      $query = $db->getQuery(true);
+
+      //Delete all the rows linked to the item id. 
+      $query->delete('#__ketshop_product_tag_map')
+	    ->where('tag_id='.(int)$data->id);
+      $db->setQuery($query);
+      $db->query();
     }
   }
 
@@ -954,7 +997,7 @@ class plgContentKetshop extends JPlugin
     //Check we have tags before treating data.
     if(isset($data->newTags)) {
       //Retrieve all the rows matching the item id.
-      $query->select('product_id, tag_id, main_tag_id, IFNULL(ordering, "NULL") AS ordering')
+      $query->select('product_id, tag_id, IFNULL(ordering, "NULL") AS ordering')
 	    ->from('#__ketshop_product_tag_map')
 	    ->where('product_id='.(int)$data->id);
       $db->setQuery($query);
@@ -967,14 +1010,14 @@ class plgContentKetshop extends JPlugin
 	//they match those newly selected.
 	foreach($tags as $tag) {
 	  if($tag->tag_id == $tagId) {
-	    $values[] = $tag->product_id.','.$tag->tag_id.','.$data->main_tag_id.','.$tag->ordering;
+	    $values[] = $tag->product_id.','.$tag->tag_id.','.$tag->ordering;
 	    $newTag = false; 
 	    break;
 	  }
 	}
 
 	if($newTag) {
-	  $values[] = $data->id.','.$tagId.','.$data->main_tag_id.',NULL';
+	  $values[] = $data->id.','.$tagId.',NULL';
 	}
       }
 
@@ -985,7 +1028,7 @@ class plgContentKetshop extends JPlugin
       $db->setQuery($query);
       $db->query();
 
-      $columns = array('product_id', 'tag_id', 'main_tag_id', 'ordering');
+      $columns = array('product_id', 'tag_id', 'ordering');
       //Insert a new row for each tag linked to the item.
       $query->clear();
       $query->insert('#__ketshop_product_tag_map')

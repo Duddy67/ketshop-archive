@@ -69,7 +69,6 @@ DROP TABLE IF EXISTS `#__ketshop_product_tag_map`;
 CREATE TABLE `#__ketshop_product_tag_map` (
   `product_id` INT UNSIGNED NOT NULL ,
   `tag_id` INT UNSIGNED NOT NULL ,
-  `main_tag_id` INT UNSIGNED NOT NULL ,
   `ordering` INT NULL DEFAULT NULL ,
   INDEX `idx_product_id` (`product_id` ASC) ,
   INDEX `idx_tag_id` (`tag_id` ASC) )

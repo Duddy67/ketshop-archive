@@ -315,7 +315,7 @@ class KetshopModelProduct extends JModelAdmin
   //The aim of this Ajax function is to simulate the checking for an unique alias in the table file. 
   //This avoid the users to loose the attributes and images they've just set in case of
   //error (handle in tables/product.php).
-  public function checkAlias($pk = null, $catid, $name, $alias) 
+  public function checkAlias($pk = null, $name, $alias) 
   {
     $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
     $return = 1;
@@ -332,7 +332,7 @@ class KetshopModelProduct extends JModelAdmin
     //Check for unique alias.
     $query->select('COUNT(*)')
 	  ->from('#__ketshop_product')
-	  ->where('alias='.$db->Quote($alias).' AND catid='.(int)$catid.' AND id!='.(int)$pk);
+	  ->where('alias='.$db->Quote($alias).' AND id!='.(int)$pk);
     $db->setQuery($query);
 
     if($db->loadResult()) {

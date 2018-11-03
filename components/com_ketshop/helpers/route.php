@@ -18,56 +18,48 @@ defined('_JEXEC') or die;
 abstract class KetshopHelperRoute
 {
   /**
-   * Get the product route.
+   * Gets the product route.
+   * Note: For compatibility reasons the tagid value has to be passed through an array to
+   * differenciate between a call from our component (array) and a call from the com_tags
+   * component (integer).
    *
-   * @param   integer  $id        The route of the product item.
-   * @param   array    $tagIds    An array containing the tag ids linked to the product.
+   * @param   integer  $id        The slug of the product (eg: 5:item-title).
+   * @param   multi    $tagid     An array containing the main tag id linked to the product
+   *                              or an integer as the catid of the product.
    * @param   integer  $language  The language code.
    *
    * @return  string  The product route.
    *
    * @since   1.5
    */
-  public static function getProductRoute($id, $tagIds, $language = 0)
+  public static function getProductRoute($id, $tagid, $language = 0)
   {
     //Create the link
     $link = 'index.php?option=com_ketshop&view=product&id='.$id;
 
-    //In some specific cases (eg: the function called from com_tags) the argument passed is 
+    //In some specific cases (eg: the function is called from com_tags) the argument passed is 
     //an integer as the catid of the product.  
-    if(!is_array($tagIds) && (int)$tagIds > 1) {
+    if(!is_array($tagid) && (int)$tagid > 1) {
       $categories = JCategories::getInstance('Ketshop');
-      $category = $categories->get($tagIds);
+      $category = $categories->get($tagid);
 
-      //If the category exists set the link with the main tag id of the product 
+      //If the category exists set the link with the main tag id of the product
       //instead of its category id.
       if($category) {
 	$db = JFactory::getDbo();
 	$query = $db->getQuery(true);
 	$query->select('main_tag_id')
 	      ->from('#__ketshop_product')
-	      ->where('catid='.(int)$tagIds.' AND id='.(int)$id);
+	      ->where('catid='.(int)$tagid.' AND id='.(int)$id);
 	$db->setQuery($query);
 	$mainTagId = $db->loadResult();
+
 	$link .= '&tag_id='.$mainTagId;
       }
     }
-    elseif(is_array($tagIds) && !empty($tagIds)) {
-      $menu = JFactory::getApplication()->getMenu();
-      $menuTagId = 0;
-      if($active = $menu->getActive()) {
-	$itemId = $active->id;
-	$menuItem = $menu->getItem($itemId);
-	$menuTagId = $menuItem->query['id'];
-      }
-
-      if(in_array($menuTagId, $tagIds)) {
-	$link .= '&tag_id='.$menuTagId;
-      }
-      else {
-	//Falls back on the main tag id (which is always set as the first element of the array).
-	$link .= '&tag_id='.$tagIds[0];
-      }
+    //The function is called from our component.
+    elseif(is_array($tagid) && (int)$tagid[0] > 1) {
+      $link .= '&tag_id='.$tagid[0];
     }
 
     if($language && $language !== '*' && JLanguageMultilang::isEnabled()) {

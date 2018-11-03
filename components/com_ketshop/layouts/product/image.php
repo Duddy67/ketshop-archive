@@ -33,7 +33,7 @@ $params = $displayData['params'];
     ?>
 
     <?php if($params->get('linked_image') && $params->get('access-view')) : //Create the image link.
-	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tag_ids, $item->language));
+	    $link = JRoute::_(KetshopHelperRoute::getProductRoute($item->slug, $item->tagid, $item->language));
 	?>
       <a href="<?php echo $link; ?>">
     <?php endif; ?>

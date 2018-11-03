@@ -32,6 +32,8 @@ class JFormFieldMaintag extends JFormFieldList
 	  ->from('#__contentitem_tag_map AS tm')
 	  ->join('LEFT', '#__tags AS t ON t.id=tm.tag_id')
 	  ->where('tm.type_alias = "com_ketshop.product" AND tm.content_item_id='.(int)$this->form->getValue('id'))
+          //Doesn't retrieve the archived or trashed tags.
+          ->where('t.published NOT IN(2, -2)')
 	  ->order('tm.tag_id');
     $db->setQuery($query);
     $tags = $db->loadObjectList();
