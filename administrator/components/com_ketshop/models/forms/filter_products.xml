@@ -55,6 +55,15 @@
 		       onchange="this.form.submit();">
 		       <option value="">JOPTION_SELECT_TAG</option>
 		</field>
+
+               <field name="main_tag_id"
+                      type="maintaglist"
+                      mode="nested"
+                      label="JOPTION_FILTER_TAG"
+                      description="JOPTION_FILTER_TAG_DESC"
+                      onchange="this.form.submit();">
+                      <option value="">COM_KETSHOP_OPTION_SELECT_BY_MAIN_TAG</option>
+               </field>
 	</fields>
 
 	<fields name="list">

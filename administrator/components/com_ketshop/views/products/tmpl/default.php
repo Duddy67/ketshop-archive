@@ -187,6 +187,11 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 		<div class="small">
 		  <?php echo JText::_('JCATEGORY') . ": ".$this->escape($item->category_title); ?>
 		</div>
+                <div class="small">
+                  <?php
+                        $mainTagTitle = ($this->escape($item->main_tag_title) == '') ? JText::_('COM_KETSHOP_NONE_TITLE') : $this->escape($item->main_tag_title);
+                        echo JText::_('COM_KETSHOP_MAIN_TAG_TITLE') . ": ".$mainTagTitle; ?>
+                </div>
 	    </div>
 	  </td>
 	  <td class="hidden-phone">

@@ -30,6 +30,7 @@ class KetshopModelProducts extends JModelList
 				       'ordering', 'p.ordering', 'tm.ordering', 'tm_ordering',
 				       'hits', 'p.hits',
 				       'catid', 'p.catid', 'category_id',
+                                       'p.main_tag_id', 'main_tag_id',
 				       'tag'
 				      );
     }
@@ -68,6 +69,9 @@ class KetshopModelProducts extends JModelList
     $tag = $this->getUserStateFromRequest($this->context . '.filter.tag', 'filter_tag');
     $this->setState('filter.tag', $tag);
 
+    $mainTagId = $this->getUserStateFromRequest($this->context . '.filter.main_tag_id', 'filter_main_tag_id');
+    $this->setState('filter.main_tag_id', $mainTagId);
+
     $productType = $this->getUserStateFromRequest($this->context.'.filter.product_type', 'filter_product_type');
     $this->setState('filter.product_type', $productType);
 
@@ -85,6 +89,7 @@ class KetshopModelProducts extends JModelList
     $id .= ':'.$this->getState('filter.user_id');
     $id .= ':'.$this->getState('filter.category_id');
     $id .= ':'.$this->getState('filter.tag');
+    $id .= ':'.$this->getState('filter.main_tag_id');
     $id .= ':'.$this->getState('filter.product_type');
 
     return parent::getStoreId($id);
@@ -100,7 +105,7 @@ class KetshopModelProducts extends JModelList
 
     // Select the required fields from the table.
     $query->select($this->getState('list.select', 'p.id,p.name,p.alias,p.created,p.published,p.catid,p.hits,'.
-				   'p.base_price,p.sale_price,p.type,p.stock,p.variant_name,'. 
+				   'p.main_tag_id,p.base_price,p.sale_price,p.type,p.stock,p.variant_name,'. 
 				   'p.access,p.ordering,p.created_by,p.checked_out,p.checked_out_time'))
 	  ->from('#__ketshop_product AS p');
 
@@ -115,6 +120,10 @@ class KetshopModelProducts extends JModelList
     // Join over the categories.
     $query->select('ca.title AS category_title')
 	  ->join('LEFT', '#__categories AS ca ON ca.id = p.catid');
+
+    // Join over the main tags.
+    $query->select('t.title AS main_tag_title')
+          ->join('LEFT', '#__tags AS t ON t.id = p.main_tag_id');
 
     // Join over the asset groups.
     $query->select('al.title AS access_level')
@@ -183,6 +192,11 @@ class KetshopModelProducts extends JModelList
 	    ->join('LEFT', $db->quoteName('#__contentitem_tag_map', 'tagmap').
 		   ' ON '.$db->quoteName('tagmap.content_item_id').' = '.$db->quoteName('p.id').
 		   ' AND '.$db->quoteName('tagmap.type_alias').' = '.$db->quote('com_ketshop.product'));
+    }
+
+    // Filter by main tag.
+    if($mainTagId = $this->getState('filter.main_tag_id')) {
+      $query->where('p.main_tag_id= '.(int)$mainTagId);
     }
 
     //Variable sent from both price rule and bundle views in order to display only 
