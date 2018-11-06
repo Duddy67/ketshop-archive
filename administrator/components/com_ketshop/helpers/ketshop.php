@@ -54,6 +54,9 @@ class KetshopHelper
     JHtmlSidebar::addEntry(JText::_('COM_KETSHOP_SUBMENU_TRANSLATIONS'),
 				      'index.php?option=com_ketshop&view=translations', $viewName == 'translations');
 
+    JHtmlSidebar::addEntry(JText::_('COM_KETSHOP_SUBMENU_FILTERS'),
+				      'index.php?option=com_ketshop&view=filters', $viewName == 'filters');
+
     JHtmlSidebar::addEntry(JText::_('COM_KETSHOP_SUBMENU_CATEGORIES'),
 				      'index.php?option=com_categories&extension=com_ketshop', $viewName == 'categories');
 

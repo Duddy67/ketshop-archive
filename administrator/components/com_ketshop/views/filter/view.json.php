@@ -13,17 +13,18 @@ jimport( 'joomla.application.component.view');
 /**
  * JSON Attribute View class. Mainly used for Ajax request. 
  */
-class KetshopViewAttribute extends JViewLegacy
+class KetshopViewFilter extends JViewLegacy
 {
   public function display($tpl = null)
   {
+file_put_contents('debog_file.txt', print_r('', true));
     $jinput = JFactory::getApplication()->input;
     //Collects the required variables.
-    $attributeId = $jinput->get('attribute_id', 0, 'uint');
+    $filterId = $jinput->get('filter_id', 0, 'uint');
     $model = $this->getModel();
     $results = array();
 
-    $results = $model->getAttributeGroups($attributeId);
+    $results = $model->getAttributes($filterId);
 
     echo new JResponseJson($results);
   }

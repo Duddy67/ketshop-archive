@@ -242,8 +242,7 @@
     } else if(itemType == 'bundleproduct') {
       data = {'id':'', 'name':'', 'quantity':'1', 'stock':'?'};
     } else if(itemType == 'variant') {
-      data =
-      {'variant_id':'','variant_name':'','stock':'0','base_price':'0.00','sale_price':'0.00','sales':'0','code':'','availability_delay':'0','weight':'0.00','length':'0.00','width':'0.00','height':'0.00','published':'0','ordering':'0'};
+      data = {'variant_id':'','variant_name':'','stock':'0','base_price':'0.00','sale_price':'0.00','sales':'0','code':'','availability_delay':'0','weight':'0.00','length':'0.00','width':'0.00','height':'0.00','published':'0','ordering':'0'};
     } else if(itemType == 'condition') {
       data = {'id':'', 'name':'', 'operator':'', 'item_amount':'', 'item_qty':''};
     } else if(itemType == 'postcode') {

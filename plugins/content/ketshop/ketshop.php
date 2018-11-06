@@ -741,41 +741,47 @@ class plgContentKetshop extends JPlugin
     elseif($context == 'com_ketshop.attribute') { //ATTRIBUTE
       //Get all of the POST data.
       $post = JFactory::getApplication()->input->post->getArray();
-      $groupIds = $values = array();
+      $groupIds = $groups = array();
 
       //Search for possible groups linked to the attribute.
       foreach($post as $key => $groupId) {
 	if(preg_match('#^group_([0-9]+)$#', $key)) {
 
-	  //Prevent duplicate group id.
-	  if(!in_array($groupId, $groupIds)) {
-	    $groupIds[] = $groupId;
-	    $values[] = $data->id.','.(int)$groupId;
+	  //Prevent duplicate or empty group id.
+	  if((int)$groupId && !in_array($groupId, $groupIds)) {
+	    $group = new JObject;
+	    $group->group_id = $groupId;
+	    $groups[] = $group;
 	  }
 	}
       }
 
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true);
-
-      //Delete all the previous mappings. 
-      $query->delete('#__ketshop_attrib_group')
-	    ->where('attrib_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->query();
-
-      if(!empty($values)) {
-	$columns = array('attrib_id', 'group_id');
-	//Insert a new row for each group linked to the attribute.
-	$query->clear();
-	$query->insert('#__ketshop_attrib_group')
-	      ->columns($columns)
-	      ->values($values);
-	$db->setQuery($query);
-	$db->query();
-      }
+      //Set fields.
+      $columns = array('attrib_id', 'group_id');
+      KetshopHelper::updateMappingTable('#__ketshop_attrib_group', $columns, $groups, array($data->id));
 
       return true;
+    }
+    elseif($context == 'com_ketshop.filter') { //FILTER
+      //Get all of the POST data.
+      $post = JFactory::getApplication()->input->post->getArray();
+      $attribIds = $attributes = array();
+
+      //Search for possible attributes linked to the filter.
+      foreach($post as $key => $attribId) {
+	if(preg_match('#^attribute_id_([0-9]+)$#', $key)) {
+	  //Prevent duplicate or empty attribute id.
+	  if((int)$attribId && !in_array($attribId, $attribIds)) {
+	    $attribute = new JObject;
+	    $attribute->attrib_id = $attribId;
+	    $attributes[] = $attribute;
+	  }
+	}
+      }
+
+      //Set fields.
+      $columns = array('filter_id', 'attrib_id');
+      KetshopHelper::updateMappingTable('#__ketshop_filter_attrib', $columns, $attributes, array($data->id));
     }
     elseif($context == 'com_categories.category' && $data->extension == 'com_ketshop') { //COMPONENT CATEGORIES
       return true;

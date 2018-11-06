@@ -31,4 +31,6 @@ DROP TABLE IF EXISTS `#__ketshop_ship_region`;
 DROP TABLE IF EXISTS `#__ketshop_shop`;
 DROP TABLE IF EXISTS `#__ketshop_tax`;
 DROP TABLE IF EXISTS `#__ketshop_translation`;
+DROP TABLE IF EXISTS `#__ketshop_filter`;
+DROP TABLE IF EXISTS `#__ketshop_filter_attrib`;
 DROP TABLE IF EXISTS `#__ketshop_unit_measurement`;

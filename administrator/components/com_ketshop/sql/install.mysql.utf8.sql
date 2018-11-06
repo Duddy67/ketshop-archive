@@ -383,6 +383,37 @@ ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
+-- Table `#__ketshop_filter`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `#__ketshop_filter`;
+CREATE TABLE `#__ketshop_filter` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(80) NOT NULL ,
+  `main_tag_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `description` TEXT NULL ,
+  `published` TINYINT NOT NULL DEFAULT 0 , 
+  `checked_out` INT UNSIGNED NOT NULL DEFAULT 0 , 
+  `checked_out_time` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `created_by` INT UNSIGNED NOT NULL ,
+  `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified` DATETIME NULL DEFAULT '0000-00-00 00:00:00' ,
+  `modified_by` INT UNSIGNED NOT NULL ,
+  PRIMARY KEY (`id`) )
+ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
+-- Table `#__ketshop_filter_attrib`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `#__ketshop_filter_attrib`;
+CREATE TABLE `#__ketshop_filter_attrib` (
+  `filter_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  INDEX `idx_filter_id` (`filter_id` ASC) )
+ENGINE = MyISAM DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
 -- Table `#__ketshop_attribute`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `#__ketshop_attribute`;

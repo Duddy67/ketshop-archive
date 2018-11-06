@@ -38,9 +38,11 @@ class JFormFieldMaintaglist extends TagField
     $db    = Factory::getDbo();
     $query = $db->getQuery(true)
 	    ->select('DISTINCT a.id AS value, a.path, a.title AS text, a.level,'.
-		     'a.published, a.lft, (s.main_tag_id IS NOT NULL) AS is_main_tag')
+		     'a.published, a.lft, (s.main_tag_id IS NOT NULL) AS is_main_tag, IFNULL(f.main_tag_id, 0) AS filter_main_tag_id')
 	    ->from('#__tags AS a')
 	    ->join('LEFT', $db->qn('#__tags') . ' AS b ON a.lft > b.lft AND a.rgt < b.rgt')
+	    //Checks whether the tag is used as main tag by the filter.
+	    ->join('LEFT', $db->qn('#__ketshop_filter') . ' AS f ON f.main_tag_id = a.id')
 	    //Checks whether the tag is used as main tag by the product.
 	    ->join('LEFT', $db->qn('#__ketshop_product') . ' AS s ON s.main_tag_id = a.id');
 
@@ -110,17 +112,20 @@ class JFormFieldMaintaglist extends TagField
 	    }
     }
 
-    //Gets the very first option (Select) from the parent options.
-    $selectOption = array_slice(parent::getOptions(), 0, 1);
-    // Merge the select option in the XML definition.
-    $options = array_merge($selectOption, $options);
-
     // Prepare nested data
     if ($this->isNested())
     {
-      //Disables the tags which are not used as main tags.
       foreach($options as $key => $option) {
-	if(isset($option->is_main_tag) && !$option->is_main_tag) {
+	//Disables the tags which are not used as main tags.
+	if(!$option->is_main_tag) {
+	  $option->disable = true;
+	}
+
+	//Disables the main tags which are already used by the filter items.
+	if($this->form->getName() == 'com_ketshop.filter' &&
+	   //Do not disabled the main tag currently selected by the filter item.
+	   $option->value != (int)$this->form->getData()->get('main_tag_id') &&
+	   $option->value == $option->filter_main_tag_id) {
 	  $option->disable = true;
 	}
       }
@@ -131,6 +136,11 @@ class JFormFieldMaintaglist extends TagField
     {
       $options = TagsHelper::convertPathsToNames($options);
     }
+
+    //Gets the very first option (Select) from the parent options.
+    $selectOption = array_slice(parent::getOptions(), 0, 1);
+    // Merge the select option in the XML definition.
+    $options = array_merge($selectOption, $options);
 
     return $options;
   }
