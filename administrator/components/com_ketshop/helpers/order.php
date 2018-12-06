@@ -114,7 +114,7 @@ class OrderHelper
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
-		   'p.type, p.attribute_group, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
+		   'p.type, p.has_variants, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
 		   'op.tax_rate, op.var_id, op.quantity, op.prod_id, p.variant_name, op.cart_rules_impact,'.
 		   'pv.published AS var_published, pv.stock AS var_stock')
 	  ->from('#__ketshop_order_prod AS op')

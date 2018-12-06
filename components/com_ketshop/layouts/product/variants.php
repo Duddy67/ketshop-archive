@@ -1,7 +1,7 @@
 <?php
 /**
- * @package JooShop
- * @copyright Copyright (c)2012 - 2015 Lucas Sanner
+ * @package KetShop
+ * @copyright Copyright (c)2016 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -35,7 +35,11 @@ if($displayData->shop_settings['tax_method'] == 'excl_tax') {
     <option value="<?php echo $variant['var_id']; ?>" <?php echo $disabled; ?>><?php 
           $text = '';
 	  foreach($variant['attributes'] as $attribute) {
-	    $text .= $attribute['attrib_text'].' / ';
+	    foreach($attribute['options'] as $option) {
+	      if(!empty($option['selected'])) {
+		$text .= $option['option_text'].' / ';
+	      }
+	    }
 	  }
 	  //Remove separation characters from the end of the string.
 	  $text = substr($text, 0, -3);
@@ -52,8 +56,13 @@ if($displayData->shop_settings['tax_method'] == 'excl_tax') {
 	  if($variant['sale_price'] > 0 && $variant['base_price'] > 0) {
 	    $text = '';
 	    foreach($variant['attributes'] as $attribute) {
-	      $text .= $attribute['attrib_text'].' / ';
+	      foreach($attribute['options'] as $option) {
+		if(!empty($option['selected'])) {
+		  $text .= $option['option_text'].' / ';
+		}
+	      }
 	    }
+
 	    //Remove separation characters from the end of the string.
 	    $text = substr($text, 0, -3);
 

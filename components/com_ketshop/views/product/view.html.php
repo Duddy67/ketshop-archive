@@ -31,6 +31,7 @@ class KetshopViewProduct extends JViewLegacy
     $this->state = $this->get('State');
     $this->item = $this->get('Item');
     $this->images = $this->get('Images');
+    $model = $this->getModel();
     $user = JFactory::getUser();
 
     // Check for errors.
@@ -49,7 +50,8 @@ class KetshopViewProduct extends JViewLegacy
     $this->uri = JUri::getInstance();
 
     //Get the attributes of the product.
-    $this->item->attributes = ShopHelper::getProductAttributes(array($this->item->id));
+    $this->item->attributes = $model->getAttributeData($this->item->id);
+
     //Needed for the product properties layouts.
     $this->item->attributes_location = $this->item->weight_location = $this->item->dimensions_location = 'page';
 
@@ -76,7 +78,7 @@ class KetshopViewProduct extends JViewLegacy
     }
 
     //Get possible product variants.
-    $this->item->variants = ShopHelper::getProductVariants($this->item);
+    $this->item->variants = $model->getVariantData($this->item->id);
 
     //Check for product variants.
     if(!empty($this->item->variants)) { 

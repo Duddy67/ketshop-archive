@@ -164,27 +164,9 @@
 		<option value="90">90 %</option>
 	</field>
 
-	<field name="attribute_group" type="list"
-		label="COM_KETSHOP_FIELD_ATTRIBUTE_GROUP_LABEL"
-		description="COM_KETSHOP_FIELD_ATTRIBUTE_GROUP_DESC"
-		class="inputbox" size="1" default="0">
-		<option value="0">COM_KETSHOP_OPTION_SELECT</option>
-		<option value="1">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_1</option>
-		<option value="2">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_2</option>
-		<option value="3">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_3</option>
-		<option value="4">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_4</option>
-		<option value="5">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_5</option>
-		<option value="6">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_6</option>
-		<option value="7">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_7</option>
-		<option value="8">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_8</option>
-		<option value="9">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_9</option>
-		<option value="10">COM_KETSHOP_OPTION_ATTRIBUTE_GROUP_10</option>
-	</field>
-
 	<field name="variant_name" type="text"
 		label="COM_KETSHOP_FIELD_VARIANT_NAME_LABEL"
-		description="COM_KETSHOP_FIELD_VARIANT_NAME_DESC"
-		class="input-xxlarge input-large-text" />
+		description="COM_KETSHOP_FIELD_VARIANT_NAME_DESC" />
 
 	<field name="tax_id" type="taxlist"
 		label="COM_KETSHOP_FIELD_TAX_LABEL" description="COM_KETSHOP_FIELD_TAX_DESC"

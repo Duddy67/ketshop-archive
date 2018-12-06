@@ -17,7 +17,6 @@ class KetshopViewFilter extends JViewLegacy
 {
   public function display($tpl = null)
   {
-file_put_contents('debog_file.txt', print_r('', true));
     $jinput = JFactory::getApplication()->input;
     //Collects the required variables.
     $filterId = $jinput->get('filter_id', 0, 'uint');

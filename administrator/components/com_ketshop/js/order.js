@@ -77,7 +77,7 @@
       var initialQty = $('#initial_quantity_'+ids).val();
       var stockSubtract = $('#stock_subtract_'+ids).val();
       var stock = $('#stock_'+ids).val();
-      var attribGroup = $('#attribute_group_'+ids).val();
+      var hasVariants = $('#has_variants__'+ids).val();
       var alias = $('#alias_'+ids).val();
       var type = $('#type_'+ids).val();
       //Insert dynamicaly an array of data for each product of the order.
@@ -89,7 +89,7 @@
 			      'min_quantity':minQty,'max_quantity':maxQty, 
 			      'initial_quantity':initialQty,
 			      'stock_subtract':stockSubtract, 'stock':stock,
-			      'attribute_group':attribGroup, 'alias':alias, 'type':type});
+			      'has_variants':hasVariants, 'alias':alias, 'type':type});
      });
 
     return urlQuery;

@@ -19,8 +19,6 @@
 
     if(productType == 'normal' && productId != 0) {
       $('#variant').getContainer();
-      //Remove all variant items whenever group changes.
-      $('#jform_attribute_group').change( function() { $('#variant-container').removeItem(); });
     }
 
     if(productType == 'bundle') {
@@ -31,7 +29,6 @@
 
     //Set as function the global variables previously declared in edit.php file.
     checkAlias = $.fn.checkAlias;
-    checkAttrValType = $.fn.checkAttrValType;
     checkVariantValType = $.fn.checkVariantValType;
 
     //If the product item exists we need to get the data of the dynamical items.
@@ -110,105 +107,58 @@
     var linkToModal = baseUrl+'administrator/index.php?option=com_ketshop&view=attributes&layout=modal&tmpl=component&id_nb='+idNb;
     $('#attribute-item-'+idNb).createButton('select', 'javascript:void(0);', linkToModal);
 
-    //Create the "name" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE')};
+    //Create the "Value" label.
+    properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_VALUE_TITLE')};
     $('#attribute-item-'+idNb).createHTMLTag('<span>', properties, 'item-name-label');
-    $('#attribute-item-'+idNb+' .item-name-label').text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
+    $('#attribute-item-'+idNb+' .item-name-label').text(Joomla.JText._('COM_KETSHOP_ITEM_VALUE_LABEL'));
 
-    // Create a dummy text field to store the name.
-    properties = {'type':'text', 'disabled':'disabled', 'id':'attribute-name-'+idNb, 'value':data.name};
-    $('#attribute-item-'+idNb).createHTMLTag('<input>', properties, 'attribute-name');
+    //Creates an empty select list.
+    properties = {'name':'attribute_value_'+idNb, 'id':'attribute-value-'+idNb};
+    $('#attribute-item-'+idNb).createHTMLTag('<select>', properties, 'attribute-value-select');
+
+    //Some data has been provided.
+    if(data.id != '') {
+      $.fn.loadAttributeOptions(idNb, data);
+    }
+
     //Create the removal button.
     $('#attribute-item-'+idNb).createButton('remove');
     $('#attribute-item-'+idNb).append('<span class="attribute-separator">&nbsp;</span>');
-
-    //Create the "value" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_ATTRIBUTE_VALUES_TITLE'), 'id':'attribute-field-value-1-'+idNb+'-lbl'};
-    $('#attribute-item-'+idNb).createHTMLTag('<span>', properties, 'attribute-values-label');
-    $('#attribute-item-'+idNb+' .attribute-values-label').text(Joomla.JText._('COM_KETSHOP_ATTRIBUTE_VALUES_LABEL'));
-
-    //Some data has been provided.
-    if(data.field_type_1 !== undefined) {
-      $.fn.loadAttributeFields(idNb, data);
-    } else { //Create  2 empty dummy tags as attribute values.
-      properties = {'name':'attribute_field_value_1_'+idNb, 'id':'attribute-value-list-1-'+idNb};
-      $('#attribute-item-'+idNb).createHTMLTag('<select>', properties, 'attribute-value-select');
-      properties = {'type':'hidden', 'name':'attribute_field_value_2_'+idNb, 'id':'attribute-value-list-2-'+idNb, 'value':''};
-      $('#attribute-item-'+idNb).createHTMLTag('<input>', properties);
-    }
-
   };
 
 
-  $.fn.loadAttributeFields = function(idNb, data) {
-    //Before loading the attribute fields we need to turn their
-    //values into an array thanks to the Javascript split function.  
-    //Note: When the string is empty, split returns an array containing one empty
-    //string, rather than an empty array.
-    data.field_value_1 = data.field_value_1.split('|');
-    data.field_text_1 = data.field_text_1.split('|');
-    data.selected_value_1 = data.selected_value_1.split('|'); //Just in case the closed list is set as a multiselect drop down list.
-    data.field_value_2 = data.field_value_2.split('|');
-    data.field_text_2 = data.field_text_2.split('|');
-    //Put single value into an array anyway as it will be easier to check.
-    data.selected_value_2 = data.selected_value_2.split('|'); 
-
-    //Array used as a selected switch via its id (0 -> no selected or 1 -> selected)
-    var selected = new Array('', ' selected="selected"');
-
-    if(data.field_type_1 == 'closed_list') {
-      //If there is just one attribute value and the multiselect option is set we use a multi select drop down list.
-      if(data.field_type_2 == 'none' && data.multiselect == 1) {
-	properties = {'multiple':'multiple', 'name':'attribute_field_value_1_'+idNb+'[]', 'id':'attribute-value-list-1-'+idNb};
-      }
-      else { //Use a single select drop down list.
-	properties = {'name':'attribute_field_value_1_'+idNb, 'id':'attribute-value-list-1-'+idNb};
-      }
-
-      $('#attribute-item-'+idNb).createHTMLTag('<select>', properties, 'attribute-value-select');
-
-      //Fill the drop down list with the corresponding data.
-      var options = '';
-      for(var i = 0; i < data.field_value_1.length; i++) {
-	//Check if this value is selected.
-	var isSelected = $.fn.inArray(data.field_value_1[i], data.selected_value_1);
-	//Note: Use option value as option text.
-	options += '<option value="'+data.field_value_1[i]+'" '+selected[isSelected]+'>'+data.field_text_1[i]+'</option>';
-      }
-      //Add the options to the select tag.
-      $('#attribute-value-list-1-'+idNb).html(options);
-    }
-    else { //open_field
-      //Create a text input and fill it with the corresponding data if any.
-      properties = {'type':'text', 'name':'attribute_field_value_1_'+idNb, 'id':'attribute-field-value-1-'+idNb, 'value':data.field_value_1};
-      $('#attribute-item-'+idNb).createHTMLTag('<input>', properties, 'attribute-value-input');
-
-      //Create a hidden field to store the value type which must be entered.
-      properties = {'type':'hidden', 'name':'attribute_value_type_'+idNb, 'id':'attribute-value-type-'+idNb, 'value':data.value_type};
-      $('#attribute-item-'+idNb).createHTMLTag('<input>', properties);
+  $.fn.loadAttributeOptions = function(idNb, data, attributeId) {
+    //Variant attributes need an extra id to sort them out later.
+    var extraId = ['', ''];
+    //Checks if an attribute id is provided.
+    if($.isNumeric(attributeId)) {
+      extraId[0] = '-'+attributeId; //For the tag id (hyphen)
+      extraId[1] = '_'+attributeId; //For the tag name (underscore)
     }
 
-    //Do the same for the second attribute field.
-    if(data.field_type_2 != 'none' && data.field_type_2 != 'open_field') {
-      //Always use a single select drop down list for the second attribute value.
-      properties = {'name':'attribute_field_value_2_'+idNb, 'id':'attribute-value-list-2-'+idNb};
-      $('#attribute-item-'+idNb).createHTMLTag('<select>', properties, 'attribute-value-select');
-      var options = '';
-      for(var i = 0; i < data.field_value_2.length; i++) {
-	var isSelected = $.fn.inArray(data.field_value_2[i], data.selected_value_2);
-	options += '<option value="'+data.field_value_2[i]+'" '+selected[isSelected]+'>'+data.field_text_2[i]+'</option>';
-      }
+    var disabled = '';
+    //If the multiselect option is set we use a multi select drop down list.
+    if(data.multiselect == 1) {
+      var properties = {'multiple':'multiple', 'name':'attribute_value_'+idNb+extraId[1]+'[]'};
+      $('#attribute-value-'+idNb+extraId[0]).attr(properties);
+      //Prevents the very first option to be checked.
+      disabled = 'disabled="disabled"';
+    }
 
-      $('#attribute-value-list-2-'+idNb).html(options);
+    //Fill the drop down list with the corresponding data.
+    var options = '';
+    //Creates the very first option.
+    options += '<option value="" '+disabled+'> - '+data.name+' - </option>';
+
+    for(var i = 0; i < data.options.length; i++) {
+      //Check if this option is selected.
+      var isSelected = data.options[i].selected;
+      //Creates the options.
+      options += '<option value="'+data.options[i].option_value+'" '+isSelected+'>'+data.options[i].option_text+'</option>';
     }
-    else if(data.field_type_2 == 'open_field') {
-      properties = {'type':'text', 'name':'attribute_field_value_2_'+idNb, 'id':'attribute-field-value-2-'+idNb, 'value':data.field_value_2};
-      $('#attribute-item-'+idNb).createHTMLTag('<input>', properties, 'attribute-value-input');
-    }
-    else { //none  Note: The second field is optional so we just create an hidden field.
-      properties = {'type':'hidden', 'name':'attribute_field_value_2_'+idNb, 'id':'attribute-value-list-2-'+idNb, 'value':''};
-      $('#attribute-item-'+idNb).createHTMLTag('<input>', properties);
-    }
+
+    //Adds the options to the select list.
+    $('#attribute-value-'+idNb+extraId[0]).append(options);
 
     //Change the item class to indicate that the item is unpublished archived or trashed.
     if(data.published != 1) {
@@ -223,16 +173,13 @@
     //Invoke our standard function to set the id an name of the
     //selected item. 
     window.jQuery.selectItem(id, name, idNb, 'attribute');
-    //Remove the current attribute fields.
-    $('#attribute-value-list-1-'+idNb).remove();
-    $('#attribute-value-list-2-'+idNb).remove();
-    $('#attribute-field-value-1-'+idNb).remove();
-    $('#attribute-field-value-2-'+idNb).remove();
+    //Empties all the possible options of the select list. 
+    $('#attribute-value-'+idNb).empty();
 
     //Gets the token's name as value.
     var token = $('#token').attr('name');
     //Sets up the ajax query.
-    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'attribute_fields', 'attribute_id':id};
+    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'attribute', 'attribute_id':id};
 
     //Get the fields and their values from database.
     $.ajax({
@@ -241,8 +188,8 @@
 	data: urlQuery,
 	//Get results as a json array.
 	success: function(results, textStatus, jqXHR) {
-	  //Load the fields of the selected attribute.
-	  $.fn.loadAttributeFields(idNb, results.data);
+	  //Load the options of the selected attribute.
+	  $.fn.loadAttributeOptions(idNb, results.data);
 	},
 	error: function(jqXHR, textStatus, errorThrown) {
 	  //Display the error.
@@ -360,33 +307,6 @@
   };
 
 
-  $.fn.checkAttrValType = function() {
-    var ret = true;
-    var regex = /(attribute_value_type_)([0-9]+)/;
-    //Search for all value type tags.
-    $('input[name^="attribute_value_type_"]').each(function(i, tag) { 
-      var valueType = tag.value;
-      //Get the id number from the tag name.
-      var match = regex.exec(tag.name);
-      var idNb = match[2];
-      //Get the corresponding field value.
-      var fieldValue = $('input[name="attribute_field_value_1_'+idNb+'"]').val();
-      //Check value type.
-      if(!$.fn.checkValueType(fieldValue, valueType)) {
-        ret = false;
-	//Show off the concerned field.
-	alertRed('attribute-field-value-1-'+idNb, 'attributes');
-
-	alert(Joomla.JText._('COM_KETSHOP_ERROR_INCORRECT_VALUE_TYPE')+' : '+fieldValue+'\r'+Joomla.JText._('COM_KETSHOP_EXPECTED_VALUE_TYPE')+' : '+valueType);
-
-	return false; //Important: Just breaks the each() loop but doesn't return false to the calling function.
-      }
-    });
-
-    return ret;
-  };
-
-
   $.fn.checkVariantValType = function() {
     var fieldTypes = {'ordering':'unsigned_int','variant_name':'string','stock':'unsigned_int',
                       'base_price':'unsigned_float','sale_price':'unsigned_float','code':'string',
@@ -425,43 +345,6 @@
 
 
   $.fn.createVariantItem = function(idNb, data) {
-    //Get the selected attribute group id.
-    var attribGroupId = $('#jform_attribute_group').val();
-    //Get all the attribute groups.
-    var attribGroups = ketshop.getAttributeGroups();
-    var attribGroup = new Array();
-
-    //Check if all groups are empty.
-    if(!attribGroups.length) {
-      //Remove the container newly created.
-      $('#variant-container').removeItem();
-
-      alert(Joomla.JText._('COM_KETSHOP_ALL_ATTRIBUTE_GROUPS_EMPTY'));
-      return false;
-    }
-
-    //Search for the selected group.
-    for(var i = 0; i < attribGroups.length; i++) {
-      if(attribGroups[i].group_id == attribGroupId) {
-	attribGroup.push(attribGroups[i]);
-      }
-    }
-
-    //Check for empty group.
-    if(!attribGroup.length) {
-      //Remove the container newly created.
-      $('#variant-container').removeItem();
-
-      if(attribGroupId != 0) {
-	alert(Joomla.JText._('COM_KETSHOP_ATTRIBUTE_GROUP_EMPTY'));
-      }
-      else {
-	alert(Joomla.JText._('COM_KETSHOP_NO_ATTRIBUTE_GROUP_SELECTED'));
-      }
-
-      return false;
-    }
-
     //First create divs in which we'll put all the variant fields.
     var properties = {'id':'variant-left-div-'+idNb};
     $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
@@ -472,42 +355,28 @@
     properties = {'id':'variant-right-div-'+idNb};
     $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
 
-    //Build a drop down list for each attribute.
-    for(var i = 0; i < attribGroup.length; i++) {
-      //var attribute = attribGroup[i];  
-      var field_value_1 = attribGroup[i].field_value_1.split('|');
-      var field_text_1 = attribGroup[i].field_text_1.split('|');
-      //Note: Store the attribute id just before the id number.
-      properties = {'name':'attribute_'+attribGroup[i].id+'_'+idNb, 'id':'attribute-'+attribGroup[i].id+'-'+idNb};
-      $('#variant-right-div-'+idNb).createHTMLTag('<select>', properties, 'variant-field');
+    //Gets the attributes linked to the product (in the attributes tab).
+    //Note: Used whenever a brand new variant item is created.
+    var attributes = ketshop.getProductAttributes();
 
-      //Fill the drop down list with the attribute values.
-      var options = '';
-      for(var j = 0; j < field_value_1.length; j++) {
-	var selected = '';
-	if(data.var_id) { //Item exists.
-	  //Check if this value is selected.
-	  for(var k = 0; k < data.attributes.length; k++) {
-	    //Attribute id must be checked too.
-	    if(data.attributes[k].attrib_value == field_value_1[j] && data.attributes[k].attrib_id == attribGroup[i].id) {
-	      selected = ' selected="selected"';
-	      break;
-	    }
-	  }
-	}
+    //If data is provided gets the attributes with the selected options.
+    if(data.var_id != '' && data.attributes.length > 0) {
+      attributes = data.attributes;
+    }
 
-	//Note: Use option value as option text.
-	options += '<option value="'+field_value_1[j]+'" '+selected+'>'+field_text_1[j]+'</option>';
-      }
-      //Add the options to the select tag.
-      $('#attribute-'+attribGroup[i].id+'-'+idNb).html(options);
+    for(var i = 0; i < attributes.length; i++) {
+      //Creates a div for the select element.
+      properties = {'id':'variant-attribute-div-'+idNb+'-'+attributes[i].id};
+      $('#variant-right-div-'+idNb).createHTMLTag('<div>', properties, 'variant-attribute-div');
 
-      //Create the attribute name tag.
-      properties = {'title':attribGroup[i].name, 'id':'attribute-name-'+attribGroup[i].id+'-'+idNb};
-      var newTag = $('<span>').attr(properties);
-      newTag.addClass('variant-label');
-      $('#attribute-'+attribGroup[i].id+'-'+idNb).before(newTag);
-      $('#attribute-name-'+attribGroup[i].id+'-'+idNb).text(attribGroup[i].name);
+      properties = {'title':attributes[i].name};
+      $('#variant-attribute-div-'+idNb+'-'+attributes[i].id).createHTMLTag('<span>', properties, 'item-name-label');
+      $('#variant-attribute-div-'+idNb+'-'+attributes[i].id+' .item-name-label').text(attributes[i].name);
+
+      //Creates an empty select list.
+      properties = {'name':'attribute_value_'+idNb+'_'+attributes[i].id, 'id':'attribute-value-'+idNb+'-'+attributes[i].id};
+      $('#variant-attribute-div-'+idNb+'-'+attributes[i].id).createHTMLTag('<select>', properties, 'attribute-value-select');
+      $.fn.loadAttributeOptions(idNb, attributes[i], attributes[i].id);
     }
 
     //Create the hidden input tag to store the variant id.
@@ -539,11 +408,14 @@
 	options = '';
 	for(var j = 0; j < 2; j++) {
 	  selected = '';
+
 	  if(data[fieldName] == j) {
 	    selected = 'selected="selected"';
 	  }
+
 	  options += '<option value="'+j+'" '+selected+'>'+Joomla.JText._('COM_KETSHOP_YESNO_'+j)+'</option>';
 	}
+
 	//Add the options to the select tag.
 	$('#'+fieldId+'-'+idNb).html(options);
       }
@@ -558,8 +430,7 @@
 	}
       }
 
-      properties =
-      {'title':Joomla.JText._('COM_KETSHOP_'+fieldName.toUpperCase()+'_TITLE'), 'id':fieldId+'-'+idNb+'-lbl'};
+      properties = {'title':Joomla.JText._('COM_KETSHOP_'+fieldName.toUpperCase()+'_TITLE'), 'id':fieldId+'-'+idNb+'-lbl'};
       newTag = $('<span>').attr(properties);
       newTag.addClass('variant-label');
       $('#'+fieldId+'-'+idNb).before(newTag);
@@ -570,7 +441,6 @@
 
     //Create the item removal button.
     $('#variant-item-'+idNb).createButton('remove');
-
   };
 
 })(jQuery);

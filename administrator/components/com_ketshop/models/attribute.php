@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -28,7 +28,7 @@ class KetshopModelAttribute extends JModelAdmin
   {
     $form = $this->loadForm('com_ketshop.attribute', 'attribute', array('control' => 'jform', 'load_data' => $loadData));
 
-    if(empty($form)) { 
+    if(empty($form)) {
       return false;
     }
 
@@ -48,51 +48,22 @@ class KetshopModelAttribute extends JModelAdmin
     return $data;
   }
 
-  //Check if the current attribute is used as a product variant.
-  public function isUsed($asVariant = false) 
-  {
-    $attribute = $this->getItem();
 
-    if($attribute->id) {
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true);
-
-      $query->select('COUNT(*)');
-
-      if($asVariant) {
-	$query->from('#__ketshop_var_attrib');
-      }
-      else {
-	$query->from('#__ketshop_prod_attrib');
-      }
-
-      $query->where('attrib_id='.$attribute->id);
-      $db->setQuery($query);
-
-      if($db->loadResult()) {
-	return true;
-      }
-    }
-
-    return false;
-  }
-
-
-  public function getAttributeGroups($pk = null) 
+  public function getOptions($pk = null) 
   {
     $pk = (!empty($pk)) ? $pk : (int)$this->getState($this->getName().'.id');
 
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    //Gets the group ids linked to the attribute.
-    $query->select('group_id')
-	  ->from('#__ketshop_attrib_group')
+    //Gets the options linked to the attribute.
+    $query->select('option_value, option_text, published, ordering')
+	  ->from('#__ketshop_attrib_option')
 	  ->where('attrib_id='.(int)$pk)
-	  ->order('group_id');
+	  ->order('ordering');
     $db->setQuery($query);
 
-    return $db->loadColumn();
+    return $db->loadAssocList();
   }
 }
 

@@ -1,14 +1,14 @@
 <?php
 /**
- * @package KetShop 
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @package KetShop
+ * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
 
 defined( '_JEXEC' ) or die; // No direct access
  
-jimport('joomla.application.component.view');
+jimport( 'joomla.application.component.view');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
  
 
@@ -29,7 +29,7 @@ class KetshopViewAttributes extends JViewLegacy
 
     //Check for errors.
     if(count($errors = $this->get('Errors'))) {
-      JError::raiseError(500, implode('<br />', $errors));
+      JFactory::getApplication()->enqueueMessage($errors, 'error');
       return false;
     }
 
@@ -48,7 +48,7 @@ class KetshopViewAttributes extends JViewLegacy
   protected function addToolBar() 
   {
     //Display the view title and the icon.
-    JToolBarHelper::title(JText::_('COM_KETSHOP_ATTRIBUTES_TITLE'), 'shop-price-tag');
+    JToolBarHelper::title(JText::_('COM_KETSHOP_ATTRIBUTES_TITLE'), 'tag');
 
     //Get the allowed actions list
     $canDo = KetshopHelper::getActions();

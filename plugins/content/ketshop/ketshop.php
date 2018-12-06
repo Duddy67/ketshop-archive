@@ -16,6 +16,8 @@ require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/bundle.ph
 
 class plgContentKetshop extends JPlugin
 {
+  protected $post;
+
   /**
    * Constructor.
    *
@@ -30,6 +32,8 @@ class plgContentKetshop extends JPlugin
     $lang = JFactory::getLanguage();
     $langTag = $lang->getTag();
     $lang->load('com_ketshop', JPATH_ROOT.'/administrator/components/com_ketshop', $langTag);
+    //Get all of the POST data.
+    $this->post = JFactory::getApplication()->input->post->getArray();
 
     parent::__construct($subject, $config);
   }
@@ -44,8 +48,7 @@ class plgContentKetshop extends JPlugin
 	//Delete the stock attribute so that its new value is not taken into account.
 	unset($data->stock);
 
-	//The product has variants.
-	if($data->attribute_group) {
+	if($data->has_variants) {
 	  //Get the current product variants.
 	  $db = JFactory::getDbo();
 	  $query = $db->getQuery(true);
@@ -105,7 +108,7 @@ class plgContentKetshop extends JPlugin
 	$query->delete('#__ketshop_product_tag_map')
 	      ->where('tag_id='.(int)$data->id);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
     }
 
@@ -126,6 +129,7 @@ class plgContentKetshop extends JPlugin
 
       //Get all of the POST data.
       $post = JFactory::getApplication()->input->post->getArray();
+      $model = JModelLegacy::getInstance('Product', 'KetshopModel');
 
       // Create a new query object.
       $db = JFactory::getDbo();
@@ -135,11 +139,11 @@ class plgContentKetshop extends JPlugin
       if($data->type == 'bundle') {
 	//Retrieve all the new set bundle products from the POST array.
 	$bundleProducts = array();
-	foreach($post as $key=>$val) {
+	foreach($this->post as $key=> $val) {
 	  if(preg_match('#^bundleproduct_id_([0-9]+)$#', $key, $matches)) {
 	    $bundleProductNb = $matches[1];
-	    $bundleProductId = $post['bundleproduct_id_'.$bundleProductNb];
-	    $bundleProductQty = $post['bundleproduct_quantity_'.$bundleProductNb];
+	    $bundleProductId = $this->post['bundleproduct_id_'.$bundleProductNb];
+	    $bundleProductQty = $this->post['bundleproduct_quantity_'.$bundleProductNb];
 
 	    $bundleProduct = new JObject;
 	    $bundleProduct->id = $bundleProductId;
@@ -162,117 +166,51 @@ class plgContentKetshop extends JPlugin
 
       //Retrieve all the new set attributes from the POST array then save them as
       //objects and put them into an array.
-      $attributes = $attribIds = array();
+      $attributes = $attributeIds = array();
 
-      foreach($post as $key => $val) {
+      foreach($this->post as $key => $val) {
 	if(preg_match('#^attribute_id_([0-9]+)$#', $key, $matches)) {
 	  $attribNb = $matches[1];
-	  $attribId = $post['attribute_id_'.$attribNb];
-	  //Value lists are either an array (when they're coming from a multiselect
-	  //list) or a single value (when they're coming from an input field).
-	  $fieldValue1 = $post['attribute_field_value_1_'.$attribNb];
+	  $attribId = $this->post['attribute_id_'.$attribNb];
 
-	  $attribFieldValue1 = '';
-	  if(is_array($fieldValue1)) {
-	    //Concatenate values as a string separated with |.
-	    foreach($fieldValue1 as $value) {
-	      $attribFieldValue1 .= $value.'|';
-	    }
-
-	    //Remove the last | from the end of the string.
-	    $attribFieldValue1 = substr($attribFieldValue1, 0, -1);
-	  }
-	  else {
-	    $attribFieldValue1 = $fieldValue1;
+	  //Prevents duplicates.
+	  if(in_array($attribId, $attributeIds)) {
+	    continue;
 	  }
 
-	  //Same thing for value list 2 if any
-	  $fieldValue2 = $post['attribute_field_value_2_'.$attribNb];
-	  $attribFieldValue2 = '';
+	  $attributeIds[] = $attribId;
 
-	  if(is_array($fieldValue2)) {
-	    foreach($fieldValue2 as $value) {
-	      $attribFieldValue2 .= $value.'|';
-	    }
-	    //Remove the last | from the end of the string.
-	    $attribFieldValue2 = substr($attribFieldValue2, 0, -1);
-	  }
-	  else {
-	    $attribFieldValue2 = $fieldValue2;
-	  }
-
-	  if(!empty($attribFieldValue1)) { //Check for empty field.  
+	  //Check first for empty field.  
+	  if(isset($this->post['attribute_value_'.$attribNb]) && !empty($this->post['attribute_value_'.$attribNb])) { 
+	    $value = $this->post['attribute_value_'.$attribNb];
 	    $attribute = new JObject;
-	    $attribute->id = $attribId;
-	    $attribute->field_value_1 = $attribFieldValue1;
-	    $attribute->field_text_1 = '';
-	    $attribute->field_value_2 = $attribFieldValue2;
-	    $attribute->field_text_2 = '';
+	    $attribute->attrib_id = $attribId;
+
+	    //Checks for multiselect.
+	    if(is_array($value)) {
+	      $value = json_encode($value);
+	    }
+
+	    $attribute->option_value = $value;
 	    $attributes[] = $attribute;
-	    $attribIds[] = $attribId;
-	  }
-	}
-      }
-
-      if(!empty($attribIds)) {
-	//In case of attributes used as closed list (drop down list) we must find out 
-	//what is the corresponding text for each selected value.
-	//It will be more convenient in frontend to retrieve text directly from db rather
-	//than using functions and ressources to figure it out.
-
-	//Get data of all the attributes linked to the product and used as closed list.
-	$query->clear();
-	$query->select('id, field_value_1, field_text_1, field_value_2, field_text_2')
-	      ->from('#__ketshop_attribute')
-	      ->where('id IN('.implode(',', $attribIds).')')
-	      ->where('(field_type_1="closed_list" OR (field_type_2!="open_field" && field_type_2!="none"))');
-	$db->setQuery($query);
-	//Set the array index with the attribute ids.
-	$fieldData = $db->loadAssocList('id');
-
-	foreach($attributes as $key => $attribute) {
-	  //Check out from the array index if the current attribute is 
-	  //defined in the list.
-	  if(!@is_null($fieldData[$attribute->id])) {
-	    //A no empty value means that we're dealing with a closed list.
-	    if(!empty($fieldData[$attribute->id]['field_value_1'])) {
-	      //Turn the value and text data of the drop down list into arrays.
-	      $fieldVal1 = explode('|', $fieldData[$attribute->id]['field_value_1']);
-	      $fieldText1 = explode('|', $fieldData[$attribute->id]['field_text_1']); 
-	      //The first field might be a multiselect drop down list so we need to 
-	      //turn it into an array just in case.
-	      $selectedVals = explode('|', $attribute->field_value_1); 
-	      //Search for the position of the selected value(s).
-	      foreach($fieldVal1 as $pos => $value) {
-		if(in_array($value, $selectedVals)) {
-		  //Set to the corresponding text value.
-		  $attributes[$key]->field_text_1 = $fieldText1[$pos].'|';
-		}
-	      }
-	      //Remove the last | from the end of the string.
-	      $attributes[$key]->field_text_1 = substr($attributes[$key]->field_text_1, 0, -1);
-	    }
-
-	    //Same thing for the second field.
-	    if(!empty($fieldData[$attribute->id]['field_value_2'])) {
-	      $fieldVal2 = explode('|', $fieldData[$attribute->id]['field_value_2']);
-	      $fieldText2 = explode('|', $fieldData[$attribute->id]['field_text_2']); 
-	      foreach($fieldVal2 as $pos => $value) {
-		if($value == $attribute->field_value_2) {
-		  $attributes[$key]->field_text_2 = $fieldText2[$pos];
-		  //No need to go further as the second field cannot be multiselect.
-		  break;
-		}
-	      }
-	    }
 	  }
 	}
       }
 
       //Set fields.
-      $columns = array('prod_id','attrib_id','field_value_1','field_text_1','field_value_2','field_text_2');
+      $columns = array('prod_id','attrib_id','option_value');
       //Update attributes.
       KetshopHelper::updateMappingTable('#__ketshop_prod_attrib', $columns, $attributes, array($data->id));
+
+      //Removes the variant attributes (if any) which don't match the product's
+      //current attributes.
+      $db = JFactory::getDbo();
+      $query = $db->getQuery(true);
+      $query->delete('#__ketshop_var_attrib')
+	    ->where('prod_id='.(int)$data->id)
+	    ->where('attrib_id NOT IN('.implode($attributeIds).')');
+      $db->setQuery($query);
+      $db->execute();
 
       //At last we end with images.
 
@@ -318,9 +256,9 @@ class plgContentKetshop extends JPlugin
 	  BundleHelper::updateBundle('all', $bundleIds);
 	}
 
-	//Check for product variants.
+	//Checks for product variants.
 	//Note: Only existing products can set variants.
-	KetshopHelper::setProductVariants($data->id, $post);
+	$model->setProductVariants($data->id, $this->post);
       }
 
       return true;
@@ -406,19 +344,19 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_prule_target')
 	    ->where('prule_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_prule_recipient')
 	    ->where('prule_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_prule_condition')
 	    ->where('prule_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Insert the new targets, recipients, and conditions which has been set.
 
@@ -447,7 +385,7 @@ class plgContentKetshop extends JPlugin
 	      ->columns($columns)
 	      ->values($values);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
 
       $columns = array('prule_id', 'item_id');
@@ -464,7 +402,7 @@ class plgContentKetshop extends JPlugin
 	      ->columns($columns)
 	      ->values($values);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
 
       if(count($recipientIds)) {
@@ -479,7 +417,7 @@ class plgContentKetshop extends JPlugin
 	      ->columns($columns)
 	      ->values($values);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
 
       return true;
@@ -552,31 +490,31 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_ship_postcode')
 	    ->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_city')
 	    ->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_region')
 	    ->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_country')
 	    ->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_continent')
 	    ->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Store items according to the delivery type chosen by the user.
       if($data->delivery_type == 'at_destination') {
@@ -596,7 +534,7 @@ class plgContentKetshop extends JPlugin
 		->columns($columns)
 		->values($values);
 	  $db->setQuery($query);
-	  $db->query();
+	  $db->execute();
 	}
 
 	//Store cities if any.
@@ -613,7 +551,7 @@ class plgContentKetshop extends JPlugin
 		->columns($columns)
 		->values($values);
 	  $db->setQuery($query);
-	  $db->query();
+	  $db->execute();
 	}
 
 	//Store regions if any.
@@ -630,7 +568,7 @@ class plgContentKetshop extends JPlugin
 		->columns($columns)
 		->values($values);
 	  $db->setQuery($query);
-	  $db->query();
+	  $db->execute();
 	}
 
 	//Store countries if any.
@@ -647,7 +585,7 @@ class plgContentKetshop extends JPlugin
 		->columns($columns)
 		->values($values);
 	  $db->setQuery($query);
-	  $db->query();
+	  $db->execute();
 	}
 
 	//Store continents if any.
@@ -664,7 +602,7 @@ class plgContentKetshop extends JPlugin
 		->columns($columns)
 		->values($values);
 	  $db->setQuery($query);
-	  $db->query();
+	  $db->execute();
 	}
       }
       else { //at_delivery_point
@@ -687,7 +625,7 @@ class plgContentKetshop extends JPlugin
 	//Execute the query.
 	$db = JFactory::getDbo();
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
 
       return true;
@@ -710,7 +648,7 @@ class plgContentKetshop extends JPlugin
 	$query->set($fields);
 	$query->where('id='.(int)$deliveryId);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
 
     }
@@ -734,17 +672,17 @@ class plgContentKetshop extends JPlugin
       //Execute the query.
       $db = JFactory::getDbo();
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       return true;
     }
     elseif($context == 'com_ketshop.attribute') { //ATTRIBUTE
       //Get all of the POST data.
-      $post = JFactory::getApplication()->input->post->getArray();
-      $groupIds = $groups = array();
+      //$post = JFactory::getApplication()->input->post->getArray();
+      //$groupIds = $groups = array();
 
       //Search for possible groups linked to the attribute.
-      foreach($post as $key => $groupId) {
+      /*foreach($this->post as $key => $groupId) {
 	if(preg_match('#^group_([0-9]+)$#', $key)) {
 
 	  //Prevent duplicate or empty group id.
@@ -754,11 +692,35 @@ class plgContentKetshop extends JPlugin
 	    $groups[] = $group;
 	  }
 	}
+      }*/
+
+      $options = array();
+      foreach($this->post as $key => $groupId) {
+	if(preg_match('#^option_value_([0-9]+)$#', $key, $matches)) {
+	  $optionNb = $matches[1];
+
+	  $value = trim($this->post['option_value_'.$optionNb]);
+	  $text = trim($this->post['option_text_'.$optionNb]);
+
+	  $published = 0;
+	  if(isset($this->post['option_published_'.$optionNb])) {
+	    $published = 1;
+	  }
+
+	  $ordering = $this->post['option_ordering_'.$optionNb];
+
+	  $option = new JObject;
+	  $option->value = $value;
+	  $option->text = $text;
+	  $option->published = $published;
+	  $option->ordering = $ordering;
+	  $options[] = $option;
+	}
       }
 
       //Set fields.
-      $columns = array('attrib_id', 'group_id');
-      KetshopHelper::updateMappingTable('#__ketshop_attrib_group', $columns, $groups, array($data->id));
+      $columns = array('attrib_id', 'option_value', 'option_text', 'published', 'ordering');
+      KetshopHelper::updateMappingTable('#__ketshop_attrib_option', $columns, $options, array($data->id));
 
       return true;
     }
@@ -805,35 +767,35 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_product_tag_map')
 	    ->where('product_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Remove the product id from the product attribute mapping table.
       $query->clear();
       $query->delete('#__ketshop_prod_attrib');
       $query->where('prod_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Remove the product id from the product variant mapping table.
       $query->clear();
       $query->delete('#__ketshop_product_variant');
       $query->where('prod_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Remove the product id from the variant attribute mapping table.
       $query->clear();
       $query->delete('#__ketshop_var_attrib');
       $query->where('prod_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Remove the product id from the product image mapping table.
       $query->clear();
       $query->delete('#__ketshop_prod_image');
       $query->where('prod_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       if($data->type == 'bundle') {
 	//Remove the product id from the product bundle mapping table.
@@ -841,7 +803,7 @@ class plgContentKetshop extends JPlugin
 	$query->delete('#__ketshop_prod_bundle');
 	$query->where('bundle_id='.(int)$data->id);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
 
     }
@@ -853,19 +815,19 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_prule_target');
       $query->where('prule_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_prule_recipient');
       $query->where('prule_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_prule_condition');
       $query->where('prule_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
     }
     elseif($context == 'com_ketshop.shipping') {
@@ -876,37 +838,37 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_ship_postcode');
       $query->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_city');
       $query->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_region');
       $query->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_country');
       $query->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_ship_continent');
       $query->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_address');
       $query->where('item_id='.(int)$data->id).' AND item_type = "delivery_point"';
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
     }
     elseif($context == 'com_ketshop.order') {
@@ -916,25 +878,25 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_order_prod');
       $query->where('order_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_order_prule');
       $query->where('order_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_order_transaction');
       $query->where('order_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $query->clear();
       $query->delete('#__ketshop_delivery');
       $query->where('order_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
     elseif($context == 'com_ketshop.deliverypoint') {
       $db = JFactory::getDbo();
@@ -943,7 +905,7 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_address');
       $query->where('item_id='.(int)$data->id.' AND item_type = "delivery_point"');
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
     elseif($context == 'com_ketshop.attribute') {
       $db = JFactory::getDbo();
@@ -952,7 +914,7 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_prod_attrib');
       $query->where('attrib_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
     elseif($context == 'com_tags.tag') {
       $db = JFactory::getDbo();
@@ -962,7 +924,7 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_product_tag_map')
 	    ->where('tag_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
   }
 
@@ -1032,7 +994,7 @@ class plgContentKetshop extends JPlugin
       $query->delete('#__ketshop_product_tag_map')
 	    ->where('product_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       $columns = array('product_id', 'tag_id', 'ordering');
       //Insert a new row for each tag linked to the item.
@@ -1041,14 +1003,14 @@ class plgContentKetshop extends JPlugin
 	    ->columns($columns)
 	    ->values($values);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
     else { //No tags selected or tags removed.
       //Delete all the rows matching the item id.
       $query->delete('#__ketshop_product_tag_map')
 	    ->where('product_id='.(int)$data->id);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
 
     return;

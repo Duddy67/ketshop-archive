@@ -4,7 +4,7 @@
 		<field
 			name="search"
 			type="text"
-			label="COM_KETSHOP_SEARCH_IN_TITLE"
+		        label="COM_KETSHOP_SEARCH_IN_TITLE"
 			hint="JSEARCH_FILTER"
 			class="js-stools-search-string"
 		/>
@@ -34,8 +34,8 @@
 			<option value="a.ordering DESC">JGRID_HEADING_ORDERING_DESC</option>
 			<option value="a.published ASC">JSTATUS_ASC</option>
 			<option value="a.published DESC">JSTATUS_DESC</option>
-			<option value="a.name ASC">COM_KETSHOP_NAME_ASC</option>
-			<option value="a.name DESC">COM_KETSHOP_NAME_DESC</option>
+			<option value="a.name ASC">COM_KETSHOP_TITLE_ASC</option>
+			<option value="a.name DESC">COM_KETSHOP_TITLE_DESC</option>
 			<option value="user ASC">JAUTHOR_ASC</option>
 			<option value="user DESC">JAUTHOR_DESC</option>
 			<option value="a.created ASC">JDATE_ASC</option>

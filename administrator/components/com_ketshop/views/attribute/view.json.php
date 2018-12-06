@@ -22,8 +22,7 @@ class KetshopViewAttribute extends JViewLegacy
     $attributeId = $jinput->get('attribute_id', 0, 'uint');
     $model = $this->getModel();
     $results = array();
-
-    $results = $model->getAttributeGroups($attributeId);
+    $results = $model->getOptions($attributeId);
 
     echo new JResponseJson($results);
   }

@@ -39,6 +39,7 @@
   $(window).load(function() {
     //Set as function the global variable previously declared in check.js file.
     showTab = $.fn.showTab;
+    reverseOrder = $.fn.reverseOrder;
   });
 
 
@@ -242,14 +243,14 @@
     } else if(itemType == 'bundleproduct') {
       data = {'id':'', 'name':'', 'quantity':'1', 'stock':'?'};
     } else if(itemType == 'variant') {
-      data = {'variant_id':'','variant_name':'','stock':'0','base_price':'0.00','sale_price':'0.00','sales':'0','code':'','availability_delay':'0','weight':'0.00','length':'0.00','width':'0.00','height':'0.00','published':'0','ordering':'0'};
+      data = {'variant_id':'','variant_name':'','stock':'0','base_price':'0.00','sale_price':'0.00','sales':'0','code':'','availability_delay':'0','weight':'0.00','length':'0.00','width':'0.00','height':'0.00','published':'0','ordering':'0', 'attributes':[]};
     } else if(itemType == 'condition') {
       data = {'id':'', 'name':'', 'operator':'', 'item_amount':'', 'item_qty':''};
     } else if(itemType == 'postcode') {
       data = {'from':'', 'to':'', 'cost':''};
     } else if(itemType == 'city') {
       data = {'name':'', 'cost':''};
-    } else if(itemType == 'deliverypoint' || itemType == 'attribute' ||
+    } else if(itemType == 'deliverypoint' || itemType == 'attribute' || 
 	      itemType == 'target' || itemType == 'recipient') {
       data = {'id':'', 'name':''};
     } else { //region country or continent.
@@ -311,6 +312,141 @@
     //Show the tab.
     $tab.show();
     $tab.tab('show');
+  };
+
+
+  //Remove the selected item then reset the order of the other items left.
+  $.fn.itemReorder = function(idNb, itemType) {
+    //Remove the selected item.
+    $('#'+itemType+'-container').removeItem(idNb);
+
+    //List all of the div children (ie: items) of the item container 
+    //in order to reset their ordering value.
+    $('#'+itemType+'-container').children('div').each(function(i, div) {
+	//Reset the ordering input tag value.
+	$(div).children('.item-ordering').val(i+1);
+    });
+
+    $.fn.setOrderManagement(itemType); 
+  };
+
+
+  $.fn.setOrderManagement = function(itemType) {
+    var idNbs = new Array();
+    //Get the id numbers of the exiting items.
+    $('#'+itemType+'-container').children('div').each(function(i, div) {
+      var idNb = parseInt($(div).prop('id').replace(/.+-(\d+)$/, '$1')) || 0;
+      //Store the id number.
+      idNbs.push(idNb);
+    });
+
+    var arrLength = idNbs.length;
+    //No need to go further if there is no item.
+    if(arrLength == 0) {
+      return;
+    }
+
+    //Create and set the management tags for each item.
+    for(i = 0; i < arrLength; i++) {
+      var idNb = idNbs[i];
+      var ordering = i + 1;
+
+      //First remove all the previous management tags.
+      $('#'+itemType+'-up-ordering-'+idNb).remove();
+      $('#'+itemType+'-down-ordering-'+idNb).remove();
+      $('#'+itemType+'-prev-'+idNb).remove();
+      $('#'+itemType+'-next-'+idNb).remove();
+      $('#'+itemType+'-order-transparent-'+idNb).remove();
+
+      if(ordering > 1) {
+	//Create and set the link which allows to reverse the position with the upper item.
+	var properties = {'href':'#', 'id':itemType+'-up-ordering-'+idNb, 'onclick':'reverseOrder(\'up\',\''+itemType+'\','+idNb+')'};
+	$('#'+itemType+'-item-'+idNb).createHTMLTag('<a>', properties, 'up-ordering');
+	var arrowUp = '<img src="../media/com_ketshop/images/arrow_up.png" title="'+Joomla.JText._('COM_ODYSSEY_REORDER_TITLE')+'" alt="arrow up" height="16" width="16" />';
+	$('#'+itemType+'-item-'+idNb+' .up-ordering').prepend(arrowUp);
+	//Move the element just after the ordering input tag.
+	$('#'+itemType+'-up-ordering-'+idNb).insertAfter($('#'+itemType+'-ordering-'+idNb));
+
+	//Create the hidden field which holds the id number of the previous item.
+	properties = {'type':'hidden', 'name':itemType+'_prev_'+idNb, 'id':itemType+'-prev-'+idNb, 'value':idNbs[i - 1]};
+	$('#'+itemType+'-item-'+idNb).createHTMLTag('<input>', properties);
+      }
+
+      if(ordering < arrLength) {
+	//Create and set the link which allows to reverse the position with the lower item.
+	properties = {'href':'#', 'id':itemType+'-down-ordering-'+idNb, 'onclick':'reverseOrder(\'down\',\''+itemType+'\','+idNb+')'};
+	$('#'+itemType+'-item-'+idNb).createHTMLTag('<a>', properties, 'down-ordering');
+	var arrowDown = '<img src="../media/com_ketshop/images/arrow_down.png" title="'+Joomla.JText._('COM_ODYSSEY_REORDER_TITLE')+'" alt="arrow down" height="16" width="16" />';
+	$('#'+itemType+'-item-'+idNb+' .down-ordering').prepend(arrowDown);
+	//Move the element just before the ordering input tag.
+	$('#'+itemType+'-down-ordering-'+idNb).insertBefore($('#'+itemType+'-ordering-'+idNb));
+
+	//Create the hidden field which holds the id number of the next item.
+	properties = {'type':'hidden', 'name':itemType+'_next_'+idNb, 'id':itemType+'-next-'+idNb, 'value':idNbs[i + 1]};
+	$('#'+itemType+'-item-'+idNb).createHTMLTag('<input>', properties);
+      }
+
+      //Add a transparent png to the first and last items of the list in order their row
+      //has the same width as the other item rows.
+
+      if(ordering == 1 && arrLength > 1) {
+	var transparent = '<img src="../media/com_ketshop/images/transparent.png" id="'+itemType+'-order-transparent-'+idNb+'" class="order-transparent" alt="transparent" height="16" width="16" />';
+	$(transparent).insertAfter($('#'+itemType+'-ordering-'+idNb));
+      }
+
+      if(ordering == arrLength) {
+	var transparent = '<img src="../media/com_ketshop/images/transparent.png" id="'+itemType+'-order-transparent-'+idNb+'" class="order-transparent" alt="transparent" height="16" width="16" />';
+	$(transparent).insertBefore($('#'+itemType+'-ordering-'+idNb));
+      }
+    }
+  };
+
+
+  $.fn.reverseOrder = function(direction, itemType, idNb) {
+    //Get the id and name of the current item.
+    var currentItemId = $('#'+itemType+'-id-'+idNb).val();
+    var currentItemName = $('#'+itemType+'-name-'+idNb).val();
+
+    //Get the id number of the previous or next item.
+    if(direction == 'up') {
+      var idNbToReverse = $('#'+itemType+'-prev-'+idNb).val();
+    }
+    else {
+      var idNbToReverse = $('#'+itemType+'-next-'+idNb).val();
+    }
+
+    //Reverse the order of the 2 items.
+    $('#'+itemType+'-id-'+idNb).val($('#'+itemType+'-id-'+idNbToReverse).val());
+    $('#'+itemType+'-name-'+idNb).val($('#'+itemType+'-name-'+idNbToReverse).val());
+    $('#'+itemType+'-id-'+idNbToReverse).val(currentItemId);
+    $('#'+itemType+'-name-'+idNbToReverse).val(currentItemName);
+
+    if(itemType == 'option') {
+      //Get checkboxes.
+      var checkbox = $('input[id^=published-'+idNb+']');
+      var checkboxToReverse = $('input[id^=published-'+idNbToReverse+']');
+      var tmp = false;
+      //Get the state of the main checkbox.
+      if(checkbox.prop('checked')) {
+	tmp = true;
+      }
+
+      //Shift states of checkboxes.
+      checkbox.prop('checked', checkboxToReverse.prop('checked'))
+      checkboxToReverse.prop('checked', tmp);
+
+      //Get the value of the current item.
+      var currentItemValue = $('#'+itemType+'-value-'+idNb).val();
+      //Reverse the order of the item values.
+      $('#'+itemType+'-value-'+idNb).val($('#'+itemType+'-value-'+idNbToReverse).val());
+      $('#'+itemType+'-value-'+idNbToReverse).val(currentItemValue);
+
+      //Get the text of the current item.
+      var currentItemText = $('#'+itemType+'-text-'+idNb).val();
+      //Reverse the order of the item texts.
+      $('#'+itemType+'-text-'+idNb).val($('#'+itemType+'-text-'+idNbToReverse).val());
+      $('#'+itemType+'-text-'+idNbToReverse).val(currentItemText);
+    }
   };
 
  })(jQuery);

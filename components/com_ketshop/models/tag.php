@@ -157,13 +157,16 @@ class KetshopModelTag extends JModelList
     // Invoke the parent getItems method (using the getListQuery method) to get the main list
     $items = parent::getItems();
     $input = JFactory::getApplication()->input;
-    $itemIdsAttr = array();
 
     //Get some user data.
     $user = JFactory::getUser();
     $userId = $user->get('id');
     $guest = $user->get('guest');
     $groups = $user->getAuthorisedViewLevels();
+
+    //Instanciates the product model.
+    JLoader::import('product', JPATH_ROOT.'/components/com_ketshop/models');
+    $model = JModelLegacy::getInstance('Product', 'KetshopModel');
 
     // Convert the params field into an object, saving original in _params
     foreach($items as $key => $item) {
@@ -265,27 +268,7 @@ class KetshopModelTag extends JModelList
       $item->tags = new JHelperTags;
       $item->tags->getItemTags('com_ketshop.product', $item->id);
 
-      //Collect product ids in order to get product attributes
-      $itemIdsAttr[] = $item->id;
-    }
-
-    //Add attributes to each product item.
-    if(!empty($items)) {
-      //Get attributes of each current product.
-      $attributes = ShopHelper::getProductAttributes($itemIdsAttr);
-
-      //Add attributes to products.
-      $nbItems = count($items); 
-      for($i = 0; $i < $nbItems; $i++) {
-	$itemAttributes = array();
-	foreach($attributes as $attribute) {
-	  if($attribute->prod_id == $items[$i]->id) {
-	    $itemAttributes[] = $attribute;
-	  }
-	}
-
-	$items[$i]->attributes = $itemAttributes;
-      }
+      $item->attributes = $model->getAttributeData($item->id);
     }
 
     return $items;
@@ -325,7 +308,7 @@ class KetshopModelTag extends JModelList
 	                           'p.type,p.base_price,p.sale_price,p.min_quantity,p.max_quantity,p.stock,p.stock_subtract,'.
 				   'p.shippable,p.min_stock_threshold,p.max_stock_threshold,p.weight_unit,p.weight,'.
 				   'p.code,p.allow_order,p.dimensions_unit,p.length,p.width,p.height,p.img_reduction_rate,'.
-				   'p.attribute_group,p.variant_name,IF(p.new_until > NOW(),1,0) AS is_new'))
+				   'p.has_variants,p.variant_name,IF(p.new_until > NOW(),1,0) AS is_new'))
 	  ->from($db->quoteName('#__ketshop_product').' AS p')
 	  ->join('LEFT', '#__ketshop_product_tag_map AS tm ON p.id=tm.product_id')
 	  //Display products labeled with the current tag.

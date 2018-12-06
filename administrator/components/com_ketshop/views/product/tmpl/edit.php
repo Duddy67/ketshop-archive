@@ -129,8 +129,11 @@ Joomla.submitbutton = function(task)
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'attributes', JText::_('COM_KETSHOP_SUBMENU_ATTRIBUTES', true)); ?>
-	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span8" id="attribute">
+	<div class="row-fluid">
+	  <div class="span6 form-vertical" id="attribute">
+	      <?php if($this->item->has_variants) {
+		      echo $this->form->getControlGroup('variant_name'); 
+		    } ?>
 	  </div>
 	</div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
@@ -139,10 +142,6 @@ Joomla.submitbutton = function(task)
 	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-variants', JText::_('COM_KETSHOP_SUBMENU_PRODUCT_VARIANTS', true)); ?>
 	  <div class="row-fluid form-horizontal-desktop">
 	    <div class="span9" id="variant">
-	      <?php 
-		    echo $this->form->getControlGroup('attribute_group');
-		    echo $this->form->getControlGroup('variant_name');
-	      ?>
 	    </div>
 	  </div>
 	<?php echo JHtml::_('bootstrap.endTab'); ?>

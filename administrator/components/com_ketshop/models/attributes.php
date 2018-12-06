@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -20,9 +20,9 @@ class KetshopModelAttributes extends JModelList
       $config['filter_fields'] = array(
 	      'id', 'a.id',
 	      'name', 'a.name',
-	      'published', 'a.published',
 	      'created', 'a.created',
 	      'created_by', 'a.created_by',
+	      'published', 'a.published',
 	      'user', 'user_id',
 	      'ordering', 'a.ordering',
       );
@@ -76,8 +76,8 @@ class KetshopModelAttributes extends JModelList
     $query = $db->getQuery(true);
 
     // Select the required fields from the table.
-    $query->select($this->getState('list.select', 'a.id,a.name,a.description,a.created, '.
-				   'a.checked_out,a.checked_out_time,a.published,a.ordering,a.created_by'));
+    $query->select($this->getState('list.select', 'a.id, a.name, a.created, a.published,'.
+				   'a.created_by, a.checked_out, a.checked_out_time, a.ordering'));
 
     $query->from('#__ketshop_attribute AS a');
 
@@ -121,11 +121,6 @@ class KetshopModelAttributes extends JModelList
     //Add the list to the sort.
     $orderCol = $this->state->get('list.ordering', 'a.name');
     $orderDirn = $this->state->get('list.direction'); //asc or desc
-
-    //If the call comes from the modal window, the unpublished items are not displayed.
-    if(JFactory::getApplication()->input->get->get('id_nb', 0, 'int')) {
-      $query->where('published=1');
-    }
 
     $query->order($db->escape($orderCol.' '.$orderDirn));
 

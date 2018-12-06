@@ -12,59 +12,41 @@ JHtml::_('behavior.framework');
 // Create a shortcut for params.
 $params = $displayData->params;
 
-$optionIds = array();
-//Check for options.
-if(!empty($displayData->options)) {
-  //Get the option attribute ids.
-  $optAttribs = $displayData->options[0]['attributes'];
-  foreach($optAttribs as $optAttrib) {
-    $optionIds[] = $optAttrib['attrib_id'];
-  }
-}
-
-//If all attributes are options or if there is one or more options and we are 
-//in category view, attributes are not displayed.
-$allOptions = false;
-if((count($optionIds) == count($displayData->attributes)) || ($displayData->attribute_group && $displayData->attributes_location == 'summary')) {
-  $allOptions = true;
+//If the product has variants or no attributes and we're in the tag view, attributes are not displayed.
+$displayAttribs = true;
+if((empty($displayData->attributes) || $displayData->has_variants) && $displayData->attributes_location == 'summary') {
+  $displayAttribs = false;
 }
 ?>
 
-<?php if($params->get('show_attributes') && ($params->get('attributes_location') == $displayData->attributes_location || $params->get('attributes_location') == 'both') && !empty($displayData->attributes) && !$allOptions) : ?>
+<?php if($params->get('show_attributes') && ($params->get('attributes_location') == $displayData->attributes_location || $params->get('attributes_location') == 'both') && $displayAttribs) : ?>
 
   <table class="table table-condensed small">
 
   <?php foreach($displayData->attributes as $key => $attribute) : ?>
-    <?php if(empty($optionIds) || !in_array($attribute->attrib_id, $optionIds)) : //Don't display option attributes. ?>
-      <tr><td>
-	<?php //Check if we're dealing with the same attribute then the previous one. If we
-	      //do the attribute name is not displayed. 
-	      if($key == 0 || $displayData->attributes[$key - 1]->attrib_id != $attribute->attrib_id) {
-		echo $attribute->name;
-	      }      
-	?>
-      </td><td>  
-	<?php
-	      if(!empty($attribute->field_text_1)) { //closed list
-		echo preg_replace('#\|#', ', ', $attribute->field_text_1); //In case we're dealing with a multi select drop down list.
-	      }
-	      else { //open field
-		echo $attribute->field_value_1; //Display the single value.
-	      }
+	  <tr><td>
+	    <?php //Checks if we're dealing with the same attribute then the previous one (multiselect). If we
+		  //do the attribute name is not displayed. 
+		  if($key == 0 || $displayData->attributes[$key - 1]['id'] != $attribute['id']) {
+		    echo $attribute['name'];
+		  }      
+	    ?>
+	  </td><td>  
+	    <?php
+	          $multi = false;
+	          foreach($attribute['options'] as $option) {
+		    if(!empty($option['selected'])) {
 
-	      echo '&nbsp;';
+		      if($multi) {
+			echo '<br />';
+		      }
 
-	      if(!empty($attribute->field_value_2)) {
-		if(!empty($attribute->field_text_2)) {
-		  echo $attribute->field_text_2;
-		}
-		else {
-		  echo $attribute->field_value_2;
-		}
-	      }
-	?>
-      </td></tr>
-    <?php endif; ?>
+		      echo $option['option_text'];
+		      $multi = true;
+		    }
+		  }
+	    ?>
+	  </td></tr>
   <?php endforeach; ?>
   </table>
 <?php endif; ?>

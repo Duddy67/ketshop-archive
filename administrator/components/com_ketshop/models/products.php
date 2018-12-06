@@ -213,7 +213,7 @@ class KetshopModelProducts extends JModelList
 
 	//Check for bundle product calling.
         if(JFactory::getApplication()->input->get->get('type', '', 'string') == 'bundleproduct') {
-	  $query->where('p.attribute_group = 0'); //We don't use products with variants as bundle products.
+	  $query->where('p.has_variants=0'); //We don't use products with variants as bundle products.
 	}
       }
       else { //Filter by type.

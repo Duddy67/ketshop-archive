@@ -43,9 +43,9 @@ class KetshopViewProduct extends JViewLegacy
       $alias = $jinput->get('alias', '', 'string');
       $results = $model->checkAlias($productId, $name, $alias);
     }
-    elseif($context == 'attribute_fields') {
+    elseif($context == 'attribute') {
       $attributeId = $jinput->get('attribute_id', 0, 'uint');
-      $results = $model->getAttributeFields($attributeId);
+      $results = $model->getAttribute($attributeId);
     }
     else {
       echo new JResponseJson($results, JText::_('COM_KETSHOP_ERROR_UNKNOWN_CONTEXT'), true);

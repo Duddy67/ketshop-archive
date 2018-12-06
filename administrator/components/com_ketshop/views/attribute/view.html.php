@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -11,7 +11,6 @@ defined( '_JEXEC' ) or die; // No direct access
 
 jimport( 'joomla.application.component.view');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
-require_once JPATH_COMPONENT.'/helpers/utility.php';
 require_once JPATH_COMPONENT.'/helpers/javascript.php';
  
 
@@ -20,8 +19,6 @@ class KetshopViewAttribute extends JViewLegacy
   protected $item;
   protected $form;
   protected $state;
-  protected $usedAsAttribute;
-  protected $usedAsOption;
 
   //Display the view.
   public function display($tpl = null)
@@ -29,34 +26,20 @@ class KetshopViewAttribute extends JViewLegacy
     $this->item = $this->get('Item');
     $this->form = $this->get('Form');
     $this->state = $this->get('State');
-    $this->usedAsAttribute = $this->getModel()->isUsed();
-    $this->usedAsOption = $this->getModel()->isUsed(true);
 
     //Check for errors.
     if(count($errors = $this->get('Errors'))) {
-      JError::raiseError(500, implode('<br />', $errors));
+      JFactory::getApplication()->enqueueMessage($errors, 'error');
       return false;
     }
 
-    //Load the Javascript text functions.
-    JavascriptHelper::getButtonText();
     JavascriptHelper::getCommonText();
-    JavascriptHelper::loadFunctions(array('used_attribute_groups'));
+    JavascriptHelper::getProductText();
 
     //Display the toolbar.
     $this->addToolBar();
 
     $this->setDocument();
-
-//echo 'TEST'.JPATH_SITE;
-jimport('joomla.application.component.model');
-JModelLegacy::addIncludePath(JPATH_SITE.'/components/com_content/models');
-$articleModel = JModelLegacy::getInstance('Article', 'ContentModel', array('ignore_request' => true));
-$appParams = JComponentHelper::getParams('com_content');
-$articleModel->setState('params', $appParams);
-//var_dump($articleModel->getItem(1)->title);
-
-
 
     //Display the template.
     parent::display($tpl);
@@ -72,12 +55,12 @@ $articleModel->setState('params', $appParams);
     $userId = $user->get('id');
 
     //Get the allowed actions list
-    $canDo = KetshopHelper::getActions();
+    $canDo = KetshopHelper::getActions($this->state->get('filter.category_id'));
     $isNew = $this->item->id == 0;
     $checkedOut = !($this->item->checked_out == 0 || $this->item->checked_out == $userId);
 
     //Display the view title (according to the user action) and the icon.
-    JToolBarHelper::title($isNew ? JText::_('COM_KETSHOP_NEW_ATTRIBUTE') : JText::_('COM_KETSHOP_EDIT_ATTRIBUTE'), 'shop-price-tag');
+    JToolBarHelper::title($isNew ? JText::_('COM_KETSHOP_NEW_ATTRIBUTE') : JText::_('COM_KETSHOP_EDIT_ATTRIBUTE'), 'pencil-2');
 
     if($isNew) {
       //Check the "create" permission for the new records.
@@ -97,7 +80,7 @@ $articleModel->setState('params', $appParams);
 	  JToolBarHelper::save('attribute.save', 'JTOOLBAR_SAVE');
 
 	  // We can save this record, but check the create permission to see if we can return to make a new one.
-	  if($canDo->get('core.create')) {
+	  if($canDo->get('core.create') || (count($user->getAuthorisedCategories('com_ketshop', 'core.create'))) > 0) {
 	    JToolBarHelper::custom('attribute.save2new', 'save-new.png', 'save-new_f2.png', 'JTOOLBAR_SAVE_AND_NEW', false);
 	  }
 	}
@@ -105,7 +88,7 @@ $articleModel->setState('params', $appParams);
 
       // If checked out, we can still save
       if($canDo->get('core.create')) {
-	JToolBarHelper::save2copy('attribute.save2copy');
+	//JToolBarHelper::save2copy('attribute.save2copy');
       }
     }
 
@@ -115,7 +98,7 @@ $articleModel->setState('params', $appParams);
 
   protected function setDocument() 
   {
-    //Include css and js files.
+    //Include the css file.
     $doc = JFactory::getDocument();
     $doc->addStyleSheet(JURI::base().'components/com_ketshop/ketshop.css');
   }

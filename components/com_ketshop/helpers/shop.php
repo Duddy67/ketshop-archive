@@ -28,7 +28,7 @@ class ShopHelper
     //Get the required product data.
     $query->select('p.name,p.id,p.catid,p.type,p.base_price,p.sale_price,p.sale_price AS unit_sale_price,t.rate AS tax_rate,p.type,'.
 	           'p.shippable,p.min_stock_threshold,p.allow_order,p.stock_subtract,p.min_quantity,p.max_quantity,'.
-		   'p.alias,p.attribute_group,p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height');
+		   'p.alias,p.has_variants,p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height');
 
 
     //Get some data according to the variant id.
@@ -467,39 +467,6 @@ class ShopHelper
   }
 
 
-  public static function getProductAttributes($productIds)
-  {
-    //The translated fields of an attribute .
-    $translatedFields = 'a.name,';
-    //Check if a translation is needed.
-    if(self::switchLanguage()) {
-      //Get the SQL query parts needed for the translation of the attributes.
-      $attrTranslation = self::getTranslation('attribute', 'id', 'a', 'a');
-      //Translation field are now defined by the SQL conditions.
-      $translatedFields = $attrTranslation->translated_fields.',';
-    }
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    //Get product attributes (if any).
-    $query->select('pa.prod_id,'.$translatedFields.'pa.field_value_1, pa.field_text_1, pa.field_value_2, pa.field_text_2, pa.attrib_id')
-	  ->from('#__ketshop_prod_attrib AS pa')
-	  ->join('LEFT','#__ketshop_attribute AS a ON a.id = pa.attrib_id');
-
-    //Join over the attribute translation.
-    if(self::switchLanguage()) {
-      $query->join('LEFT', $attrTranslation->left_join);
-    }
-
-    //Display published attributes in order.
-    $query->where('pa.prod_id IN('.implode(',', $productIds).') AND a.published = 1')
-	  ->order('a.ordering,pa.field_value_1');
-    $db->setQuery($query);
-
-    return $db->loadObjectList();
-  }
-
-
   //Return an array of all the products contained in the given bundles.
   //
   public static function getBundleProducts($bundleIdQty, $stockSubtract = false)
@@ -552,82 +519,6 @@ class ShopHelper
     }
 
     return $bundleProducts;
-  }
-
-
-  public static function getProductVariants($product)
-  {
-    //Check first that the product has variants.
-    if(!$product->attribute_group) {
-      return array();
-    }
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-
-    //Get the variant values of the main product.
-    $query->select('id AS prod_id, variant_name, base_price, sale_price, code,'.
-	           'stock, availability_delay, weight, length, width, height')
-	  ->from('#__ketshop_product')
-	  ->where('id='.(int)$product->id);
-    $db->setQuery($query);
-    $mainProdVar = $db->loadAssoc();
-
-    //Since the main product has already an id 
-    //we set its variant id to zero.
-    $mainProdVar['var_id'] = 0; 
-    $mainProdVar['stock_state'] = ''; 
-    //Reset prices to zero to use the regular price as variant.
-    $mainProdVar['base_price'] = 0.00; 
-    $mainProdVar['sale_price'] = 0.00; 
-
-    //Get the variant attributes of the main product according to the attribute group.
-    $query->clear();
-    $query->select('pa.prod_id, pa.attrib_id, pa.field_value_1 AS attrib_value, pa.field_text_1 AS attrib_text')
-	  ->from('#__ketshop_attrib_group AS ag')
-	  ->join('INNER', '#__ketshop_prod_attrib AS pa ON pa.attrib_id=ag.attrib_id')
-	  ->join('LEFT', '#__ketshop_attribute AS a ON a.id=pa.attrib_id')
-	  ->where('ag.group_id='.(int)$product->attribute_group)
-	  ->where('pa.prod_id='.(int)$product->id)
-	  ->order('a.ordering ASC');
-    $db->setQuery($query);
-    $mainProdVar['attributes'] = $db->loadAssocList();
-
-    //Get all the variants linked to this product.
-    $query->clear();
-    $query->select('*')
-	  ->from('#__ketshop_product_variant')
-	  ->where('prod_id='.(int)$product->id)
-	  ->where('published=1')
-	  ->order('ordering ASC');
-    $db->setQuery($query);
-    $variants = $db->loadAssocList();
-
-    //Get all the attributes linked to the variants.
-    $query->clear();
-    $query->select('va.*')
-	  ->from('#__ketshop_var_attrib AS va')
-	  ->join('LEFT', '#__ketshop_attribute AS a ON a.id=va.attrib_id')
-	  ->where('va.prod_id='.(int)$product->id)
-	  ->order('a.ordering ASC');
-    $db->setQuery($query);
-    $optAttribs = $db->loadAssocList();
-
-    //Store attributes into corresponding variants.
-    foreach($variants as $key => $variant) {
-      $variants[$key]['attributes'] = array();
-      $variants[$key]['stock_state'] = '';
-      foreach($optAttribs as $optAttrib) {
-	if($optAttrib['var_id'] == $variant['var_id']) {
-	  $variants[$key]['attributes'][] = $optAttrib;
-	}
-      }
-    }
-
-    //Insert the main product variant at the top of the variant array.
-    array_unshift($variants, $mainProdVar);
-
-    return $variants;
   }
 
 

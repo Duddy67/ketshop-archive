@@ -30,7 +30,7 @@ CREATE TABLE `#__ketshop_product` (
   `img_reduction_rate` CHAR(3) NOT NULL , 
   `tax_id` SMALLINT UNSIGNED NOT NULL ,
   `new_until` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
-  `attribute_group` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `has_variants` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
   `variant_name` VARCHAR(225) NOT NULL ,
   `stock_locked` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
   `published` TINYINT NOT NULL DEFAULT 0 ,
@@ -91,6 +91,19 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
+-- Table `#__ketshop_prod_attrib`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `#__ketshop_prod_attrib`;
+CREATE TABLE `#__ketshop_prod_attrib` (
+  `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `option_value` TINYTEXT NOT NULL ,
+  INDEX `idx_prod_id` (`prod_id` ASC) ,
+  INDEX `idx_attrib_id` (`attrib_id` ASC) )
+ENGINE = MyISAM DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
 -- Table `#__ketshop_product_variant`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `#__ketshop_product_variant`;
@@ -122,8 +135,7 @@ CREATE TABLE `#__ketshop_var_attrib` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `attrib_value` VARCHAR(80) NOT NULL ,
-  `attrib_text` VARCHAR(80) NOT NULL ,
+  `option_value` TINYTEXT NOT NULL ,
   INDEX `idx_prod_id` (`prod_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
@@ -420,14 +432,7 @@ DROP TABLE IF EXISTS `#__ketshop_attribute`;
 CREATE TABLE `#__ketshop_attribute` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(80) NOT NULL ,
-  `field_type_1` CHAR(12) NOT NULL ,
-  `field_value_1` TEXT NOT NULL ,
-  `field_text_1` TEXT NOT NULL ,
   `multiselect` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
-  `value_type` CHAR(20) NOT NULL ,
-  `field_type_2` CHAR(12) NOT NULL ,
-  `field_value_2` TEXT NULL ,
-  `field_text_2` TEXT NULL ,
   `description` TEXT NULL ,
   `published` TINYINT NOT NULL DEFAULT 0 ,
   `checked_out` INT UNSIGNED NOT NULL DEFAULT 0 ,
@@ -445,28 +450,15 @@ ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 -- -----------------------------------------------------
--- Table `#__ketshop_attr_group`
+-- Table `#__ketshop_attrib_option`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `#__ketshop_attrib_group`;
-CREATE TABLE `#__ketshop_attrib_group` (
+DROP TABLE IF EXISTS `#__ketshop_attrib_option`;
+CREATE TABLE `#__ketshop_attrib_option` (
   `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `group_id` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
-  INDEX `idx_attrib_id` (`attrib_id` ASC) )
-ENGINE = MyISAM DEFAULT CHARSET=utf8;
-
-
--- -----------------------------------------------------
--- Table `#__ketshop_prod_attrib`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `#__ketshop_prod_attrib`;
-CREATE TABLE `#__ketshop_prod_attrib` (
-  `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `field_value_1` TEXT NOT NULL ,
-  `field_text_1` TEXT NOT NULL ,
-  `field_value_2` TEXT NULL ,
-  `field_text_2` TEXT NULL ,
-  INDEX `idx_prod_id` (`prod_id` ASC) ,
+  `option_value` VARCHAR(80) NOT NULL ,
+  `option_text` VARCHAR(80) NOT NULL ,
+  `published` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
+  `ordering` INT NOT NULL DEFAULT 0 ,
   INDEX `idx_attrib_id` (`attrib_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;
 
@@ -746,35 +738,6 @@ CREATE TABLE `#__ketshop_ship_continent` (
   `cost` DECIMAL(14,5) UNSIGNED NOT NULL ,
   INDEX `idx_shipping_id` (`shipping_id` ASC))
 ENGINE = MyISAM DEFAULT CHARSET=utf8;
-
-
--- -----------------------------------------------------
--- Table `#__ketshop_unit_measurement
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `#__ketshop_unit_measurement`;
-CREATE TABLE `#__ketshop_unit_measurement` (
-  `measure_type` VARCHAR(25) NOT NULL ,
-  `name` TEXT NOT NULL ,
-  `symbol` TEXT NOT NULL ,
-  `code` TEXT NOT NULL )
-ENGINE = MyISAM DEFAULT CHARSET=utf8;
-
-
--- -----------------------------------------------------
--- Insert units measurement.
--- -----------------------------------------------------
-INSERT INTO `#__ketshop_unit_measurement` (measure_type, name, symbol, code) 
-VALUES ("dimension","metre|decimetre|centimetre|micrometre|millimetre|hectometre|kilometre|nanometre|picometre|inch|foot|yard|mile","m|dm|cm|µm|mm|hm|km|nm|pm|in|ft|yd|mile","MTR|DMT|CMT|4H|MMT|HMT|KMT|C45|C52|INH|FOT|YRD|SMI"),
-("weight","microgram|decagram|decigram|Kilogram|gram|centigram|tonne|decitonne|milligram|hectogram|kilotonne|megagram|pound|grain|ounce","µg|dag|dg|kg|g|cg|t|dt|mg|hg|kt|Mg|lb|gr|oz","MC|DJ|DG|KGM|GRM|CGM|TNE|DTN|MGM|HGM|KTN|2U|LBR|GRN|ONZ"),
-("volume","litre|millilitre|hectolitre|centilitre|decilitre|microlitre|kilolitre|decalitre|cubic metre|cubic millimetre|cubic centimetre|cubic decimetre|cubic inch|cubic foot|cubic yard","l|ml|hl|cl|dl|µl|kl|dal|m3|mm3|cm3|dm3|in3|ft3|yd3","LTR|MLT|HLT|CLT|DLT|4G|K6|A44|MTQ|MMQ|CMQ|DMQ|INQ|FTQ|YDQ"),
-("time","second|minute|hour|day|kilosecond|millisecond|microsecond|nanosecond|week|month|year","s|min|h|d|ks|ms|µs|ns|wk|mo|a","SEC|MIN|HUR|DAY|B52|C26|B98|C47|WEE|MON|ANN"),
-("area","square metre|square kilometre|are|decare|hectare|square centimetre|square decimetre|square millimetre|square inch|square foot|square yard|square mile","m2|km2|a|daa|ha|cm2|dm2|mm2|in2|ft2|yd2|mile2","MTK|KMK|ARE|DAA|HAR|CMK|DMK|MMK|INK|FTK|YDK|MIK"),
-("frequency","hertz|kilohertz|megahertz|terahertz|gigahertz","Hz|kHz|MHz|THz|GHz","HTZ|KHZ|MHZ|D29|A86"),
-("temperature","kelvin|degree Rankin|degree Celsius|degree Fahrenheit","K|°R|°C|°F","KEL|A48|CEL|FAH"),
-("watt","watt|kilowatt|megawatt|gigawatt|milliwatt|microwatt","W|kW|MW|GW|mW|µW","WTT|KWT|MAW|A90|C31|D80"),
-("volt","volt|megavolt|kilovolt|millivolt|microvolt","V|MV|kV|mV|µV","VLT|B78|KVT|2Z|D82"),
-("ampere","ampere|kiloampere|milliampere|microampere|nanoampere|picoampere","A|kA|mA|µA|nA|pA","AMP|B22|4K|B84|C39|C70"),
-("ohm","ohm|gigaohm|megaohm|kiloohm|microohm","Ω|GΩ|MΩ|kΩ|µΩ","OHM|A87|B75|B49|B94");
 
 
 -- -----------------------------------------------------

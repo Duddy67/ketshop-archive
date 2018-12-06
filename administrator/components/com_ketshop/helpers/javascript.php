@@ -41,6 +41,12 @@ class JavascriptHelper
     JText::script('COM_KETSHOP_YESNO_1'); 
     JText::script('COM_KETSHOP_ORDERING_LABEL'); 
     JText::script('COM_KETSHOP_ORDERING_TITLE'); 
+    JText::script('COM_KETSHOP_VALUE_LABEL'); 
+    JText::script('COM_KETSHOP_VALUE_TITLE'); 
+    JText::script('COM_KETSHOP_TEXT_LABEL'); 
+    JText::script('COM_KETSHOP_TEXT_TITLE'); 
+    JText::script('COM_KETSHOP_ITEM_VALUE_LABEL'); 
+    JText::script('COM_KETSHOP_ITEM_VALUE_TITLE'); 
 
     return;
   }
@@ -58,11 +64,10 @@ class JavascriptHelper
     JText::script('COM_KETSHOP_IMAGE_ORDERING_TITLE'); 
     JText::script('COM_KETSHOP_PRODUCT_STOCK_LABEL'); 
     JText::script('COM_KETSHOP_PRODUCT_STOCK_TITLE'); 
-    JText::script('COM_KETSHOP_ALL_ATTRIBUTE_GROUPS_EMPTY');
-    JText::script('COM_KETSHOP_ATTRIBUTE_GROUP_EMPTY');
-    JText::script('COM_KETSHOP_NO_ATTRIBUTE_GROUP_SELECTED');
     JText::script('COM_KETSHOP_OPTION_NAME_LABEL'); 
     JText::script('COM_KETSHOP_OPTION_NAME_TITLE'); 
+    JText::script('COM_KETSHOP_VARIANT_NAME_LABEL'); 
+    JText::script('COM_KETSHOP_VARIANT_NAME_TITLE'); 
     JText::script('COM_KETSHOP_STOCK_LABEL'); 
     JText::script('COM_KETSHOP_STOCK_TITLE'); 
     JText::script('COM_KETSHOP_BASE_PRICE_LABEL'); 
@@ -169,19 +174,11 @@ class JavascriptHelper
       $js .= '},'."\n";
     }
 
-    //Returns attribute groups used with product options.
-    if(in_array('attribute_groups', $names)) {
-      $attributeGroups = JavascriptHelper::getAttributeGroups();
-      $js .= 'getAttributeGroups: function() {'."\n";
-      $js .= ' return '.$attributeGroups.';'."\n";
-      $js .= '},'."\n";
-    }
-
-    //Returns the ids of the attribute groups used with products.
-    if(in_array('used_attribute_groups', $names)) {
-      $usedAttributeGroups = JavascriptHelper::getUsedAttributeGroups();
-      $js .= 'getUsedAttributeGroups: function() {'."\n";
-      $js .= ' return '.$usedAttributeGroups.';'."\n";
+    //Returns the attributes used with the product.
+    if(in_array('product_attributes', $names)) {
+      $productAttributes = JavascriptHelper::getProductAttributes();
+      $js .= 'getProductAttributes: function() {'."\n";
+      $js .= ' return '.$productAttributes.';'."\n";
       $js .= '},'."\n";
     }
 
@@ -273,37 +270,15 @@ class JavascriptHelper
   }
 
 
-  //Returns attribute groups as a JSON array.
-  public static function getAttributeGroups()
+  public static function getProductAttributes()
   {
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
+    $prodId = JFactory::getApplication()->input->get('id', 0, 'uint');
 
-    //Get all attribute groups.
-    $query->select('group_id, id, name, field_value_1, field_text_1')
-	  ->from('#__ketshop_attribute')
-	  ->join('INNER', '#__ketshop_attrib_group ON attrib_id=id')
-	  ->order('id');
-    $db->setQuery($query);
-    $attributeGroups = $db->loadAssocList();
+    //Invokes the model's function.
+    $model = JModelLegacy::getInstance('Product', 'KetshopModel');
+    $attributes = $model->getProductAttributes($prodId);
 
-    return json_encode($attributeGroups);
-  }
-
-
-  public static function getUsedAttributeGroups()
-  {
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-
-    //Get attribute group ids used with products.
-    $query->select('DISTINCT attribute_group')
-	  ->from('#__ketshop_product')
-	  ->where('attribute_group > 0');
-    $db->setQuery($query);
-    $usedAttributeGroups = $db->loadColumn();
-
-    return json_encode($usedAttributeGroups);
+    return json_encode($attributes);
   }
 
 

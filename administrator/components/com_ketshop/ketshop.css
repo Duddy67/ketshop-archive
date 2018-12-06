@@ -31,7 +31,10 @@
   /*border: 1px solid #666666;*/
 }
 
-.item-name-label {
+.item-name-label,
+.item-value-label,
+.published-label,
+.item-text-label {
   display: block;
   float: left;
   margin: 5px 5px 0 5px;
@@ -297,7 +300,7 @@
 
 .attribute-item .btn-wrapper {
   float: left;
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .attribute-item .attribute-name {
@@ -329,10 +332,49 @@
 }
 
 .attribute-value-select {
+  float: left;
   border: 1px solid #c0c0c0;
-  margin-right: 30px;
+  margin-right: 20px;
+  /*border: 1px solid #c0c0c0;
+  margin-right: 30px;*/
 }
 
+.option-item {
+  overflow: hidden; /* Block formatting context. */
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ccc;
+}
+
+.item-value,
+.item-text {
+  float: left;
+  border: 1px solid #ccc;
+  width: 20%;
+  margin-right: 20px;
+}
+
+.item-ordering {
+  font-weight: bold;
+  text-align: center;
+  color: #404040;
+  width: 3%;
+  margin-left: 5px;
+  margin-right: 5px;
+  border: 1px solid #c0c0c0;
+}
+
+.down-ordering {
+  margin-left: 10px;
+}
+
+.order-transparent {
+  margin-left: 10px;
+}
+
+.option-item .btn-wrapper {
+  float: right;
+}
 
 
 /* Product images */
@@ -728,7 +770,7 @@
 }
 
 .variant-item .btn-wrapper {
-  float: left;
+  float: right;
   margin-top: 30px;
   margin-left: 10px;
 }
@@ -749,6 +791,14 @@
   color: #404040;
 }
 
+.variant-attribute-div {
+  float: left;
+  margin-bottom: 10px;
+}
+
+.variant-attribute-div .item-name-label {
+  margin-bottom: 5px;
+}
 
 
 

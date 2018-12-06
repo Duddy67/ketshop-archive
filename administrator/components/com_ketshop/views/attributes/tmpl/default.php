@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -11,7 +11,6 @@ defined( '_JEXEC' ) or die; // No direct access
 JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
 JHtml::_('formbehavior.chosen', 'select');
-JHtml::_('behavior.tabstate');
 
 
 $user = JFactory::getUser();
@@ -23,12 +22,13 @@ $trashed = $this->state->get('filter.published') == -2 ? true : false;
 //Check only against component permission as attribute items have no categories.
 $canOrder = $user->authorise('core.edit.state', 'com_ketshop');
 $saveOrder = $listOrder == 'a.ordering';
-
+ 
 if($saveOrder) {
-  $saveOrderingUrl = 'index.php?option=com_ketshop&task=attributes.saveOrderAjax&tmpl=component';
+  $saveOrderingUrl = 'index.php?option=com_odyssey&task=taxes.saveOrderAjax&tmpl=component';
   JHtml::_('sortablelist.sortable', 'attributeList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 ?>
+
 
 <form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=attributes');?>" method="post" name="adminForm" id="adminForm">
 
@@ -54,27 +54,27 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
   <?php else : ?>
     <table class="table table-striped" id="attributeList">
       <thead>
-	<tr>
+      <tr>
 	<th width="1%" class="nowrap center hidden-phone">
-	<?php echo JHtml::_('searchtools.sort', '', 'a.ordering', $listDirn, $listOrder, null, 'asc', 'JGRID_HEADING_ORDERING', 'icon-menu-2'); ?>
+	  <?php echo JHtml::_('searchtools.sort', '', 'a.ordering', $listDirn, $listOrder, null, 'asc', 'JGRID_HEADING_ORDERING', 'icon-menu-2'); ?>
 	</th>
 	<th width="1%" class="hidden-phone">
-	<?php echo JHtml::_('grid.checkall'); ?>
+	  <?php echo JHtml::_('grid.checkall'); ?>
 	</th>
 	<th width="1%" style="min-width:55px" class="nowrap center">
-	<?php echo JHtml::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
 	</th>
 	<th>
-	<?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_NAME', 'a.name', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_NAME', 'a.name', $listDirn, $listOrder); ?>
 	</th>
 	<th width="10%" class="nowrap hidden-phone">
-	<?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_CREATED_BY', 'user', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_CREATED_BY', 'user', $listDirn, $listOrder); ?>
 	</th>
 	<th width="5%" class="nowrap hidden-phone">
-	<?php echo JHtml::_('searchtools.sort', 'JDATE', 'a.created', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'JDATE', 'a.created', $listDirn, $listOrder); ?>
 	</th>
 	<th width="1%" class="nowrap hidden-phone">
-	<?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $listDirn, $listOrder); ?>
+	  <?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $listDirn, $listOrder); ?>
 	</th>
       </tr>
       </thead>
@@ -90,27 +90,27 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
       ?>
 
       <tr class="row<?php echo $i % 2; ?>">
-	<td class="order nowrap center hidden-phone">
-	  <?php
-	  $iconClass = '';
-	  if(!$canChange)
-	  {
-	    $iconClass = ' inactive';
-	  }
-	  elseif(!$saveOrder)
-	  {
-	    $iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
-	  }
-	  ?>
-	  <span class="sortable-handler<?php echo $iconClass ?>">
-		  <i class="icon-menu"></i>
-	  </span>
-	  <?php if($canChange && $saveOrder) : ?>
-	      <input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->ordering;?>" class="width-20 text-area-order " />
-	  <?php endif; ?>
-	  </td>
+        <td class="order nowrap center hidden-phone">
+          <?php
+          $iconClass = ''; 
+          if(!$canChange)
+          {
+            $iconClass = ' inactive';
+          }
+          elseif(!$saveOrder)
+          {
+            $iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
+          }
+          ?>
+          <span class="sortable-handler<?php echo $iconClass ?>">
+                  <i class="icon-menu"></i>
+          </span>
+          <?php if($canChange && $saveOrder) : ?>
+              <input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->ordering;?>" class="width-20 text-area-order " />
+          <?php endif; ?>
+          </td>
 	  <td class="center hidden-phone">
-		  <?php echo JHtml::_('grid.id', $i, $item->id); ?>
+	    <?php echo JHtml::_('grid.id', $i, $item->id); ?>
 	  </td>
 	  <td class="center">
 	    <div class="btn-group">
@@ -153,7 +153,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 
       <?php endforeach; ?>
       <tr>
-	  <td colspan="10"><?php echo $this->pagination->getListFooter(); ?></td>
+	  <td colspan="6"><?php echo $this->pagination->getListFooter(); ?></td>
       </tr>
       </tbody>
     </table>
