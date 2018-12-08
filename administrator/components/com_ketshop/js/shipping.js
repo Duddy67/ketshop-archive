@@ -143,8 +143,7 @@
     }
 
     //Use Chosen jQuery plugin.
-    $('#region-code-'+idNb).trigger('liszt:updated');
-    $('#region-code-'+idNb).chosen();
+    $.fn.updateChosen('region-code-'+idNb);
 
     $.fn.createCommonElements('region', idNb, data);
   };
@@ -173,8 +172,7 @@
     }
 
     //Use Chosen jQuery plugin.
-    $('#country-code-'+idNb).trigger('liszt:updated');
-    $('#country-code-'+idNb).chosen();
+    $.fn.updateChosen('country-code-'+idNb);
 
     $.fn.createCommonElements('country', idNb, data);
   };
@@ -200,8 +198,7 @@
     }
 
     //Use Chosen jQuery plugin.
-    $('#continent-id-'+idNb).toggle('chosen:updated');
-    $('#continent-id-'+idNb).chosen();
+    $.fn.updateChosen('continent-id-'+idNb);
 
     $.fn.createCommonElements('continent', idNb, data);
   };
@@ -254,6 +251,18 @@
       $('a[href="#globalcost-title"]').parent().css({'visibility':'visible','display':'block'});
       $('#jform_delivpnt_cost').parent().parent().css({'visibility':'hidden','display':'none'}); 
     }
+  };
+
+  $.fn.updateChosen = function(id) {
+    $('#'+id).trigger('liszt:updated');
+    $('#'+id).chosen();
+    //Some css attributes have to be modified or the list won't show in the drop down list.
+    //FIXIT: Scrolling doesn't work. 
+    $('.chzn-container .chzn-drop').css('overflow-y', 'auto');
+    $('.chzn-container .chzn-drop').css('overflow-x', 'hidden');
+    $('.chzn-container .chzn-results').css('overflow-x', 'visible');
+    $('.chzn-container .chzn-results').css('overflow-y', 'visible');
+    $('.chzn-search').css('background-color', 'white');
   };
 
 })(jQuery);
