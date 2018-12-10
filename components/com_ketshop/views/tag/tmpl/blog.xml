@@ -183,7 +183,7 @@
 			<option value="author">JAUTHOR</option>
 		</field>
 
-		<field	name="filter_ordering" type="list"
+		<field name="filter_ordering" type="list"
 		label="COM_KETSHOP_SHOW_SORTING_FILTER_LABEL"
 		description="COM_KETSHOP_SHOW_SORTING_FILTER_DESC">
 			<option value="">JGLOBAL_USE_GLOBAL</option>
@@ -191,12 +191,20 @@
 			<option value="1">JSHOW</option>
 		</field>
 
-		<field	name="show_pagination_limit" type="list"
+		<field name="show_pagination_limit" type="list"
 		label="JGLOBAL_DISPLAY_SELECT_LABEL"
 		description="JGLOBAL_DISPLAY_SELECT_DESC">
 			<option value="">JGLOBAL_USE_GLOBAL</option>
 			<option value="0">JHIDE</option>
 			<option value="1">JSHOW</option>
+		</field>
+
+		<field  name="filter_id" type="filterlist" 
+			multiple="true"
+			addfieldpath="/components/com_ketshop/models/fields"
+			label="COM_KETSHOP_SEARCH_FILTERS_LABEL"
+			description="COM_KETSHOP_SEARCH_FILTERS_DESC" 
+			default="">
 		</field>
 
 		<field name="spacer2" type="spacer" hr="true" />

@@ -180,8 +180,8 @@ class plgContentKetshop extends JPlugin
 
 	  $attributeIds[] = $attribId;
 
-	  //Check first for empty field.  
-	  if(isset($this->post['attribute_value_'.$attribNb]) && !empty($this->post['attribute_value_'.$attribNb])) { 
+	  //Check first for empty field (checks for empty spaces as well).
+	  if(isset($this->post['attribute_value_'.$attribNb]) && !preg_match('#^\s*$#', $this->post['attribute_value_'.$attribNb])) { 
 	    $value = $this->post['attribute_value_'.$attribNb];
 	    $attribute = new JObject;
 	    $attribute->attrib_id = $attribId;
@@ -204,13 +204,15 @@ class plgContentKetshop extends JPlugin
 
       //Removes the variant attributes (if any) which don't match the product's
       //current attributes.
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true);
-      $query->delete('#__ketshop_var_attrib')
-	    ->where('prod_id='.(int)$data->id)
-	    ->where('attrib_id NOT IN('.implode($attributeIds).')');
-      $db->setQuery($query);
-      $db->execute();
+      if(!empty($attributeIds)) {
+	$db = JFactory::getDbo();
+	$query = $db->getQuery(true);
+	$query->delete('#__ketshop_var_attrib')
+	      ->where('prod_id='.(int)$data->id)
+	      ->where('attrib_id NOT IN('.implode($attributeIds).')');
+	$db->setQuery($query);
+	$db->execute();
+      }
 
       //At last we end with images.
 
@@ -677,23 +679,6 @@ class plgContentKetshop extends JPlugin
       return true;
     }
     elseif($context == 'com_ketshop.attribute') { //ATTRIBUTE
-      //Get all of the POST data.
-      //$post = JFactory::getApplication()->input->post->getArray();
-      //$groupIds = $groups = array();
-
-      //Search for possible groups linked to the attribute.
-      /*foreach($this->post as $key => $groupId) {
-	if(preg_match('#^group_([0-9]+)$#', $key)) {
-
-	  //Prevent duplicate or empty group id.
-	  if((int)$groupId && !in_array($groupId, $groupIds)) {
-	    $group = new JObject;
-	    $group->group_id = $groupId;
-	    $groups[] = $group;
-	  }
-	}
-      }*/
-
       $options = array();
       foreach($this->post as $key => $groupId) {
 	if(preg_match('#^option_value_([0-9]+)$#', $key, $matches)) {
