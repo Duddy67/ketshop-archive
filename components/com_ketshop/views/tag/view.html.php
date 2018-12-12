@@ -86,6 +86,7 @@ class KetshopViewTag extends JViewLegacy
   protected $uri;
   public $params;
   public $shopSettings;
+  public $filterAttributes = null;
 
   public function display($tpl = null)
   {
@@ -99,6 +100,7 @@ class KetshopViewTag extends JViewLegacy
     $this->children = $this->get('Children');
     $this->pagination = $this->get('Pagination');
     $this->tagMaxLevel = $this->params->get('tag_max_level');
+    $model = $this->getModel();
 
     // Check for errors.
     if(count($errors = $this->get('Errors'))) {
@@ -130,7 +132,7 @@ class KetshopViewTag extends JViewLegacy
 
     //Set variables used for a multilangual purpose.
     $isSiteMultilng = ShopHelper::isSiteMultilingual();
-    $assocKeys = array();
+    $assocKeys = $itemIds = array();
     $langTag = ShopHelper::switchLanguage(true);
 
     // Prepare the data.
@@ -158,6 +160,8 @@ class KetshopViewTag extends JViewLegacy
           $assocKeys[] = $item->assoc_menu_item_key;
         }
       }
+
+      $itemIds[] = $item->id;
     }
 
     if(!empty($assocKeys)) {
@@ -298,6 +302,10 @@ class KetshopViewTag extends JViewLegacy
     $this->params->set('active_layout', $this->getLayout());
     //Set the filter_ordering parameter for the layout.
     $this->filter_ordering = $this->state->get('list.filter_ordering');
+
+    if($this->params->get('filter_ids') !== null) {
+      $this->filterAttributes = $model->getFilterAttributes($this->params->get('filter_ids'), $itemIds);
+    }
 
     $this->nowDate = JFactory::getDate()->toSql();
 

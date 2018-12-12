@@ -9,6 +9,7 @@ defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT_SITE.'/helpers/query.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
+require_once JPATH_ROOT.'/administrator/components/com_ketshop/traits/product.php';
 
 /**
  * KetShop Component Model
@@ -18,6 +19,9 @@ require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
  */
 class KetshopModelTag extends JModelList
 {
+  //The getAttribute() function is needed.
+  use Product;
+
   /**
    * Method to get a list of items.
    *
@@ -670,6 +674,84 @@ class KetshopModelTag extends JModelList
     $results['suggestions'] = $db->loadAssocList();
 
     return $results;
+  }
+
+
+  /**
+   * Returns the attributes linked to the given filters. The attribute options are
+   * filtered according to the selected values in the items.
+   *
+   * @param   array  $filterIds 	The ids of the filters. 
+   * @param   array  $itemIds		The ids of the displayed items. 
+   *
+   * @return  array			An attribute array.
+   *
+   */
+  public function getFilterAttributes($filterIds, $itemIds)
+  {
+    $attributes = $attribValues = array();
+
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
+    //Collects the ids of the attributes linked to the given filters.
+    $query->select('DISTINCT attrib_id')
+	  ->from('#__ketshop_filter_attrib')
+	  ->join('INNER', '#__ketshop_attribute ON id=attrib_id')
+	  ->where('filter_id IN('.implode(',', $filterIds).')')
+	  ->where('published=1');
+    $db->setQuery($query);
+    $attribIds = $db->loadColumn();
+
+    foreach($attribIds as $attribId) {
+      $attributes[] = $this->getAttribute($attribId);
+    }
+
+    //Collects the attribute option values selected in the given products.
+    $query->clear();
+    $query->select('DISTINCT option_value, attrib_id')
+	  ->from('#__ketshop_prod_attrib')
+	  ->where('prod_id IN('.implode(',', $itemIds).')')
+	  ->order('attrib_id');
+    $db->setQuery($query);
+    $results = $db->loadAssocList();
+
+    //Rearranges the data for more convenience.
+    foreach($results as $result) {
+      if(!array_key_exists($result['attrib_id'], $attribValues)) {
+	$attribValues[$result['attrib_id']] = array($result['option_value']);
+      }
+      else {
+	$attribValues[$result['attrib_id']][] = $result['option_value'];
+      }
+
+      //Checks for multiselect.
+      if(preg_match('#^\["#', $result['option_value'])) {
+	//Gets the option values contained within the Json array.
+	preg_match_all('#([0-9a-zA-Z_-]+)#', $result['option_value'], $matches);
+	$values = $matches[1];
+
+	//Removes the last inserted element (ie: the Json array).
+	array_pop($attribValues[$result['attrib_id']]);
+
+	//Inserts the values.
+	foreach($values as $value) {
+	  if(!in_array($value, $attribValues[$result['attrib_id']])) {
+	    $attribValues[$result['attrib_id']][] = $value;
+	  }
+	}
+      }
+    }
+
+    //Deletes the options which are not used in the product attributes.
+    foreach($attributes as $k => $attribute) {
+      foreach($attribute['options'] as $key => $option) {
+	if(isset($attribValues[$attribute['id']]) && !in_array($option['option_value'], $attribValues[$attribute['id']])) {
+	  unset($attributes[$k]['options'][$key]);
+	}
+      }
+    }
+
+    return $attributes;
   }
 }
 

@@ -687,6 +687,14 @@ class plgContentKetshop extends JPlugin
 	  $value = trim($this->post['option_value_'.$optionNb]);
 	  $text = trim($this->post['option_text_'.$optionNb]);
 
+	  //Checks for empty values. 
+	  if($value === '' || $text === '') {
+	    continue;
+	  }
+
+	  // Remove any duplicate whitespace, and ensure all characters are alphanumeric
+	  $value = preg_replace('/(\s|[^A-Za-z0-9\-_])+/', '-', $value);
+
 	  $published = 0;
 	  if(isset($this->post['option_published_'.$optionNb])) {
 	    $published = 1;

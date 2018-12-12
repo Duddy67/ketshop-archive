@@ -199,7 +199,7 @@
 			<option value="1">JSHOW</option>
 		</field>
 
-		<field  name="filter_id" type="filterlist" 
+		<field  name="filter_ids" type="filterlist" 
 			multiple="true"
 			addfieldpath="/components/com_ketshop/models/fields"
 			label="COM_KETSHOP_SEARCH_FILTERS_LABEL"
