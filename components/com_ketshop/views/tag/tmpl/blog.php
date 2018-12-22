@@ -28,6 +28,15 @@ var ketshop = {
     ketshop.submitForm();
   },
 
+  clearFilters: function() {
+    var filters = document.querySelectorAll('select[id^="filter_attrib_"]');
+    for(var i = 0; i < filters.length; i++) {
+      document.getElementById(filters[i].id).value = '';
+    }
+
+    ketshop.submitForm();
+  },
+
   submitForm: function() {
     var action = document.getElementById('siteForm').action;
     //Set an anchor on the form.
@@ -63,44 +72,7 @@ var ketshop = {
 
   <form action="<?php echo htmlspecialchars(JUri::getInstance()->toString()); ?>" method="post" name="siteForm" id="siteForm">
 
-  <?php if($this->params->get('filter_field') != 'hide' || $this->params->get('show_pagination_limit') || $this->params->get('filter_ordering'))
-: ?>
-    <div class="ketshop-toolbar clearfix">
-    <?php
-            //Gets the filter fields.
-	    $fieldset = $this->filterForm->getFieldset('filter');
-
-	    //Loops through the fields.
-	    foreach($fieldset as $field) {
-	      $filterName = $field->getAttribute('name');
-
-	      if($filterName == 'filter_search' && $this->params->get('filter_field') != 'hide') { ?>
-		<div class="btn-group input-append span6">
-	      <?php
-		    $hint = JText::_('COM_KETSHOP_'.$this->params->get('filter_field').'_FILTER_LABEL');
-		    $this->filterForm->setFieldAttribute($filterName, 'hint', $hint); 
-		    //Displays only the input tag (without the div around).
-		    echo $this->filterForm->getInput($filterName, null, $this->state->get('list.'.$filterName));
-		    //Adds the search and clear buttons.  ?>
-		<button type="submit" onclick="ketshop.submitForm();" class="btn hasTooltip"
-			title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>">
-		    <i class="icon-search"></i></button>
-
-		<button type="button" onclick="ketshop.clearSearch()" class="btn hasTooltip js-stools-btn-clear"
-			title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_CLEAR'); ?>">
-		    <?php echo JText::_('JSEARCH_FILTER_CLEAR');?></button>
-		</div>
-      <?php	}
-	      elseif(($filterName == 'filter_ordering' && $this->params->get('filter_ordering')) ||
-		     ($filterName == 'limit' && $this->params->get('show_pagination_limit'))) {
-		//Sets the field value to the currently selected value.
-		$field->setValue($this->state->get('list.'.$filterName));
-		echo $field->renderField(array('hiddenLabel' => true, 'class' => 'span3 ketshop-filters'));
-	      }
-	    }
-     ?>
-     </div>
-    <?php endif; ?>
+    <?php echo JLayoutHelper::render('tag.filters', $this); ?>
 
     <?php if(empty($this->lead_items) && empty($this->link_items) && empty($this->intro_items)) : ?>
       <?php if($this->params->get('show_no_tagged_products')) : ?>

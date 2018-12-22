@@ -135,6 +135,14 @@ class KetshopModelTag extends JModelList
     $filterOrdering = $this->getUserStateFromRequest($this->context.'.list.filter_ordering', 'filter_ordering');
     $this->setState('list.filter_ordering', $filterOrdering);
 
+    if($params->get('filter_ids') !== null) {
+      $attribIds = $this->getFilterAttributes($params->get('filter_ids'), true);
+      foreach($attribIds as $attribId) {
+	$filterAttrib = $this->getUserStateFromRequest($this->context.'.list.filter_attrib_'.$attribId, 'filter_attrib_'.$attribId);
+	$this->setState('list.filter_attrib_'.$attribId, $filterAttrib);
+      }
+    }
+
     //Check if the user is root. 
     $user = JFactory::getUser();
     if(!$user->get('isRoot')) {
@@ -434,6 +442,19 @@ class KetshopModelTag extends JModelList
       }
     }
 
+    if($this->getState('params')->get('filter_ids') !== null) {
+      $attribIds = $this->getFilterAttributes($this->getState('params')->get('filter_ids'), true);
+
+      foreach($attribIds as $key => $attribId) {
+	$filterAttrib = $this->getState('list.filter_attrib_'.$attribId);
+
+	if(!empty($filterAttrib)) {
+	  $query->join('INNER', '(SELECT * FROM #__ketshop_prod_attrib) AS pa'.$key.' ON pa'.$key.'.prod_id=p.id '.
+	                        'AND pa'.$key.'.attrib_id='.$attribId.' AND pa'.$key.'.option_value='.$db->Quote($filterAttrib));
+	}
+      }
+    }
+
     //Get the products ordering by default set in the menu options. (Note: sec stands for secondary). 
     $productOrderBy = $this->getState('params')->get('orderby_sec', 'rdate');
     //If products are sorted by date (ie: date, rdate), order_date defines
@@ -462,7 +483,7 @@ class KetshopModelTag extends JModelList
     }
 
     $query->order($orderBy);
-
+file_put_contents('debog_file.txt', print_r($query->__toString(), true));
     return $query;
   }
 
@@ -681,13 +702,13 @@ class KetshopModelTag extends JModelList
    * Returns the attributes linked to the given filters. The attribute options are
    * filtered according to the selected values in the items.
    *
-   * @param   array  $filterIds 	The ids of the filters. 
-   * @param   array  $itemIds		The ids of the displayed items. 
+   * @param   array   $filterIds 	The ids of the filters. 
+   * @param   boolean $idOnly		When sets to true returns only the attribute ids. 
    *
-   * @return  array			An attribute array.
+   * @return  array			An array of attribute (or attribute id).
    *
    */
-  public function getFilterAttributes($filterIds, $itemIds)
+  public function getFilterAttributes($filterIds, $idOnly = false)
   {
     $attributes = $attribValues = array();
 
@@ -702,53 +723,12 @@ class KetshopModelTag extends JModelList
     $db->setQuery($query);
     $attribIds = $db->loadColumn();
 
+    if($idOnly) {
+      return $attribIds;
+    }
+
     foreach($attribIds as $attribId) {
       $attributes[] = $this->getAttribute($attribId);
-    }
-
-    //Collects the attribute option values selected in the given products.
-    $query->clear();
-    $query->select('DISTINCT option_value, attrib_id')
-	  ->from('#__ketshop_prod_attrib')
-	  ->where('prod_id IN('.implode(',', $itemIds).')')
-	  ->order('attrib_id');
-    $db->setQuery($query);
-    $results = $db->loadAssocList();
-
-    //Rearranges the data for more convenience.
-    foreach($results as $result) {
-      if(!array_key_exists($result['attrib_id'], $attribValues)) {
-	$attribValues[$result['attrib_id']] = array($result['option_value']);
-      }
-      else {
-	$attribValues[$result['attrib_id']][] = $result['option_value'];
-      }
-
-      //Checks for multiselect.
-      if(preg_match('#^\["#', $result['option_value'])) {
-	//Gets the option values contained within the Json array.
-	preg_match_all('#([0-9a-zA-Z_-]+)#', $result['option_value'], $matches);
-	$values = $matches[1];
-
-	//Removes the last inserted element (ie: the Json array).
-	array_pop($attribValues[$result['attrib_id']]);
-
-	//Inserts the values.
-	foreach($values as $value) {
-	  if(!in_array($value, $attribValues[$result['attrib_id']])) {
-	    $attribValues[$result['attrib_id']][] = $value;
-	  }
-	}
-      }
-    }
-
-    //Deletes the options which are not used in the product attributes.
-    foreach($attributes as $k => $attribute) {
-      foreach($attribute['options'] as $key => $option) {
-	if(isset($attribValues[$attribute['id']]) && !in_array($option['option_value'], $attribValues[$attribute['id']])) {
-	  unset($attributes[$k]['options'][$key]);
-	}
-      }
     }
 
     return $attributes;

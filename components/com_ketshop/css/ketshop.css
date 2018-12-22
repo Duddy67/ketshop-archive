@@ -440,6 +440,15 @@ div[class^="leading-"] {  /* All divs which wrap a leading article. ie: leading-
   color: #404040;
 }
 
+/* Tag View */
+.attribute-filters .chzn-container {
+  margin-right: 15px !important;
+}
+
+.attribute-filters h3 {
+  font-size: 14px;
+}
+
 /* ///// Autocomplete /////// */
 
 .autocomplete-suggestions {

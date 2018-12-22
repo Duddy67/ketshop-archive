@@ -87,6 +87,8 @@ class KetshopViewTag extends JViewLegacy
   public $params;
   public $shopSettings;
   public $filterAttributes = null;
+  public $filterStates = array();
+
 
   public function display($tpl = null)
   {
@@ -132,7 +134,7 @@ class KetshopViewTag extends JViewLegacy
 
     //Set variables used for a multilangual purpose.
     $isSiteMultilng = ShopHelper::isSiteMultilingual();
-    $assocKeys = $itemIds = array();
+    $assocKeys = array();
     $langTag = ShopHelper::switchLanguage(true);
 
     // Prepare the data.
@@ -160,8 +162,6 @@ class KetshopViewTag extends JViewLegacy
           $assocKeys[] = $item->assoc_menu_item_key;
         }
       }
-
-      $itemIds[] = $item->id;
     }
 
     if(!empty($assocKeys)) {
@@ -300,11 +300,16 @@ class KetshopViewTag extends JViewLegacy
 
     //Set the name of the active layout in params, (needed for the filter ordering layout).
     $this->params->set('active_layout', $this->getLayout());
-    //Set the filter_ordering parameter for the layout.
-    $this->filter_ordering = $this->state->get('list.filter_ordering');
+    //Set the filter states for the filter layout.
+    $this->filterStates['filter_ordering'] = $this->state->get('list.filter_ordering');
+    $this->filterStates['filter_search'] = $this->state->get('list.filter_search');
+    $this->filterStates['limit'] = $this->state->get('list.limit');
 
     if($this->params->get('filter_ids') !== null) {
-      $this->filterAttributes = $model->getFilterAttributes($this->params->get('filter_ids'), $itemIds);
+      $this->filterAttributes = $model->getFilterAttributes($this->params->get('filter_ids'));
+      foreach($this->filterAttributes as $attribute) {
+	$this->filterStates['filter_attrib_'.$attribute['id']] = $this->state->get('list.filter_attrib_'.$attribute['id']);
+      }
     }
 
     $this->nowDate = JFactory::getDate()->toSql();
