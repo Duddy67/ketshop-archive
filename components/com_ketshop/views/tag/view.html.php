@@ -307,8 +307,19 @@ class KetshopViewTag extends JViewLegacy
 
     if($this->params->get('filter_ids') !== null) {
       $this->filterAttributes = $model->getFilterAttributes($this->params->get('filter_ids'));
+      //Sets the attribute values.
       foreach($this->filterAttributes as $attribute) {
-	$this->filterStates['filter_attrib_'.$attribute['id']] = $this->state->get('list.filter_attrib_'.$attribute['id']);
+	//Checks for multiselect.
+	if(is_array($this->state->get('list.filter_attrib_'.$attribute['id']))) {
+	  $this->filterStates['filter_attrib_'.$attribute['id']] = array();
+	  //Stores the selected option values.
+	  foreach($this->state->get('list.filter_attrib_'.$attribute['id']) as $value) {
+	    $this->filterStates['filter_attrib_'.$attribute['id']][] = $value;
+	  }
+	}
+	else { //Single select.
+	  $this->filterStates['filter_attrib_'.$attribute['id']] = $this->state->get('list.filter_attrib_'.$attribute['id']);
+	}
       }
     }
 

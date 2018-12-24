@@ -57,13 +57,28 @@ $filterStates = $displayData->filterStates;
   <div class="ketshop-toolbar clearfix attribute-filters">
    <h3><?php echo JText::_('COM_KETSHOP_ATTRIBUTE_FILTERS');?></h3>
   <?php
+	//Generates the attribute drop down lists.
 	foreach($displayData->filterAttributes as $attribute) {
-	  echo '<select name="filter_attrib_'.$attribute['id'].'" id="filter_attrib_'.$attribute['id'].'" onchange="this.form.submit();">'.
-	       '<option value="">'.$attribute['name'].'</option>';
+	  $name = 'filter_attrib_'.$attribute['id'];
+	  $multiple = $emptyOption = '';
+
+	  //Sets variables according to the select type. 
+	  if($attribute['multiselect']) {
+	    $multiple = 'multiple';
+	    $name = $name.'[]';
+	    $optionValues = $filterStates['filter_attrib_'.$attribute['id']];
+	  }
+	  else { //Single select.
+	    $optionValues = array($filterStates['filter_attrib_'.$attribute['id']]);
+	    $emptyOption = '<option value="">'.$attribute['name'].'</option>';
+	  }
+
+	  echo '<select name="'.$name.'" id="filter_attrib_'.$attribute['id'].'" '
+	       .$multiple.' onchange="this.form.submit();">'.$emptyOption;
 
 	  foreach($attribute['options'] as $option) {
 	    $selected = '';
-	    if($filterStates['filter_attrib_'.$attribute['id']] == $option['option_value']) {
+	    if(in_array($option['option_value'], $optionValues)) {
 	      $selected = 'selected="selected"';
 	    }
 

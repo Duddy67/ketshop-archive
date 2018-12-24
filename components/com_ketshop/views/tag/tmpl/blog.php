@@ -31,7 +31,16 @@ var ketshop = {
   clearFilters: function() {
     var filters = document.querySelectorAll('select[id^="filter_attrib_"]');
     for(var i = 0; i < filters.length; i++) {
-      document.getElementById(filters[i].id).value = '';
+      //Checks for multiselect.
+      if(filters[i].multiple === true) {
+	//Unselects all the options.
+	for(var j = 0; j < filters[i].options.length; j++) {
+	  filters[i].options[j].selected = false;
+	}
+      }
+      else { //Single select.
+	document.getElementById(filters[i].id).value = '';
+      }
     }
 
     ketshop.submitForm();
@@ -76,7 +85,7 @@ var ketshop = {
 
     <?php if(empty($this->lead_items) && empty($this->link_items) && empty($this->intro_items)) : ?>
       <?php if($this->params->get('show_no_tagged_products')) : ?>
-	      <p><?php echo JText::_('COM_KETSHOP_NO_PRODUCTS'); ?></p>
+	      <div class="alert alert-no-items"><?php echo JText::_('COM_KETSHOP_NO_PRODUCTS'); ?></div>
       <?php endif; ?>
     <?php endif; ?>
 
@@ -84,7 +93,7 @@ var ketshop = {
     <?php if(!empty($this->lead_items)) : ?>
 	    <div class="items-leading clearfix">
 	  <?php foreach($this->lead_items as &$item) : ?>
-		  <div class="leading-<?php echo $leadingcount; ?><?php echo $item->state == 0 ? ' system-unpublished' : null; ?>"
+		  <div class="leading-<?php echo $leadingcount; ?><?php echo $item->published == 0 ? ' system-unpublished' : null; ?>"
 			  itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
 			  <?php
 			  $this->item = & $item;
@@ -109,7 +118,7 @@ var ketshop = {
 		  <div class="items-row cols-<?php echo (int) $this->columns; ?> <?php echo 'row-'.$row; ?> row-fluid clearfix">
 	  <?php endif; ?>
 	  <div class="span<?php echo round((12 / $this->columns)); ?>">
-		  <div class="item column-<?php echo $rowcount; ?><?php echo $item->state == 0 ? ' system-unpublished' : null; ?>"
+		  <div class="item column-<?php echo $rowcount; ?><?php echo $item->published == 0 ? ' system-unpublished' : null; ?>"
 		      itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
 		      <?php
 		      $this->item = & $item;

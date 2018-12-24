@@ -456,7 +456,16 @@ class ShopHelper
 
     foreach($GETQuery as $key => $value) {
       if(!in_array($key, $unwanted)) {
-	$urlQuery .= $key.'='.$value.'&';
+
+	if(is_array($value)) {
+	  //
+	  foreach($value as $val) {
+	    $urlQuery .= $key.'[]='.$val.'&';
+	  }
+	}
+	else { //string value
+	  $urlQuery .= $key.'='.$value.'&';
+	}
       }
     }
 

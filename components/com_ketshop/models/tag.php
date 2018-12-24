@@ -135,11 +135,31 @@ class KetshopModelTag extends JModelList
     $filterOrdering = $this->getUserStateFromRequest($this->context.'.list.filter_ordering', 'filter_ordering');
     $this->setState('list.filter_ordering', $filterOrdering);
 
+    //Sets the values of the filter attributes.
     if($params->get('filter_ids') !== null) {
       $attribIds = $this->getFilterAttributes($params->get('filter_ids'), true);
+      $post = $app->input->post->getArray();
+
       foreach($attribIds as $attribId) {
-	$filterAttrib = $this->getUserStateFromRequest($this->context.'.list.filter_attrib_'.$attribId, 'filter_attrib_'.$attribId);
-	$this->setState('list.filter_attrib_'.$attribId, $filterAttrib);
+	//Gets the selected option value for each attribute.
+	$optionValue = $this->getUserStateFromRequest($this->context.'.list.filter_attrib_'.$attribId, 'filter_attrib_'.$attribId);
+
+	//Checks for multiselect.
+	if(is_array($optionValue)) {
+	  $values = array();
+	  //Note: When a multiple select tag is empty it is not contained in the $_POST variable. 
+	  if(isset($post['filter_attrib_'.$attribId])) {
+	    //Stores the selected option values.
+	    foreach($optionValue as $value) {
+	      $values[] = $value;
+	    }
+	  }
+
+	  $this->setState('list.filter_attrib_'.$attribId, $values);
+	}
+	else { //Single select
+	  $this->setState('list.filter_attrib_'.$attribId, $optionValue);
+	}
       }
     }
 
@@ -442,15 +462,32 @@ class KetshopModelTag extends JModelList
       }
     }
 
+    //Filters by product attributes.
     if($this->getState('params')->get('filter_ids') !== null) {
       $attribIds = $this->getFilterAttributes($this->getState('params')->get('filter_ids'), true);
 
+      //Builds a join query for each attribute.
       foreach($attribIds as $key => $attribId) {
-	$filterAttrib = $this->getState('list.filter_attrib_'.$attribId);
+	$optionValue = $this->getState('list.filter_attrib_'.$attribId);
 
-	if(!empty($filterAttrib)) {
+	if(!empty($optionValue)) {
+	  //Checks for multi select.
+	  if(is_array($optionValue)) {
+	    $option = '(';
+	    //Creates a LIKE clause for each option value.
+	    foreach($optionValue as $value) {
+	      $option .= 'pa'.$key.'.option_value LIKE '.$db->Quote('%'.$value.'%').' AND ';
+	    }
+
+	    $option = substr($option, 0, -5);
+	    $option .= ')';
+	  }
+	  else { //Single select.
+	    $option = 'pa'.$key.'.option_value='.$db->Quote($optionValue);
+	  }
+
 	  $query->join('INNER', '(SELECT * FROM #__ketshop_prod_attrib) AS pa'.$key.' ON pa'.$key.'.prod_id=p.id '.
-	                        'AND pa'.$key.'.attrib_id='.$attribId.' AND pa'.$key.'.option_value='.$db->Quote($filterAttrib));
+	                        'AND pa'.$key.'.attrib_id='.$attribId.' AND '.$option);
 	}
       }
     }
@@ -483,7 +520,7 @@ class KetshopModelTag extends JModelList
     }
 
     $query->order($orderBy);
-file_put_contents('debog_file.txt', print_r($query->__toString(), true));
+
     return $query;
   }
 
