@@ -9,8 +9,15 @@ defined('_JEXEC') or die;
 
 JHtml::_('behavior.framework');
 
-// Create a shortcut for variants.
+// Create a shortcut for product and variants.
 $variants = $displayData->variants;
+$product = $displayData;
+//For more convenience process the main product as a variant.
+$variants[] = array('id' => $product->id, 'prod_id' => $product->id, 'var_id' => 0, 'stock' => $product->stock, 
+		    'stock_state' => $product->stock_state, 'attributes' => $product->attributes,
+		    'sale_price' => $product->sale_price, 'base_price' => $product->base_price, 
+		    'final_price' => $product->final_price, 'pricerules' => $product->pricerules,
+		    'code' => $product->code);
 //
 $priceText = JText::_('COM_KETSHOP_HEADING_PRICE_INCL_TAX');
 if($displayData->shop_settings['tax_method'] == 'excl_tax') {
@@ -53,7 +60,7 @@ if($displayData->shop_settings['tax_method'] == 'excl_tax') {
         $html = '';
 	foreach($variants as $variant) { 
 	  //Display variants which price is different from the price of the main product.
-	  if($variant['sale_price'] > 0 && $variant['base_price'] > 0) {
+	  if(!isset($variant['id']) && $variant['sale_price'] > 0 && $variant['base_price'] > 0) {
 	    $text = '';
 	    foreach($variant['attributes'] as $attribute) {
 	      foreach($attribute['options'] as $option) {

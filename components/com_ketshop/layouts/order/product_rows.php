@@ -31,7 +31,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       $rulesInfo = $product['pricerules']; 
       $variantName = '';
 
-      if($product['attribute_group']) {
+      if($product['has_variants']) {
 	$variantName = '<span class="small">'.$product['variant_name'].'</span>';
       }
       //Compute the class name according to $key value (ie: odd or even number).
@@ -180,9 +180,6 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 		  value="<?php echo $product['stock_subtract']; ?>" />
 	   <input type="hidden" name="stock_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		  id="stock_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['stock']; ?>" />
-	   <input type="hidden" name="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
-		  id="attribute_group_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
-		  value="<?php echo $product['attribute_group']; ?>" />
 	   <input type="hidden" name="alias_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"
 		  id="alias_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>" value="<?php echo $product['alias']; ?>" />
 	   <input type="hidden" name="type_<?php echo $product['id']; ?>_<?php echo $product['var_id']; ?>"

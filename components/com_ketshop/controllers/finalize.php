@@ -257,7 +257,7 @@ class KetshopControllerFinalize extends JControllerForm
       }
 
       $variantName = '';
-      if($cart[$i]['attribute_group']) {
+      if($cart[$i]['has_variants']) {
 	$variantName = ' : '.$cart[$i]['variant_name'];
       }
 

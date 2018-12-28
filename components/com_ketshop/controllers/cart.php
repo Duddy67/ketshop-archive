@@ -56,7 +56,7 @@ class KetshopControllerCart extends JControllerForm
     //Retrieve the location the user comes from.
     $location = $session->get('location', '', 'ketshop'); 
 
-    //Product comes from GET url, (ie: category or product shop view).
+    //Product comes from GET url, (ie: tag or product view).
     if(empty($data)) {
       //Sanitize sensitive data.
       $id = $this->input->get('prod_id', 0, 'uint');

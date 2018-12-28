@@ -15,7 +15,7 @@ JHtml::_('behavior.tabstate');
 $user = JFactory::getUser();
 
 $items = array('products' => 'star-empty',
-	       'attributes' => 'price-tag',
+	       'attributes' => 'price-tags',
 	       'taxes' => 'pie-chart',
 	       'currencies' => 'coin-dollar',
 	       'countries' => 'flag',
@@ -26,6 +26,7 @@ $items = array('products' => 'star-empty',
 	       'paymentmodes' => 'credit-card',
 	       'shippings' => 'truck',
 	       'shippers' => 'move-up',
+	       'filters' => 'filter',
 	       'translations' => 'earth');
 ?>
 

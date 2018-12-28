@@ -113,12 +113,11 @@ class KetshopViewProduct extends JViewLegacy
 
     //Get the stock state.
     if($this->item->stock_subtract) {
-      if(empty($this->item->variants)) { //Regular product.
-	$this->item->stock_state = ShopHelper::getStockState($this->item->min_stock_threshold,
-							     $this->item->max_stock_threshold,
-							     $this->item->stock, $this->item->allow_order);
-      }
-      else { //Product with variants.      
+      $this->item->stock_state = ShopHelper::getStockState($this->item->min_stock_threshold,
+							   $this->item->max_stock_threshold,
+							   $this->item->stock, $this->item->allow_order);
+
+      if(!empty($this->item->variants)) { //
         foreach($this->item->variants as $key => $variant) {
 	  $this->item->variants[$key]['stock_state'] = ShopHelper::getStockState($this->item->min_stock_threshold,
 										$this->item->max_stock_threshold,

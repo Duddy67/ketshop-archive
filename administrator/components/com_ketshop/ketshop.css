@@ -1242,6 +1242,9 @@ a:link.ketshop-link {
 .icon-shop-info:before {
     content: "\ea0c";
 }
+.icon-shop-filter:before {
+    content: "\ea5b";
+}
 .icon-shop-move-up:before {
     content: "\ea46";
 }

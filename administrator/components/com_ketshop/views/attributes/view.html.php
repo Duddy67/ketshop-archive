@@ -48,7 +48,7 @@ class KetshopViewAttributes extends JViewLegacy
   protected function addToolBar() 
   {
     //Display the view title and the icon.
-    JToolBarHelper::title(JText::_('COM_KETSHOP_ATTRIBUTES_TITLE'), 'tag');
+    JToolBarHelper::title(JText::_('COM_KETSHOP_ATTRIBUTES_TITLE'), 'tags');
 
     //Get the allowed actions list
     $canDo = KetshopHelper::getActions();

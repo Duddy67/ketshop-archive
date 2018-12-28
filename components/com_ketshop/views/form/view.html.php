@@ -99,7 +99,7 @@ class KetshopViewForm extends JViewLegacy
     //Load Javascript functions.
     JavascriptHelper::getProductText();
     JavascriptHelper::getCommonText();
-    JavascriptHelper::loadFunctions(array('user', 'shortcut', 'attribute_groups'));
+    JavascriptHelper::loadFunctions(array('user', 'shortcut'));
     $this->setDocument();
 
     parent::display($tpl);

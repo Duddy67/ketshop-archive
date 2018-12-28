@@ -25,14 +25,14 @@ class KetshopViewCart extends JViewLegacy
   function display($tpl = null)
   {
     // Initialise variables
-    $state = $this->get('State');
-    $items = $this->get('Items');
-
+    //$state = $this->get('State');
+    //$items = $this->get('Items');
+//var_dump($items);
     // Check for errors.
-    if(count($errors = $this->get('Errors'))) {
+    /*if(count($errors = $this->get('Errors'))) {
 	    JError::raiseWarning(500, implode("\n", $errors));
 	    return false;
-    }
+  }*/
 
     ShopHelper::javascriptUtilities();
 

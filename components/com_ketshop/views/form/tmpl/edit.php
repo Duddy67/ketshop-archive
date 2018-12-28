@@ -125,7 +125,6 @@ Joomla.submitbutton = function(task)
 		  <div class="tab-pane" id="variants">
 		    <div class="span12" id="variant">
 		      <?php 
-			    echo $this->form->getControlGroup('attribute_group');
 			    echo $this->form->getControlGroup('variant_name');
 		      ?>
 		    </div>
