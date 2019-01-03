@@ -5,15 +5,14 @@
  * @license GNU General Public License version 3, or later
  */
 
-
 defined('_JEXEC') or die; //No direct access to this file.
+
 require_once (JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php');
 require_once (JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php');
 require_once (JPATH_ROOT.'/components/com_ketshop/helpers/route.php');
 
 
-
-class OrderHelper
+trait OrderTrait
 {
   /**
    * Creates a cart and settings session variables from the order. 
@@ -24,11 +23,11 @@ class OrderHelper
    *
    * @return string  The group name of the created session. 
    */
-  public static function setOrderSession($orderId, $products)
+  public function setOrderSession($orderId, $products)
   {
     //Just in case a previous session for this order is hanging around.
-    self::deleteOrderSession($orderId);
-    $settings = self::getOrderSettings($orderId);
+    $this->deleteOrderSession($orderId);
+    $settings = $this->getOrderSettings($orderId);
 
     //Grab the user session.
     $session = JFactory::getSession();
@@ -46,7 +45,7 @@ class OrderHelper
    *
    * @return void
    */
-  public static function deleteOrderSession($orderId)
+  public function deleteOrderSession($orderId)
   {
     $session = JFactory::getSession();
     //Check if variable exists. If it does we delete it.
@@ -69,7 +68,7 @@ class OrderHelper
    *
    * @return array   The shop settings.
    */
-  public static function getOrderSettings($orderId)
+  public function getOrderSettings($orderId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -89,7 +88,7 @@ class OrderHelper
    *
    * @return array  The separated product and variant ids.
    */
-  public static function separateIds($ids)
+  public function separateIds($ids)
   {
     if(!preg_match('#^([1-9][0-9]*)_(0|[1-9][0-9]*)$#', $ids, $matches)) {
       return null;
@@ -108,7 +107,7 @@ class OrderHelper
    *
    * @return array   The products of the order.
    */
-  public static function getProducts($orderId)
+  public function getProducts($orderId)
   {
     //Get the products from the order.
     $db = JFactory::getDbo();
@@ -158,7 +157,7 @@ class OrderHelper
    *
    * @return mixed  The price rules for the product (array), void otherwise.
    */
-  public static function setProductPriceRules($orderId, $product, $task)
+  public function setProductPriceRules($orderId, $product, $task)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -171,7 +170,7 @@ class OrderHelper
 	    ->where('prod_id='.(int)$product['prod_id'])
 	    ->where('history=2');
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
 
       //Set the history attribute to zero for price rules in case the product 
       //is part of the initial order.
@@ -181,7 +180,7 @@ class OrderHelper
 	    ->where('order_id='.(int)$orderId)
 	    ->where('prod_id='.(int)$product['prod_id']);
       $db->setQuery($query);
-      $db->query();
+      $db->execute();
     }
     else { //Add product
       $priceRules = array();
@@ -203,7 +202,7 @@ class OrderHelper
 	      ->where('order_id='.(int)$orderId)
 	      ->where('prod_id='.(int)$product['prod_id']);
 	$db->setQuery($query);
-	$db->query();
+	$db->execute();
       }
       else { // The added product is not being part of the initial order.
 	$priceRules = $product['pricerules'];
@@ -227,7 +226,7 @@ class OrderHelper
 		->columns($columns)
 		->values($values);
 	  $db->setQuery($query);
-	  $db->query();
+	  $db->execute();
 	}
       }
 
@@ -243,7 +242,7 @@ class OrderHelper
    *
    * @return array  The cart price rules linked to the given order.
    */
-  public static function getCartPriceRules($orderId)
+  public function getCartPriceRules($orderId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -296,7 +295,7 @@ class OrderHelper
    *
    * @return void
    */
-  public static function setShippingCost($orderId, $priceRules)
+  public function setShippingCost($orderId, $priceRules)
   {
     //Get the current shipping costs.
     $db = JFactory::getDbo();
@@ -330,7 +329,7 @@ class OrderHelper
 	  ->set($fields)
 	  ->where('order_id='.(int)$orderId);
     $db->setQuery($query);
-    $db->query();
+    $db->execute();
   }
 
 
@@ -348,7 +347,7 @@ class OrderHelper
    *
    * @return void
    */
-  public static function updateProducts($orderId, $products)
+  public function updateProducts($orderId, $products)
   {
     //First get the initial products.
     $db = JFactory::getDbo();
@@ -366,7 +365,7 @@ class OrderHelper
     $query->delete('#__ketshop_order_prod')
 	  ->where('order_id='.(int)$orderId);
     $db->setQuery($query);
-    $db->query();
+    $db->execute();
 
     $values = array();
     //Check the products of the current order.
@@ -406,7 +405,7 @@ class OrderHelper
 	  ->columns($columns)
 	  ->values($values);
     $db->setQuery($query);
-    $db->query();
+    $db->execute();
   }
 
 
@@ -418,7 +417,7 @@ class OrderHelper
    *
    * @return void
    */
-  public static function updateCartPriceRules($orderId, $priceRules)
+  public function updateCartPriceRules($orderId, $priceRules)
   {
     if(empty($priceRules)) {
       return;
@@ -439,8 +438,7 @@ class OrderHelper
 	  ->set($case)
 	  ->where('order_id='.(int)$orderId);
     $db->setQuery($query);
-    $db->query();
-
+    $db->execute();
   }
 
 
@@ -452,7 +450,7 @@ class OrderHelper
    *
    * @return void
    */
-  public static function updateOrder($orderId, $amounts)
+  public function updateOrder($orderId, $amounts)
   {
     //Set the new order amounts.
     $fields = array('cart_amount='.$amounts['cart_amount'],
@@ -466,7 +464,7 @@ class OrderHelper
 	  ->set($fields)
 	  ->where('id='.(int)$orderId);
     $db->setQuery($query);
-    $db->query();
+    $db->execute();
   }
 
 
@@ -478,7 +476,7 @@ class OrderHelper
    *
    * @return array  The price rules of the product.
    */
-  public static function getProductPriceRules($orderId, $product)
+  public function getProductPriceRules($orderId, $product)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -500,7 +498,7 @@ class OrderHelper
    *
    * @return array  The shipping cost data.
    */
-  public static function getShippingCost($orderId)
+  public function getShippingCost($orderId)
   {
     //Get the current shipping data.
     $db = JFactory::getDbo();
@@ -525,11 +523,11 @@ class OrderHelper
    *
    * @return string  The render of the order as HTML.
    */
-  public static function getRender($orderId, $products, $cartAmount, $cartPriceRules, $shippingPrules)
+  public function getRender($orderId, $products, $cartAmount, $cartPriceRules, $shippingPrules)
   {
     //Prepare data.
     $data = array('layout' => 'order_admin', 'can_edit' => true);
-    $settings = self::getOrderSettings($orderId);
+    $settings = $this->getOrderSettings($orderId);
     $data = array_merge($data, $settings);
     $data['currency'] = UtilityHelper::getCurrency($data['currency_code']);
     $data['col_span_nb'] = 5;
@@ -544,7 +542,7 @@ class OrderHelper
       }
 
       if(!isset($product['pricerules'])) {
-	$products[$key]['pricerules'] = self::getProductPriceRules($orderId, $product);
+	$products[$key]['pricerules'] = $this->getProductPriceRules($orderId, $product);
       }
 
       $products[$key]['initial_quantity'] = $product['quantity'];
@@ -563,7 +561,7 @@ class OrderHelper
 
     $cartAmount['pricerules'] = $cartPriceRules;
     $data['cart_amount'] = $cartAmount;
-    $data['shipping_data'] = self::getShippingCost($orderId);
+    $data['shipping_data'] = $this->getShippingCost($orderId);
 
     //Uses the layout patterns used in front-end for the cart view to generate the HTML render.
     $render = '';

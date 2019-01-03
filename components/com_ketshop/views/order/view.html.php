@@ -10,7 +10,6 @@ defined('_JEXEC') or die; // No direct access
  
 jimport( 'joomla.application.component.view');
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
-require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/order.php';
  
 
 class KetshopViewOrder extends JViewLegacy
@@ -25,7 +24,7 @@ class KetshopViewOrder extends JViewLegacy
     // Initialise variables
     $item = $this->get('Item');
     $form = $this->get('Form');
-    $products = OrderHelper::getProducts($item->id);
+    $products = $this->getModel()->getProducts($item->id);
     $priceRules = $this->get('PriceRules');
     $shippingData = $this->get('ShippingData');
     //Invoke function in a slitghly different way here as we need to pass arguments.

@@ -7,15 +7,15 @@
 
 
 defined('_JEXEC') or die; //No direct access to this file.
-jimport('joomla.application.component.modeladmin');
+
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
-require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/product.php';
+JLoader::register('ProductTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/product.php');
 
 
 class KetshopModelProduct extends JModelAdmin
 {
-  use Product;
+  use ProductTrait;
 
   //Prefix used with the controller messages.
   protected $text_prefix = 'COM_KETSHOP';

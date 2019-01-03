@@ -13,14 +13,16 @@ jimport('joomla.application.component.controllerform');
 //JPATH_COMPONENT_SITE here causes weird path problems. So we build the path
 //from the root.
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/order.php';
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php';
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
+JLoader::register('OrderTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/order.php');
  
 
 
 class KetshopControllerCart extends JControllerForm
 {
+  use OrderTrait;
+
   //The cart view url.
   protected $cartView = 'option=com_ketshop&view=cart';
   //Used as first argument of the logEvent function.
@@ -392,7 +394,7 @@ class KetshopControllerCart extends JControllerForm
       $this->emptyCart();
     }
 
-    $products = OrderHelper::getProducts($pendingOrderId);
+    $products = getProducts($pendingOrderId);
 
     //Check if products are still available and if their quantity is ok.
     foreach($products as $product) {

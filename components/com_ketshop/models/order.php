@@ -8,12 +8,13 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
 
-jimport('joomla.application.component.modeladmin');
 require_once JPATH_COMPONENT_SITE.'/helpers/pricerule.php';
+JLoader::register('OrderTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/order.php');
 
 
 class KetshopModelOrder extends JModelAdmin
 {
+  use OrderTrait;
 
   //Prefix used with the controller messages.
   protected $text_prefix = 'COM_KETSHOP';

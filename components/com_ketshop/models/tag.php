@@ -9,7 +9,7 @@ defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT_SITE.'/helpers/query.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/traits/product.php';
+JLoader::register('ProductTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/product.php');
 
 /**
  * KetShop Component Model
@@ -20,7 +20,7 @@ require_once JPATH_ROOT.'/administrator/components/com_ketshop/traits/product.ph
 class KetshopModelTag extends JModelList
 {
   //The getAttribute() function is needed.
-  use Product;
+  use ProductTrait;
 
   /**
    * Method to get a list of items.

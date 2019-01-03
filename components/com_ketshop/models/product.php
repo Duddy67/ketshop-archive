@@ -6,12 +6,13 @@
  */
 
 defined('_JEXEC') or die; //No direct access to this file.
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/traits/product.php';
+
+JLoader::register('ProductTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/product.php');
 
 
 class KetshopModelProduct extends JModelItem
 {
-  use Product;
+  use ProductTrait;
 
   protected $_context = 'com_ketshop.product';
 

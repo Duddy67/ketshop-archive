@@ -7,13 +7,10 @@
 
 
 defined( '_JEXEC' ) or die; // No direct access
- 
 
-jimport( 'joomla.application.component.view');
 require_once JPATH_COMPONENT.'/helpers/ketshop.php';
 require_once JPATH_COMPONENT.'/helpers/utility.php';
 require_once JPATH_COMPONENT.'/helpers/javascript.php';
-require_once JPATH_COMPONENT.'/helpers/order.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/route.php';
  
 
@@ -34,7 +31,7 @@ class KetshopViewOrder extends JViewLegacy
     $this->item = $this->get('Item');
     $this->form = $this->get('Form');
     $this->state = $this->get('State');
-    $this->products = OrderHelper::getProducts($this->item->id);
+    $this->products = $this->getModel()->getProducts($this->item->id);
     $this->priceRules = $this->get('PriceRules');
     $this->billingAddress = $this->get('BillingAddress');
 

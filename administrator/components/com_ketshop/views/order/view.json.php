@@ -7,9 +7,6 @@
 
 defined( '_JEXEC' ) or die; // No direct access
  
-jimport( 'joomla.application.component.view');
-require_once JPATH_COMPONENT.'/helpers/order.php';
- 
 
 /**
  * JSON Order View class. Mainly used for Ajax request. 
@@ -27,13 +24,14 @@ class KetshopViewOrder extends JViewLegacy
     $newQty = $jinput->get('new_qty', 0, 'uint');
     $userId = $jinput->get('user_id', 0, 'uint');
     $results = array();
+    $model = $this->getModel();
 
     if($context == 'add' || $context == 'remove') {
       //Don't take into account the possible changes (qty, unit price) set in the form. 
       //Get the products directly from the order table. 
-      $products = OrderHelper::getProducts($orderId);
+      $products = $model->getProducts($orderId);
       //Get the product and variant id. 
-      $ids = OrderHelper::separateIds($prodIds);
+      $ids = $model->separateIds($prodIds);
 
       //The order must contained at least one product.
       if($context == 'remove' && count($products) == 1) {
@@ -59,14 +57,14 @@ class KetshopViewOrder extends JViewLegacy
 	}
 
 	$product['prod_id'] = $product['id'];
-	$prodPrules = OrderHelper::setProductPriceRules($orderId, $product, $context);
+	$prodPrules = $model->setProductPriceRules($orderId, $product, $context);
 
 	if(!empty($prodPrules)) {
 	  //Replace the new price rules with the ones previously set in the order.
 	  $product['pricerules'] = $prodPrules;
 	}
 
-	$settings = OrderHelper::getOrderSettings($orderId);
+	$settings = $model->getOrderSettings($orderId);
 	$catalogPrice = PriceruleHelper::getCatalogPrice($product, $settings);
 
 	//Set some required attributes.
@@ -86,7 +84,7 @@ class KetshopViewOrder extends JViewLegacy
     foreach($products as $key => $product) {
       if($context == 'update') {
 	//Set both the product and variant ids for this product.
-	$ids = OrderHelper::separateIds($product['ids']);
+	$ids = $model->separateIds($product['ids']);
 	//Set required id attributes.
 	$products[$key]['prod_id'] = $ids['prod_id'];
 	$products[$key]['id'] = $ids['prod_id'];
@@ -137,7 +135,7 @@ class KetshopViewOrder extends JViewLegacy
 	}
       }
       elseif($context == 'remove' && $product['prod_id'] == $ids['prod_id'] && $product['var_id'] == $ids['var_id']) {
-	OrderHelper::setProductPriceRules($orderId, $product, $context);
+	$model->setProductPriceRules($orderId, $product, $context);
 	//Add again in the stock.
 	ShopHelper::updateStock(array($product), 'add');
 	//Remove the product from the order.
@@ -159,10 +157,10 @@ class KetshopViewOrder extends JViewLegacy
     }
 
     //Start a specific session named after the order id.
-    $sessionGroup = OrderHelper::setOrderSession($orderId, $products);
+    $sessionGroup = $model->setOrderSession($orderId, $products);
 
     //Get and check the initial cart price rules linked to the order.
-    $orderCartPrules = OrderHelper::getCartPriceRules($orderId);
+    $orderCartPrules = $model->getCartPriceRules($orderId);
     $cartPriceRules = PriceruleHelper::checkCartPriceRuleConditions($orderCartPrules, $sessionGroup);
 
     //Set the history attribute of the price rules according wether they are applied in the
@@ -203,15 +201,15 @@ class KetshopViewOrder extends JViewLegacy
     }
 
     //Process the order updating.
-    OrderHelper::setShippingCost($orderId, $shippingPrules);
-    OrderHelper::updateProducts($orderId, $products);
-    OrderHelper::updateCartPriceRules($orderId, $orderCartPrules);
-    OrderHelper::updateOrder($orderId, $amounts);
+    $model->setShippingCost($orderId, $shippingPrules);
+    $model->updateProducts($orderId, $products);
+    $model->updateCartPriceRules($orderId, $orderCartPrules);
+    $model->updateOrder($orderId, $amounts);
 
     //The order must be modified "on the fly" so we delete the order session after processing.
-    OrderHelper::deleteOrderSession($orderId);
+    $model->deleteOrderSession($orderId);
 
-    $render = OrderHelper::getRender($orderId, $products, $amounts, $cartPriceRules, $shippingPrules);
+    $render = $model->getRender($orderId, $products, $amounts, $cartPriceRules, $shippingPrules);
     $results['render'] = $render;
 
     echo new JResponseJson($results);

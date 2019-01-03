@@ -32,7 +32,7 @@ class plgContentKetshop extends JPlugin
     $lang = JFactory::getLanguage();
     $langTag = $lang->getTag();
     $lang->load('com_ketshop', JPATH_ROOT.'/administrator/components/com_ketshop', $langTag);
-    //Get all of the POST data.
+    //Get the POST data.
     $this->post = JFactory::getApplication()->input->post->getArray();
 
     parent::__construct($subject, $config);
