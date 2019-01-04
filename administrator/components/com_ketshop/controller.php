@@ -1,21 +1,21 @@
 <?php
 /**
  * @package KetShop 
- * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
-
 defined('_JEXEC') or die; // No direct access.
-
-jimport('joomla.application.component.controller');
 
 
 class KetshopController extends JControllerLegacy
 {
   public function display($cachable = false, $urlparams = false) 
   {
-    require_once JPATH_COMPONENT.'/helpers/ketshop.php';
+    //Loads the component helpers.
+    JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
+    JLoader::register('UtilityHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php');
+    JLoader::register('JavascriptHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/javascript.php');
 
     //Display the submenu.
     KetshopHelper::addSubmenu($this->input->get('view', 'products'));

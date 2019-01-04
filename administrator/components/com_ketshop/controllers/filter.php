@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
+ * @copyright Copyright (c) 2018 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 

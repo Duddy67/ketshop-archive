@@ -1,15 +1,13 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
-
 
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
 
 /**
  * Categories view class for the Category package.
@@ -91,7 +89,7 @@ class KetshopViewCategories extends JViewLegacy
 
  		// Load the category helper.
 		//require_once JPATH_COMPONENT.'/helpers/categories.php';
-		  require_once JPATH_COMPONENT.DS.'helpers'.DS.'ketshop.php';
+		  JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
 
 		// Get the results for each action.
 		//$canDo = CategoriesHelper::getActions($component, $categoryId);

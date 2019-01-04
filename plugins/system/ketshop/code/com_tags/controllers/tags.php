@@ -82,7 +82,7 @@ class TagsControllerTags extends JControllerAdmin
 
 	  if(!empty($cid)) {
 	    //Includes the Ketshop helper class.
-	    require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php';
+	    JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
 
 	    if(($task == 'trash' || $task == 'archive') && !KetshopHelper::checkMainTags($cid)) {
 	      $this->setRedirect(JRoute::_('index.php?option=com_tags&view=tags', false));

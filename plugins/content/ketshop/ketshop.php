@@ -1,17 +1,16 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
 // No direct access
 defined('_JEXEC') or die('Restricted access');
-// Import the JPlugin class
-jimport('joomla.plugin.plugin');
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/ketshop.php';
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/bundle.php';
+
+JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
+JLoader::register('UtilityHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php');
+JLoader::register('BundleHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/bundle.php');
 
 
 class plgContentKetshop extends JPlugin

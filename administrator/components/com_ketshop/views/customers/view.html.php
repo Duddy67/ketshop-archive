@@ -1,17 +1,13 @@
 <?php
 /**
  * @package KetShop 
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
-
 defined( '_JEXEC' ) or die; // No direct access
  
-jimport('joomla.application.component.view');
-//Import the users helper to get the getGroups and getRangeOptions functions.  
 require_once JPATH_ADMINISTRATOR.'/components/com_users/helpers/users.php';
-require_once JPATH_COMPONENT.'/helpers/ketshop.php';
  
 
 class KetshopViewCustomers extends JViewLegacy

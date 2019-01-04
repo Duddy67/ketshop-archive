@@ -88,7 +88,7 @@ class TagsControllerTag extends JControllerForm
 	  //Get the jform data.
 	  $data = $this->input->post->get('jform', array(), 'array');
 	  //Includes the Ketshop helper class.
-	  require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php';
+	  JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
 
 	  if((int)$data['id'] && ($data['published'] == 2 || $data['published'] == -2) &&
 	     !KetshopHelper::checkMainTags(array($data['id']))) {

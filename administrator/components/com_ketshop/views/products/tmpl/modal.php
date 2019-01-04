@@ -12,7 +12,6 @@ JHtml::_('behavior.framework', true);
 JHtml::_('formbehavior.chosen', 'select');
 
 JLoader::register('KetshopHelperRoute', JPATH_ROOT.'/components/com_ketshop/helpers/route.php');
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 
 $jinput = JFactory::getApplication()->input;
 

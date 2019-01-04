@@ -1,16 +1,12 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
-
 defined( '_JEXEC' ) or die; // No direct access
 
-require_once JPATH_COMPONENT.'/helpers/ketshop.php';
-require_once JPATH_COMPONENT.'/helpers/utility.php';
-require_once JPATH_COMPONENT.'/helpers/javascript.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/route.php';
  
 

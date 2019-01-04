@@ -1,14 +1,13 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
 defined('JPATH_BASE') or die;
 
 JFormHelper::loadFieldClass('list');
-require_once __DIR__.'/../../helpers/ketshop.php';
 
 
 class JFormFieldComponentuser extends JFormFieldList

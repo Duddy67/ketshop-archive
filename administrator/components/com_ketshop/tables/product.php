@@ -1,19 +1,16 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2018 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
 // No direct access
 defined('_JEXEC') or die('Restricted access');
  
-// import Joomla table library
-jimport('joomla.database.table');
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/ketshop.php';
- 
 use Joomla\Registry\Registry;
 
+ 
 /**
  * Product table class
  */

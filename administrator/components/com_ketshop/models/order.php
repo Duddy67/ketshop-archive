@@ -1,14 +1,12 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
 defined('_JEXEC') or die; //No direct access to this file.
 
-require_once JPATH_COMPONENT.'/helpers/utility.php';
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 JLoader::register('OrderTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/order.php');
 
 

@@ -1,16 +1,13 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2018 - 2018 Lucas Sanner
+ * @copyright Copyright (c) 2018 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
-
 // No direct access
 defined('_JEXEC') or die('Restricted access');
- 
-// import Joomla table library
-jimport('joomla.database.table');
+
  
 /**
  * Attribute table class
