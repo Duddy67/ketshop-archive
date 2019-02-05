@@ -11,7 +11,6 @@ jimport('joomla.html.html');
 //problem. It points to com_login component instead of com_ketshop.
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php';
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/ketshop.php';
-require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/bundle.php';
 
 
 class ShopHelper
@@ -445,6 +444,7 @@ class ShopHelper
     return $location;
   }
 
+
   //Retrieve the current url query and 
   //remove possible unwanted variables from it.
   public static function getUrlQuery($unwanted = array())
@@ -473,61 +473,6 @@ class ShopHelper
     $urlQuery = substr($urlQuery, 0, -1);
 
     return $urlQuery;
-  }
-
-
-  //Return an array of all the products contained in the given bundles.
-  //
-  public static function getBundleProducts($bundleIdQty, $stockSubtract = false)
-  {
-    //Bundle ids are stored as the index of the given $bundleIdQty array.
-    $bundleIds = implode(',', array_keys($bundleIdQty));
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    //Get the (shippable and stock subtractable) bundle products.
-    $query->select('p.id, pb.bundle_id, pb.quantity, p.shippable')
-	  ->from('#__ketshop_product AS p')
-	  ->join('LEFT', '#__ketshop_prod_bundle AS pb ON pb.bundle_id IN('.$bundleIds.')')
-	  ->where('p.id=pb.prod_id');
-	  //Check for stock subtract.
-	  if($stockSubtract) {
-	    $query->where('p.stock_subtract=1');
-	  }
-    $db->setQuery($query);
-    $results = $db->loadAssocList();
-
-    //Some bundles might contain the same products so we need to check for duplicates then
-    //readjust the quantity for those products.  
-
-    $count = count($results);
-    $bundleProducts = $uniqueIds = array();
-    for($i = 0; $i < $count; $i++) {
-      //Check for duplicates.
-      if(in_array($results[$i]['id'], $uniqueIds)) {
-	//Search for the same product previously stored. 
-	foreach($bundleProducts as $key => $bundleProduct) {
-	  if($bundleProduct['id'] == $results[$i]['id']) {
-	    //Add the quantity of the duplicate product.
-	    //Note: We have to take into account the quantity of the bundle itself (as a product).
-	    $bundleProducts[$key]['quantity'] = $bundleProduct['quantity'] + ($results[$i]['quantity'] * $bundleIdQty[(int)$results[$i]['bundle_id']]);
-	    break;
-	  }
-	}
-      }
-      else { //Product is unique.
-	//Store the product id in the checking array.
-	$uniqueIds[] = $results[$i]['id'];
-
-	//We also have to take into account the quantity of the bundle itself (as a product).
-	$results[$i]['quantity'] = $results[$i]['quantity'] * $bundleIdQty[(int)$results[$i]['bundle_id']];
-
-	//Store the product.
-	$bundleProducts[] = $results[$i];
-      }
-    }
-
-    return $bundleProducts;
   }
 
 
@@ -636,15 +581,16 @@ class ShopHelper
       }
     }
 
+    $model = JModelLegacy::getInstance('Product', 'KetshopModel');
     //The bundle products have been treated. 
     //Now the stock of the bundles themself must be updated.
     //Note: This condition must be checked before the recursive call or weird things occure.
     if(isset($products[$key]['bundle_ids'])) {
-      BundleHelper::updateBundle('stock', $products[$key]['bundle_ids']);
+      $model->updateBundle('stock', $products[$key]['bundle_ids']);
     }
 
     if(!empty($bundleData)) {
-      $bundleProducts = BundleHelper::getBundleProducts($bundleData);
+      $bundleProducts = $model->getBundleProducts($bundleData);
       //Call the function one more time (recursively) to treat the bundle products.
       self::updateStock($bundleProducts, $action);
     }

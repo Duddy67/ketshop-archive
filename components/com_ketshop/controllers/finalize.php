@@ -12,7 +12,6 @@ jimport('joomla.application.component.controllerform');
 require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 //Note: JPATH_COMPONENT_ADMINISTRATOR variable cannot be used here as it creates
 //problem. It points to com_login component instead of com_ketshop.
-require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/bundle.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
  
 
@@ -139,8 +138,9 @@ class KetshopControllerFinalize extends JControllerForm
     }
 
     if(!empty($bundleIds)) {
+      $model = JModelLegacy::getInstance('Product', 'KetshopModel');
       //Get the products contained in the bundles. 
-      $bundleProducts = BundleHelper::getBundleProducts($bundleIdQty);
+      $bundleProducts = $model->getBundleProducts($bundleIdQty);
 
       //Check for duplicates. A normal product can be part of one or more bundles.
       foreach($bundleProducts as $key1 => $bundleProduct) {

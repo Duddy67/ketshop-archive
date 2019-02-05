@@ -7,8 +7,6 @@
 
 defined( '_JEXEC' ) or die; // No direct access
  
-require_once JPATH_COMPONENT.'/helpers/bundle.php';
- 
 
 class KetshopViewProducts extends JViewLegacy
 {
@@ -24,6 +22,7 @@ class KetshopViewProducts extends JViewLegacy
     $this->pagination = $this->get('Pagination');
     $this->filterForm = $this->get('FilterForm');
     $this->activeFilters = $this->get('ActiveFilters');
+    $model = JModelLegacy::getInstance('Product', 'KetshopModel');
 
     //Check for errors.
     if(count($errors = $this->get('Errors'))) {
@@ -34,7 +33,7 @@ class KetshopViewProducts extends JViewLegacy
     //Get the stock value of the bundle items.
     foreach($this->items as $item) {
       if($item->type == 'bundle') {
-	$item->stock = BundleHelper::getBundleStock($item->id);
+	$item->stock = $model->getBundleStock($item->id);
 	$item->variants = array();
       }
       else {

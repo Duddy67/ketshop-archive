@@ -7,10 +7,6 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
 
-//require_once (JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php');
-require_once (JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php');
-require_once (JPATH_ROOT.'/components/com_ketshop/helpers/route.php');
-
 
 trait OrderTrait
 {

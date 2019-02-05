@@ -10,7 +10,6 @@ defined('_JEXEC') or die('Restricted access');
 
 JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
 JLoader::register('UtilityHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php');
-JLoader::register('BundleHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/bundle.php');
 
 
 class plgContentKetshop extends JPlugin
@@ -158,7 +157,7 @@ class plgContentKetshop extends JPlugin
 	KetshopHelper::updateMappingTable('#__ketshop_prod_bundle', $columns, $bundleProducts, array($data->id), 'bundle_id');
 
 	//Set or update the attributes of the bundle which require a specific treatment.
-	BundleHelper::updateBundle('all', array($data->id));
+	$model->updateBundle('all', array($data->id));
       }
 
       //Now bundles are set we can move on to attributes.
@@ -252,9 +251,9 @@ class plgContentKetshop extends JPlugin
 
       if(!$isNew) {
 	//If the product is part of a bundle we must update some bundle attributes.
-	$bundleIds = BundleHelper::isBundleProduct((int)$data->id); 
+	$bundleIds = $model->isBundleProduct((int)$data->id); 
 	if(!empty($bundleIds)) {
-	  BundleHelper::updateBundle('all', $bundleIds);
+	  $model->updateBundle('all', $bundleIds);
 	}
 
 	//Checks for product variants.

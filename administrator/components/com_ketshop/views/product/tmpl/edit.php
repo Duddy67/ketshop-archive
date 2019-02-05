@@ -106,7 +106,7 @@ Joomla.submitbutton = function(task)
       <?php if($template == 'bundle') : //Bundle ?>
 	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'bundle-product', JText::_('COM_KETSHOP_SUBMENU_BUNDLE_PRODUCT', true)); ?>
 	  <div class="row-fluid form-horizontal-desktop">
-	    <div class="span8" id="bundleproduct">
+	    <div class="span10" id="bundleproduct">
 	    </div>
 	  </div>
 	<?php echo JHtml::_('bootstrap.endTab'); ?>

@@ -16,6 +16,15 @@ if(!JFactory::getUser()->authorise('core.manage', 'com_ketshop')) {
   return false;
 }
 
+//Registers the component helper files. They will be loaded automatically later as soon
+//as a class is instantiate.
+JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
+JLoader::register('UtilityHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php');
+JLoader::register('JavascriptHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/javascript.php');
+JLoader::register('PriceruleHelper', JPATH_SITE.'/components/com_ketshop/helpers/pricerule.php');
+JLoader::register('KetshopHelperRoute', JPATH_SITE.'/components/com_ketshop/helpers/route.php');
+JLoader::register('ShopHelper', JPATH_SITE.'/components/com_ketshop/helpers/shop.php');
+
 // Include dependancies
 jimport('joomla.application.component.controller');
 

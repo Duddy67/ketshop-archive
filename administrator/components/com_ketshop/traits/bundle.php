@@ -7,12 +7,15 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
 
+/**
+ * Provides some utility functions relating to bundles.
+ */
 
-class BundleHelper
+trait BundleTrait
 {
   //Check if a given product is a part of one or more bundles.
   //Return an array filled with the bundle ids the product is linked to.
-  public static function isBundleProduct($itemId)
+  public function isBundleProduct($itemId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -27,7 +30,7 @@ class BundleHelper
 
   //Compute what is the stock_subtract or shippable state of a given bundle by checking
   //the value of each product of the bundle.
-  public static function checkBundleState($fieldName, $itemId)
+  public function checkBundleState($fieldName, $itemId)
   {
     //Safe the function.
     if($fieldName !== 'stock_subtract' && $fieldName !== 'shippable') {
@@ -55,7 +58,7 @@ class BundleHelper
 
 
   //Compute the stock value for a bundle.
-  public static function getBundleStock($itemId)
+  public function getBundleStock($itemId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -105,7 +108,7 @@ class BundleHelper
 
 
   //Compute the availability delay of a bundle according to its products.
-  public static function getBundleDelay($itemId)
+  public function getBundleDelay($itemId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -131,22 +134,18 @@ class BundleHelper
 
   //Update the bundle attributes which require a specific treatment.
   //Note: If no bundle id is given the function update all of the bundles.
-  public static function updateBundle($fieldName, $bundleIds = array())
+  public function updateBundle($fieldName, $bundleIds = array())
   {
+    //By default all the attributes will be update.
+    $fieldNames = array('stock', 'availability_delay', 'stock_subtract', 'shippable');
+
     //Safe the function.
-    if($fieldName !== 'stock' && $fieldName !== 'availability_delay' &&
-       $fieldName !== 'stock_subtract' && $fieldName !== 'shippable' &&
-       $fieldName !== 'all') {
+    if(!in_array($fieldName, $fieldNames) && $fieldName !== 'all') {
       return;
     }
 
-    //Put the field name into an array for more convenience.
-
-    if($fieldName === 'all') {
-      //All the attributes will be update.
-      $fieldNames = array('stock', 'availability_delay', 'stock_subtract', 'shippable');
-    }
-    else {
+    if($fieldName !== 'all') {
+      //Updates only the given attribute.
       $fieldNames = array($fieldName);
     }
 
@@ -170,16 +169,16 @@ class BundleHelper
       foreach($bundleIds as $bundleId) {
 	//Get and set the value of the given attribute for the given bundle id.
 	if($fieldName == 'stock') {
-	  $updateValue = BundleHelper::getBundleStock($bundleId);
+	  $updateValue = $this->getBundleStock($bundleId);
 	}
 	elseif($fieldName == 'availability_delay') {
-	  $updateValue = BundleHelper::getBundleDelay($bundleId);
+	  $updateValue = $this->getBundleDelay($bundleId);
 	}
 	elseif($fieldName == 'stock_subtract') {
-	  $updateValue = BundleHelper::checkBundleState('stock_subtract', $bundleId);
+	  $updateValue = $this->checkBundleState('stock_subtract', $bundleId);
 	}
 	else { //shippable
-	  $updateValue = BundleHelper::checkBundleState('shippable', $bundleId);
+	  $updateValue = $this->checkBundleState('shippable', $bundleId);
 	}
 
 	//Update the bundle row.
@@ -205,15 +204,38 @@ class BundleHelper
 
 
   /**
+   * Returns the products contained in a given bundle. 
+   *
+   * @param integer The id of the bundle (Note: A bundle is a product containing products).
+   *
+   * @return array  The products contained in the given bundle. 
+   */
+  public function getBundleProducts($productId) 
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    $query->select('prod_id AS id, name, quantity, stock') 
+	  ->from('#__ketshop_prod_bundle')
+	  ->join('INNER', '#__ketshop_product ON id=prod_id')
+	  ->where('bundle_id='.$productId)
+	  ->order('prod_id');
+    $db->setQuery($query);
+
+    return $db->loadAssocList();
+  }
+
+
+  /**
    * Returns the products contained in the given bundles. 
-   * Note: The function checks for duplicate products.
+   * Note: The function checks for duplicate products and sets their quantity accordingly.
    *
    * @param array  The id and quantity of the bundles. The bundle's id is set as the array's key
    *               (ie: array[id] => quantity)
    *
    * @return array  The products contained in the given bundles. 
    */
-  public static function getBundleProducts($bundleData)
+  //public function getBundleProducts($bundleData)
+  public function getProductsOfBundles($bundleData)
   {
     $ids = implode(',', array_keys($bundleData));
 
@@ -241,7 +263,7 @@ class BundleHelper
 	//Store the product with the set attributes.
 	$products[$bundleProduct['id']] = $bundleProduct;
       }
-      else { //The product is already into one of the given bundle.
+      else { //The product is already into one of the given bundles.
         //Just update the quantity for this product.
 	$products[$bundleProduct['id']]['quantity'] += $bundleProduct['quantity'] * $bundleData[$bundleProduct['bundle_id']];
       }

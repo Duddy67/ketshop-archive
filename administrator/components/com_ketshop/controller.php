@@ -12,11 +12,6 @@ class KetshopController extends JControllerLegacy
 {
   public function display($cachable = false, $urlparams = false) 
   {
-    //Loads the component helpers.
-    JLoader::register('KetshopHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php');
-    JLoader::register('UtilityHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php');
-    JLoader::register('JavascriptHelper', JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/javascript.php');
-
     //Display the submenu.
     KetshopHelper::addSubmenu($this->input->get('view', 'products'));
 

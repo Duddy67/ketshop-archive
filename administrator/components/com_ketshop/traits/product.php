@@ -180,21 +180,6 @@ trait ProductTrait
   }
 
 
-  public function getBundleProducts($productId) 
-  {
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    $query->select('prod_id AS id, name, quantity, stock') 
-	  ->from('#__ketshop_prod_bundle')
-	  ->join('INNER', '#__ketshop_product ON id=prod_id')
-	  ->where('bundle_id='.$productId)
-	  ->order('prod_id');
-    $db->setQuery($query);
-
-    return $db->loadAssocList();
-  }
-
-
   //The aim of this Ajax function is to simulate the checking for an unique alias in the table file. 
   //This avoid the users to loose the attributes and images they've just set in case of
   //error (handle in tables/product.php).

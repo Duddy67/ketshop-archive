@@ -8,11 +8,12 @@
 defined('_JEXEC') or die; //No direct access to this file.
 
 JLoader::register('ProductTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/product.php');
+JLoader::register('BundleTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/bundle.php');
 
 
 class KetshopModelProduct extends JModelAdmin
 {
-  use ProductTrait;
+  use ProductTrait, BundleTrait;
 
   //Prefix used with the controller messages.
   protected $text_prefix = 'COM_KETSHOP';
