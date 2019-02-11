@@ -8,13 +8,11 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
  
-jimport('joomla.application.component.controllerform');
 //Note: Using global variable like JPATH_COMPONENT_ADMINISTRATOR or
 //JPATH_COMPONENT_SITE here causes weird path problems. So we build the path
 //from the root.
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 require_once JPATH_ROOT.'/components/com_ketshop/helpers/pricerule.php';
-require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
 JLoader::register('OrderTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/order.php');
  
 

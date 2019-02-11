@@ -8,9 +8,6 @@
 
 defined('_JEXEC') or die; // No direct access
  
-jimport( 'joomla.application.component.view');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
- 
 
 class KetshopViewVendorproducts extends JViewLegacy
 {

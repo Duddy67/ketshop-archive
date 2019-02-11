@@ -9,8 +9,6 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
 
 

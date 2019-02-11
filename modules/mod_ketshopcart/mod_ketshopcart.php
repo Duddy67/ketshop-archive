@@ -10,7 +10,7 @@ defined('_JEXEC') or die; // No direct access.
 
 //Use utility functions from the KetShop component.
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
-require_once JPATH_SITE.'/components/com_ketshop/helpers/shop.php';
+JLoader::register('ShopHelper', JPATH_SITE.'/components/com_ketshop/helpers/shop.php');
 
 //Don't ever display the cart when editing product.
 $jinput = JFactory::getApplication()->input;

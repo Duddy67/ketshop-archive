@@ -7,9 +7,6 @@
 
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-require_once JPATH_COMPONENT_SITE.'/helpers/route.php';
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 require_once JPATH_COMPONENT_SITE.'/helpers/pricerule.php';
 
 /**

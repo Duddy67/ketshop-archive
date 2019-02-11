@@ -8,8 +8,6 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
  
-jimport('joomla.application.component.controllerform');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 //Note: JPATH_COMPONENT_ADMINISTRATOR variable cannot be used here as it creates
 //problem. It points to com_login component instead of com_ketshop.
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';

@@ -7,7 +7,6 @@
 
 // no direct access
 defined('_JEXEC') or die;
-require_once JPATH_COMPONENT.'/helpers/shop.php';
 
 JHtml::addIncludePath(JPATH_COMPONENT.'/helpers');
 

@@ -8,8 +8,6 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
  
-jimport('joomla.application.component.controllerform');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
  
 

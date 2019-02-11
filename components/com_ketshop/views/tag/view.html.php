@@ -8,7 +8,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\Registry\Registry;
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
+
 require_once JPATH_COMPONENT_SITE.'/helpers/pricerule.php';
 
 /**

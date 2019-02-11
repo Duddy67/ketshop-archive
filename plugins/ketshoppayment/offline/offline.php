@@ -1,17 +1,15 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
 
 // No direct access
 defined('_JEXEC') or die('Restricted access');
-// Import the JPlugin class
-jimport('joomla.plugin.plugin');
-require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
 
+JLoader::register('ShopHelper', JPATH_SITE.'/components/com_ketshop/helpers/shop.php');
 
 
 class plgKetshoppaymentOffline extends JPlugin

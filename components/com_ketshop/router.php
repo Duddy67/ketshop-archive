@@ -6,7 +6,8 @@
  */
 
 defined('_JEXEC') or die;
-require_once('helpers/route.php');
+
+JLoader::register('KetshopHelperRoute', JPATH_SITE.'/components/com_ketshop/helpers/route.php');
 
 
 /**

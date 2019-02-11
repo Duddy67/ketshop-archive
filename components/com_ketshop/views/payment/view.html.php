@@ -5,12 +5,8 @@
  * @license GNU General Public License version 3, or later
  */
 
-
 // No direct access
 defined('_JEXEC') or die;
-
-jimport('joomla.application.component.view');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 
 
 class KetshopViewPayment extends JViewLegacy

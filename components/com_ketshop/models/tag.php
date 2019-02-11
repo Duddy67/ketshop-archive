@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die;
 
-require_once JPATH_COMPONENT_SITE.'/helpers/query.php';
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 JLoader::register('ProductTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/product.php');
 
 /**

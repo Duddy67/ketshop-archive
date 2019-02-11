@@ -8,9 +8,6 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
 
-jimport('joomla.application.component.modeladmin');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
-
 // Base this model on the product frontend version.
 JLoader::register('KetshopModelProduct', JPATH_SITE.'/components/com_ketshop/models/product.php');
 

@@ -7,10 +7,6 @@
 
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.modelform');
-jimport('joomla.event.dispatcher');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
-
 
 class KetshopModelAddress extends JModelForm
 {

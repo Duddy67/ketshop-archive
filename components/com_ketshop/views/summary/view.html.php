@@ -10,8 +10,6 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-require_once JPATH_COMPONENT_SITE.'/helpers/shop.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
 
 
@@ -30,7 +28,7 @@ class KetshopViewSummary extends JViewLegacy
 
     // Check for errors.
     if(count($errors = $this->get('Errors'))) {
-      JError::raiseWarning(500, implode("\n", $errors));
+      $app->enqueueMessage($errors, 'error');
       return false;
     }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package KetShop
- * @copyright Copyright (c) 2016 - 2017 Lucas Sanner
+ * @copyright Copyright (c) 2016 - 2019 Lucas Sanner
  * @license GNU General Public License version 3, or later
  */
 
@@ -10,17 +10,11 @@
 // No direct access
 defined('_JEXEC') or die;
 
-//jimport('joomla.plugin.plugin');
-//jimport('joomla.utilities.simplexml');
-//jimport('joomla.application.component.controller'); 
-//require_once JPATH_ROOT.DS.'components'.DS.'com_ketshop'.DS.'helpers'.DS.'ketshop.php';
-//require_once JPATH_ROOT.DS.'components'.DS.'com_ketshop'.DS.'helpers'.DS.'pricerule.php';
 //Note: JPATH_COMPONENT_ADMINISTRATOR variable cannot be used here as it creates
 //problem. It points to com_login component instead of com_ketshop.
 require_once JPATH_ROOT.'/administrator/components/com_ketshop/helpers/utility.php';
 require_once JPATH_ROOT.'/components/com_ketshop/controllers/cart.php';
-require_once JPATH_ROOT.'/components/com_ketshop/helpers/shop.php';
-
+JLoader::register('ShopHelper', JPATH_SITE.'/components/com_ketshop/helpers/shop.php');
 
 
 class plgUserKetshopProfile extends JPlugin
