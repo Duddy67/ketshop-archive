@@ -18,6 +18,7 @@ $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn = $this->escape($this->state->get('list.direction'));
 $archived = $this->state->get('filter.published') == 2 ? true : false;
 $trashed = $this->state->get('filter.published') == -2 ? true : false;
+$countryName = $this->state->get('country_name');
 
 //Get the tag of the current admin language.
 $langTag = JFactory::getLanguage()->getTag();
@@ -55,7 +56,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	<?php echo JHtml::_('searchtools.sort', 'JSTATUS', 'c.published', $listDirn, $listOrder); ?>
 	</th>
 	<th>
-	<?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_NAME', 'c.name', $listDirn, $listOrder); ?>
+	<?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_NAME', 'c.'.$countryName, $listDirn, $listOrder); ?>
 	</th>
 	<th width="5%" class="nowrap hidden-phone">
 	<?php echo JHtml::_('searchtools.sort', 'COM_KETSHOP_HEADING_ALPHA_3', 'c.alpha_3', $listDirn, $listOrder); ?>
@@ -100,7 +101,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	      JHtml::_('actionsdropdown.' . $action, 'cb' . $i, 'countries');
 
 	      // Render dropdown list
-	      echo JHtml::_('actionsdropdown.render', $this->escape($item->name));
+	      echo JHtml::_('actionsdropdown.render', $this->escape($item->$countryName));
 	      ?>
 	    </div>
 	  </td>
@@ -111,15 +112,9 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	      <?php endif; ?>
 	      <?php if($canEdit || $canEditOwn) : ?>
 		<a href="<?php echo JRoute::_('index.php?option=com_ketshop&task=country.edit&id='.$item->id);?>" title="<?php echo JText::_('JACTION_EDIT'); ?>">
-			<?php echo $this->escape($item->name); ?></a>
+			<?php echo $this->escape($item->$countryName); ?></a>
 	      <?php else : ?>
-		<?php echo $this->escape($item->name); ?>
-	      <?php endif; ?>
-
-	      <?php if($langTag != 'en-GB' && !empty($item->lang_var)) : ?>
-		<div class="small">
-		  <?php echo $langTag.': '.JText::_($item->lang_var); //Get the name from the ini language file. ?> 
-		</div>
+		<?php echo $this->escape($item->$countryName); ?>
 	      <?php endif; ?>
 	    </div>
 	  </td>

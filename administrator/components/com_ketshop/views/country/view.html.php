@@ -7,12 +7,17 @@
 
 defined( '_JEXEC' ) or die; // No direct access
  
+JLoader::register('InilangTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/inilang.php');
+
 
 class KetshopViewCountry extends JViewLegacy
 {
+  use InilangTrait;
+
   protected $item;
   protected $form;
   protected $state;
+  public $countryName;
 
   //Display the view.
   public function display($tpl = null)
@@ -20,6 +25,8 @@ class KetshopViewCountry extends JViewLegacy
     $this->item = $this->get('Item');
     $this->form = $this->get('Form');
     $this->state = $this->get('State');
+    //Gets the column name to use for the country name according to the current language.
+    $this->countryName = $this->getColumnName('country');
 
     //Check for errors.
     if(count($errors = $this->get('Errors'))) {

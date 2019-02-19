@@ -10,11 +10,11 @@
 	       description="JGLOBAL_FIELD_ID_DESC"
 	       readonly="true" class="readonly" />
 
-	<field name="name" type="text"
+	<field name="name" type="text" readonly="true"
 		label="COM_KETSHOP_FIELD_NAME_LABEL"
 		description="COM_KETSHOP_FIELD_NAME_DESC"
-		class="input-xxlarge input-large-text"
-		required="true" />
+		class="input-xxlarge input-large-text readonly"
+		filter="unset" />
 
 	<field name="alpha_2" type="text"
 		label="COM_KETSHOP_FIELD_ISO_ALPHA_2_LABEL"
@@ -49,7 +49,7 @@
 	<field name="lang_var" type="text"
 		label="COM_KETSHOP_FIELD_LANG_VAR_LABEL"
 		description="COM_KETSHOP_FIELD_LANG_VAR_DESC"
-		size="60" />
+		size="60" required="true" />
 
 	<field name="published" type="list"
 	        label="JSTATUS"

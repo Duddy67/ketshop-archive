@@ -516,12 +516,12 @@ ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 DROP TABLE IF EXISTS `#__ketshop_country`;
 CREATE TABLE `#__ketshop_country` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(80) NOT NULL ,
   `numerical` SMALLINT(3) ZEROFILL UNSIGNED NOT NULL , -- Cannot be used as primary key.
   `alpha_2` VARCHAR(2) NOT NULL ,
   `alpha_3` VARCHAR(3) NOT NULL ,
   `continent_code` CHAR(2) NULL ,
   `lang_var` VARCHAR(80) ,
+  `name_en_GB` VARCHAR(255) NOT NULL ,
   `published` TINYINT NOT NULL DEFAULT 0 ,
   `checked_out` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `checked_out_time` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,

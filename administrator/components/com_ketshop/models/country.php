@@ -5,16 +5,14 @@
  * @license GNU General Public License version 3, or later
  */
 
-
 defined('_JEXEC') or die; //No direct access to this file.
-
-jimport('joomla.application.component.modeladmin');
 
 
 class KetshopModelCountry extends JModelAdmin
 {
   //Prefix used with the controller messages.
   protected $text_prefix = 'COM_KETSHOP';
+
 
   //Returns a Table object, always creating it.
   //Table can be defined/overrided in the file: tables/mycomponent.php

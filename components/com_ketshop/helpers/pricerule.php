@@ -43,7 +43,6 @@
 defined('_JEXEC') or die; //No direct access to this file.
 
 require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/utility.php';
-require_once JPATH_ADMINISTRATOR.'/components/com_ketshop/helpers/ketshop.php';
 require_once JPATH_SITE.'/components/com_ketshop/helpers/shop.php';
 
 

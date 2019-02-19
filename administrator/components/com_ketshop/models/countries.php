@@ -5,21 +5,27 @@
  * @license GNU General Public License version 3, or later
  */
 
-
 defined('_JEXEC') or die; //No direct access to this file.
 
-jimport('joomla.application.component.modellist');
-
+JLoader::register('InilangTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/inilang.php');
 
 
 class KetshopModelCountries extends JModelList
 {
+  use InilangTrait;
+
+  public $countryName = null;
+
+
   public function __construct($config = array())
   {
+    //Gets the column name to use for the country name according to the current language.
+    $this->countryName = $this->getColumnName('country');
+
     if(empty($config['filter_fields'])) {
       $config['filter_fields'] = array(
 	      'id', 'c.id',
-	      'name', 'c.name',
+	      $this->countryName, 'c.'.$this->countryName,
 	      'published', 'c.published',
 	      'numerical', 'c.numerical',
 	      'alpha_3', 'c.alpha_3',
@@ -58,8 +64,11 @@ class KetshopModelCountries extends JModelList
     $published = $this->getUserStateFromRequest($this->context.'.filter.published', 'filter_published', '');
     $this->setState('filter.published', $published);
 
+    //Stores the name of the column containing the country name.
+    $this->setState('country_name', $this->countryName);
+
     // List state information.
-    parent::populateState('c.name', 'asc');
+    parent::populateState('c.'.$this->countryName, 'asc');
   }
 
 
@@ -82,8 +91,8 @@ class KetshopModelCountries extends JModelList
     $query = $db->getQuery(true);
 
     // Select the required fields from the table.
-    $query->select($this->getState('list.select', 'c.id,c.numerical,c.name,c.created,c.alpha_2,c.alpha_3,c.continent_code,'.
-				   'c.published,c.created_by,c.checked_out,c.checked_out_time,c.lang_var'));
+    $query->select($this->getState('list.select', 'c.id,c.numerical,c.created,c.alpha_2,c.alpha_3,c.continent_code,'.
+				   'c.published,c.created_by,c.checked_out,c.checked_out_time,c.lang_var,c.'.$this->countryName));
 
     $query->from('#__ketshop_country AS c');
 
@@ -101,7 +110,7 @@ class KetshopModelCountries extends JModelList
       }
       else {
 	$search = $db->Quote('%'.$db->escape($search, true).'%');
-	$query->where('(c.name LIKE '.$search.')');
+	$query->where('(c.'.$this->countryName.' LIKE '.$search.')');
       }
     }
 
@@ -132,7 +141,7 @@ class KetshopModelCountries extends JModelList
     }
 
     //Add the list to the sort.
-    $orderCol = $this->state->get('list.ordering', 'c.name');
+    $orderCol = $this->state->get('list.ordering', 'c.'.$this->countryName);
     $orderDirn = $this->state->get('list.direction'); //asc or desc
 
     $query->order($db->escape($orderCol.' '.$orderDirn));

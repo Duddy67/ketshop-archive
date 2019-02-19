@@ -23,6 +23,18 @@ class KetshopControllerCountries extends JControllerAdmin
     return $model;
   }
 
+  public function updateLanguages()
+  {
+    // Check for request forgeries
+    JSession::checkToken() or die(JText::_('JINVALID_TOKEN'));
+
+    $model = $this->getModel('Countries');
+    $model->updateLanguages('country');
+
+    $this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_list, false));
+
+    return true;
+  }
 }
 
 

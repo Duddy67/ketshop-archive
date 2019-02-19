@@ -84,6 +84,8 @@ class KetshopViewCountries extends JViewLegacy
     if($canDo->get('core.admin')) {
       JToolBarHelper::divider();
       JToolBarHelper::preferences('com_ketshop', 550);
+      JToolBarHelper::divider();
+      JToolbarHelper::custom('countries.updateLanguages', 'loop', '', 'COM_KETSHOP_UPDATE_LANGUAGES', false);
     }
   }
 

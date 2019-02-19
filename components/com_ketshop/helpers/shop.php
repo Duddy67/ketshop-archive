@@ -169,9 +169,12 @@ class ShopHelper
   public static function getShopSettings()
   {
     $config = JComponentHelper::getParams('com_ketshop');
+    $langTag = JFactory::getLanguage()->getTag();
+    $suffix = preg_replace('#\-#', '_', $langTag);
+
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('cu.alpha AS currency_alpha,cu.symbol AS currency_symbol,co.name AS country_name,'.
+    $query->select('cu.alpha AS currency_alpha,cu.symbol AS currency_symbol,co.name_'.$suffix.' AS country_name,'.
 		   'co.alpha_2 AS country_alpha_2,co.alpha_3 AS country_alpha_3,'.
 		   'co.lang_var AS country_lang_var') 
 	  ->from('#__ketshop_currency AS cu')

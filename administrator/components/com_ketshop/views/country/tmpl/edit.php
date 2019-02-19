@@ -12,6 +12,7 @@ JHtml::_('behavior.formvalidation');
 JHtml::_('formbehavior.chosen', 'select');
 
 $canDo = KetshopHelper::getActions();
+$countryName = $this->countryName;
 ?>
 
 <script type="text/javascript">
@@ -32,7 +33,9 @@ Joomla.submitbutton = function(task)
 <form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=country&layout=edit&id='.(int) $this->item->id); ?>" 
  method="post" name="adminForm" id="country-form" enctype="multipart/form-data" class="form-validate">
 
-  <?php echo JLayoutHelper::render('joomla.edit.title_alias', $this); ?>
+  <?php  //Sets the name value from the appropriate column.
+         $this->form->setValue('name', null, $this->item->$countryName);
+         echo JLayoutHelper::render('joomla.edit.title_alias', $this); ?>
 
   <div class="form-horizontal">
 
@@ -44,11 +47,11 @@ Joomla.submitbutton = function(task)
 	<div class="span4">
 	  <div class="form-vertical">
 	    <?php
+		  echo $this->form->getControlGroup('lang_var');
 		  echo $this->form->getControlGroup('numerical');
 		  echo $this->form->getControlGroup('alpha_2');
 		  echo $this->form->getControlGroup('alpha_3');
 		  echo $this->form->getControlGroup('continent_code');
-		  echo $this->form->getControlGroup('lang_var');
 	      ?>
 	  </div>
 	</div>
