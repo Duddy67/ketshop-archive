@@ -140,6 +140,26 @@ class JavascriptHelper
   }
 
 
+  /**
+   * Loads the field labels in order to use them with the dynamical items.
+   *
+   * @return  void
+   */
+  public static function loadFieldLabels() 
+  {
+    // Gets the language tag as well as the path to the language files. 
+    $langTag = JFactory::getLanguage()->getTag();
+    $path = JPATH_ADMINISTRATOR.'/components/com_ketshop/language';
+
+    // Gets the ini language file matching the language tag.
+    $langFile = parse_ini_file($path.'/'.$langTag.'/'.$langTag.'.com_ketshop.ini', true);
+    // Loads language variables relating to Javascript.
+    foreach($langFile['javascript_texts'] as $langVar => $name) {
+      JText::script($langVar); 
+    }
+  }
+
+
   //Build and load Javascript functions which return different kind of data,
   //generaly as a JSON array.
   public static function loadFunctions($names, $data = '')

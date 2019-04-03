@@ -47,7 +47,7 @@ Joomla.submitbutton = function(task)
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'attribute-options', JText::_('COM_KETSHOP_FIELDSET_OPTIONS', true)); ?>
-	<div class="form-vertical span8">
+	<div class="form-vertical span12">
 	    <?php echo $this->form->getControlGroup('multiselect'); ?>
 	  <div id="option">
 	  </div>
@@ -69,12 +69,14 @@ Joomla.submitbutton = function(task)
 
   <input type="hidden" name="task" value="" />
   <?php echo JHtml::_('form.token', array('id' => 'token')); ?>
+  <input type="hidden" name="root_location" id="root-location" value="<?php echo JUri::root(); ?>" />
 </form>
 
 <?php
 $doc = JFactory::getDocument();
 
 //Load the jQuery scripts.
-$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
+$doc->addScript(JURI::base().'components/com_ketshop/js/omkod-ajax.js');
+$doc->addScript(JURI::base().'components/com_ketshop/js/omkod-dynamic-item.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/attribute.js');
 

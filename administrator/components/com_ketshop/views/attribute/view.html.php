@@ -5,7 +5,8 @@
  * @license GNU General Public License version 3, or later
  */
 
-defined( '_JEXEC' ) or die; // No direct access
+ // No direct access
+defined( '_JEXEC' ) or die;
  
 
 class KetshopViewAttribute extends JViewLegacy
@@ -14,50 +15,49 @@ class KetshopViewAttribute extends JViewLegacy
   protected $form;
   protected $state;
 
-  //Display the view.
+  // Display the view.
   public function display($tpl = null)
   {
     $this->item = $this->get('Item');
     $this->form = $this->get('Form');
     $this->state = $this->get('State');
 
-    //Check for errors.
+    // Check for errors.
     if(count($errors = $this->get('Errors'))) {
       JFactory::getApplication()->enqueueMessage($errors, 'error');
       return false;
     }
 
-    JavascriptHelper::getCommonText();
-    JavascriptHelper::getProductText();
+    JavascriptHelper::loadFieldLabels();
 
-    //Display the toolbar.
+    // Display the toolbar.
     $this->addToolBar();
 
     $this->setDocument();
 
-    //Display the template.
+    // Display the template.
     parent::display($tpl);
   }
 
 
   protected function addToolBar() 
   {
-    //Make main menu inactive.
+    // Make main menu inactive.
     JFactory::getApplication()->input->set('hidemainmenu', true);
 
     $user = JFactory::getUser();
     $userId = $user->get('id');
 
-    //Get the allowed actions list
+    // Get the allowed actions list
     $canDo = KetshopHelper::getActions($this->state->get('filter.category_id'));
     $isNew = $this->item->id == 0;
     $checkedOut = !($this->item->checked_out == 0 || $this->item->checked_out == $userId);
 
-    //Display the view title (according to the user action) and the icon.
+    // Display the view title (according to the user action) and the icon.
     JToolBarHelper::title($isNew ? JText::_('COM_KETSHOP_NEW_ATTRIBUTE') : JText::_('COM_KETSHOP_EDIT_ATTRIBUTE'), 'pencil-2');
 
     if($isNew) {
-      //Check the "create" permission for the new records.
+      // Check the "create" permission for the new records.
       if($canDo->get('core.create')) {
 	JToolBarHelper::apply('attribute.apply', 'JTOOLBAR_APPLY');
 	JToolBarHelper::save('attribute.save', 'JTOOLBAR_SAVE');

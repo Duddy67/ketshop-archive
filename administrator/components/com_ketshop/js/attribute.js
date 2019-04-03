@@ -1,90 +1,100 @@
-
 (function($) {
+  // A global variable to store then access the dynamical item objects. 
+  const GETTER = {};
 
-  //Run a function when the page is fully loaded including graphics.
+  // Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
-    //Create a container.
-    $('#option').getContainer();
+    // The input element containing the root location.
+    let rootLocation = $('#root-location').val();
+    // Sets the Attribute object proprieties.
+    let props = {'component':'ketshop', 'item':'option', 'ordering':true, 'rootLocation':rootLocation, 'rowsCells':[5], 'Chosen':true, 'nbItemsPerPage':5};
 
-    //Get the attribute item id.
-    var attributeId = $('#jform_id').val();
+    const option = new Omkod.DynamicItem(props);
+    // Stores the newly created object.
+    GETTER.option = option;
+    // Sets the validating function.
+    $('#attribute-form').submit( function(e) { validateFields(e); });
 
-    //If the attribute item exists we need to get the data of the dynamical items.
-    if(attributeId != 0) {
-      //Gets the token's name as value.
-      var token = $('#token').attr('name');
-      //Sets up the ajax query.
-      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'attribute_id':attributeId};
+    let attributeId = $('#jform_id').val();
 
-      //Ajax call which get item data previously set.
-      $.ajax({
-	  type: 'GET', 
-	  dataType: 'json',
-	  data: urlQuery,
-	  //Get results as a json array.
-	  success: function(results, textStatus, jqXHR) {
-	    //Create an item type for each result retrieved from the database.
-	    $.each(results.data, function(i, result) { $.fn.createItem('option', result); });
-	  },
-	  error: function(jqXHR, textStatus, errorThrown) {
-	    //Display the error.
-	    alert(textStatus+': '+errorThrown);
-	  }
-      });
-    }
-
+    // Prepares then run the Ajax query.
+    const ajax = new Omkod.Ajax();
+    let params = {'method':'GET', 'dataType':'json', 'indicateFormat':true, 'async':true};
+    let data = {'attribute_id':attributeId};
+    ajax.prepare(params, data);
+    ajax.process(getAjaxResult);
   });
 
+  getAjaxResult = function(result) {
+    if(result.success === true) {
+      $.each(result.data, function(i, item) { GETTER.option.createItem(item); });
+    }
+    else {
+      alert('Error: '+result.message);
+    }
+  }
 
-  $.fn.createOptionItem = function(idNb, data) {
-    //Create the "value" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_VALUE_TITLE')};
-    $('#option-item-'+idNb).createHTMLTag('<span>', properties, 'item-value-label');
-    $('#option-item-'+idNb+' .item-value-label').text(Joomla.JText._('COM_KETSHOP_VALUE_LABEL'));
+  validateFields = function(e) {
+    let task = document.getElementsByName('task');
+    let fields = {'value':'', 'text':''}; 
 
-    //Create the option value input.
-    var properties = {'type':'text', 'name':'option_value_'+idNb, 'id':'option-value-'+idNb, 'value':data.option_value};
-    $('#option-item-'+idNb).createHTMLTag('<input>', properties, 'item-value');
+    if(task[0].value != 'attribute.cancel' && !GETTER.option.validateFields(fields)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }
 
-    //Create the "text" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_TEXT_TITLE')};
-    $('#option-item-'+idNb).createHTMLTag('<span>', properties, 'item-text-label');
-    $('#option-item-'+idNb+' .item-text-label').text(Joomla.JText._('COM_KETSHOP_TEXT_LABEL'));
+  /** Callback functions **/
 
-    //Create the option text input.
-    var properties = {'type':'text', 'name':'option_text_'+idNb, 'id':'option-text-'+idNb, 'value':data.option_text};
-    $('#option-item-'+idNb).createHTMLTag('<input>', properties, 'item-text');
-
-    //Create the "published" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_PUBLISHED_TITLE')};
-    $('#option-item-'+idNb).createHTMLTag('<span>', properties, 'published-label');
-    $('#option-item-'+idNb+' .published-label').text(Joomla.JText._('COM_KETSHOP_PUBLISHED_LABEL'));
-
-    //Create the "published" checkbox.
-    //Note: The value is not important here as it doesn't have impact on the fact that 
-    //      the checkbox is checked or not. 
-    var properties = {'type':'checkbox', 'name':'option_published_'+idNb, 'id':'option-published-'+idNb, 'value':idNb};
-    $('#option-item-'+idNb).createHTMLTag('<input>', properties, 'option-name-item');
-
-    //Set the checkbox state.
-    if(data.published == 1) { //checked
-      $('#option-published-'+idNb).prop('checked', true);
+  populateOptionItem = function(idNb, data) {
+    // Defines the default field values.
+    if(data === undefined) {
+      data = {'option_value':'', 'option_text':''};
     }
 
-    //Get the number of items within the container then use it as ordering
-    //number for the current item.
-    var ordering = $('#option-container').children('div').length;
-    if(data.option_ordering !== undefined) {
-      ordering = data.option_ordering;
+    // Value label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_VALUE_TITLE'), 'class':'item-label', 'id':'option-value-label-'+idNb};
+    $('#option-row-1-cell-1-'+idNb).append(GETTER.option.createElement('span', attribs));
+    $('#option-value-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_VALUE_LABEL'));
+
+    // Value input tag:
+    attribs = {'type':'text', 'name':'option_value_'+idNb, 'id':'option-value-'+idNb, 'value':data.option_value};
+    $('#option-row-1-cell-1-'+idNb).append(GETTER.option.createElement('input', attribs));
+
+    // Text label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_TEXT_TITLE'), 'class':'item-label', 'id':'option-text-label-'+idNb};
+    $('#option-row-1-cell-2-'+idNb).append(GETTER.option.createElement('span', attribs));
+    $('#option-text-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_TEXT_LABEL'));
+
+    // Text input tag:
+    attribs = {'type':'text', 'name':'option_text_'+idNb, 'id':'option-text-'+idNb, 'value':data.option_text};
+    $('#option-row-1-cell-2-'+idNb).append(GETTER.option.createElement('input', attribs));
+
+    // Published label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_PUBLISHED_TITLE'), 'class':'item-label', 'id':'option-published-label-'+idNb};
+    $('#option-row-1-cell-3-'+idNb).append(GETTER.option.createElement('span', attribs));
+    $('#option-published-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_PUBLISHED_LABEL'));
+
+    // Published tag:
+    attribs = {'type':'checkbox', 'name':'option_published_'+idNb, 'id':'option-published-'+idNb, 'value':'published'};
+
+    if(data.published == 1) {
+      attribs.checked = 'checked';
     }
 
-    //Create the "order" input.
-    properties = {'type':'text', 'name':'option_ordering_'+idNb, 'id':'option-ordering-'+idNb, 'readonly':'readonly', 'value':ordering};
-    $('#option-item-'+idNb).createHTMLTag('<input>', properties, 'item-ordering');
-    $.fn.setOrderManagement('option');
+    $('#option-row-1-cell-3-'+idNb).append(GETTER.option.createElement('input', attribs));
+  }
 
-    //Create the removal button.
-    $('#option-item-'+idNb).createButton('remove');
-  };
+  reverseOptionOrder = function(direction, idNb) {
+    // Optional code...
+    GETTER.option.reverseOrder(direction, idNb);
+  }
+
+  browsingOptionPages = function(pageNb) {
+    // Optional code...
+    GETTER.option.updatePagination(pageNb);
+  }
 
 })(jQuery);
+

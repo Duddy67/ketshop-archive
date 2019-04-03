@@ -709,6 +709,7 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
+      file_put_contents('debog_file.txt', print_r($options, true)); 
       //Set fields.
       $columns = array('attrib_id', 'option_value', 'option_text', 'published', 'ordering');
       KetshopHelper::updateMappingTable('#__ketshop_attrib_option', $columns, $options, array($data->id));

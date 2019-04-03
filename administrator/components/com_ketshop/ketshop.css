@@ -339,43 +339,6 @@
   margin-right: 30px;*/
 }
 
-.option-item {
-  overflow: hidden; /* Block formatting context. */
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #ccc;
-}
-
-.item-value,
-.item-text {
-  float: left;
-  border: 1px solid #ccc;
-  width: 20%;
-  margin-right: 20px;
-}
-
-.item-ordering {
-  font-weight: bold;
-  text-align: center;
-  color: #404040;
-  width: 3%;
-  margin-left: 5px;
-  margin-right: 5px;
-  border: 1px solid #c0c0c0;
-}
-
-.down-ordering {
-  margin-left: 10px;
-}
-
-.order-transparent {
-  margin-left: 10px;
-}
-
-.option-item .btn-wrapper {
-  float: right;
-}
-
 
 /* Product images */
 
@@ -738,21 +701,6 @@
 
 /* Attributes */
 
-.ketshop-group-container {
-  margin-top: 10px;
-}
-
-.group-item {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-  width: 60%;
-}
-
-.group-item .btn-wrapper {
-  float: right !important;
-}
 
 
 /* Product variants */
@@ -1098,6 +1046,88 @@ a:link.ketshop-link {
   float:left;
   margin-top:5px;
 }
+
+/*** DYNAMICAL ITEMS ***/
+
+.option-container {
+  width: 100%;
+}
+
+.add-button-container {
+  margin-bottom: 30px;
+}
+
+.option-item {
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.option-cells-row-1 {
+  display: table-cell;
+  padding-bottom: 10px;
+  padding-right: 15px;
+  /*width: 25%;*/
+  /*border: 1px solid #ddd;*/
+}
+
+.option-order-number {
+  width: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.first-item {
+  margin-right: 21px;
+}
+
+.last-item {
+  margin-left: 21px;
+}
+
+.mandatory {
+  border: 1px solid #9d261d !important;
+  background-color: #f2dede !important;
+}
+
+.item-label,
+.item-space {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.item-space {
+  display: block;
+}
+
+.option-cell-3-row-1 {
+  text-align: center;
+}
+
+.option-pagination-inactive {
+  display: none;
+}
+
+.option-pagination-browser {
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.option-pagination-browser .current-page-number,
+.option-pagination-browser .page-number {
+  border: 1px solid #ddd;
+}
+
+.option-pagination-browser td {
+  padding: 5px;
+  margin: 5px;
+}
+/****   ****/
+
 
 /* Taken from Bootstrap then modified. */
 .small-label {
