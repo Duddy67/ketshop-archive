@@ -18,9 +18,11 @@ $user = JFactory::getUser();
 $userId = $user->get('id');
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn = $this->escape($this->state->get('list.direction'));
+$jinput = JFactory::getApplication()->input;
 
 //Get variable from url query.
-$idNb = JFactory::getApplication()->input->get->get('id_nb', 0, 'int');
+$idNb = $jinput->get->get('id_nb', 0, 'int');
+$dynamicItemType = $jinput->get->get('dynamic_item_type', '', 'string');
 
 //Note: This modal window is called from both product and translation edit views.
 //Translation doesn't provide idNb GET variable and just needs id and name
@@ -31,7 +33,7 @@ if(!$idNb) {
   $function = JFactory::getApplication()->input->get('function', 'selectItem');
 }
 else {
-  $function = JFactory::getApplication()->input->get('function', 'jQuery.selectAttribute');
+  $function = JFactory::getApplication()->input->get('function', 'selectAttribute');
 }
 ?>
 
@@ -98,7 +100,7 @@ else {
 		<a class="pointer" style="color:#025a8d;" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>(<?php echo $item->id; ?>, '<?php echo $this->escape(addslashes($item->name)); ?>');" >
 		    <?php echo $this->escape($item->name); ?></a>
 	      <?php else : //Invoke selectAttribute function. ?>
-      <a class="pointer" style="color:#025a8d;" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>(<?php echo $item->id; ?>, '<?php echo $this->escape(addslashes($item->name)); ?>',<?php echo $idNb; ?>);" >
+      <a class="pointer" style="color:#025a8d;" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>(<?php echo $item->id; ?>, '<?php echo $this->escape(addslashes($item->name)); ?>',<?php echo $idNb; ?>,'<?php echo $dynamicItemType; ?>');" >
 		    <?php echo $this->escape($item->name); ?></a>
 	      <?php endif; ?>
 	      </td>

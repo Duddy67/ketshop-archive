@@ -5,9 +5,8 @@
  * @license GNU General Public License version 3, or later
  */
 
-defined( '_JEXEC' ) or die; // No direct access
- 
-jimport( 'joomla.application.component.view');
+// No direct access
+defined( '_JEXEC' ) or die; 
  
 
 /**

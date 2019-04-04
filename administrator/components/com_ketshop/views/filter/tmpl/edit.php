@@ -50,7 +50,7 @@ Joomla.submitbutton = function(task)
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'attributes', JText::_('COM_KETSHOP_SUBMENU_ATTRIBUTES', true)); ?>
 	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span8" id="attribute">
+	  <div class="span12" id="attribute">
 	  </div>
 	</div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
@@ -69,7 +69,7 @@ Joomla.submitbutton = function(task)
   </div>
 
   <input type="hidden" name="task" value="" />
-  <input type="hidden" id="base-url" name="base_url" value="<?php echo JURI::root(); ?>" />
+  <input type="hidden" name="root_location" id="root-location" value="<?php echo JUri::root(); ?>" />
   <?php echo JHtml::_('form.token', array('id' => 'token')); ?>
 </form>
 
@@ -77,6 +77,8 @@ Joomla.submitbutton = function(task)
 $doc = JFactory::getDocument();
 
 //Load the jQuery scripts.
-$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
+//$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
+$doc->addScript(JURI::base().'components/com_ketshop/js/omkod-ajax.js');
+$doc->addScript(JURI::base().'components/com_ketshop/js/omkod-dynamic-item.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/filter.js');
 

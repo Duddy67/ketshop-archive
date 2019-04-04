@@ -6,7 +6,7 @@
   $(window).load(function() {
     // The input element containing the root location.
     let rootLocation = $('#root-location').val();
-    // Sets the Attribute object proprieties.
+    // Sets the dynamic item properties.
     let props = {'component':'ketshop', 'item':'option', 'ordering':true, 'rootLocation':rootLocation, 'rowsCells':[5], 'Chosen':true, 'nbItemsPerPage':5};
 
     const option = new Omkod.DynamicItem(props);
@@ -20,7 +20,8 @@
     // Prepares then run the Ajax query.
     const ajax = new Omkod.Ajax();
     let params = {'method':'GET', 'dataType':'json', 'indicateFormat':true, 'async':true};
-    let data = {'attribute_id':attributeId};
+    let token = jQuery('#token').attr('name');
+    let data = {[token]:1, 'task':'ajax', 'attribute_id':attributeId};
     ajax.prepare(params, data);
     ajax.process(getAjaxResult);
   });
@@ -86,14 +87,14 @@
     $('#option-row-1-cell-3-'+idNb).append(GETTER.option.createElement('input', attribs));
   }
 
-  reverseOptionOrder = function(direction, idNb) {
+  reverseOrder = function(direction, idNb, dynamicItemType) {
     // Optional code...
-    GETTER.option.reverseOrder(direction, idNb);
+    GETTER[dynamicItemType].reverseOrder(direction, idNb);
   }
 
-  browsingOptionPages = function(pageNb) {
+  browsingPages = function(pageNb, dynamicItemType) {
     // Optional code...
-    GETTER.option.updatePagination(pageNb);
+    GETTER[dynamicItemType].updatePagination(pageNb);
   }
 
 })(jQuery);

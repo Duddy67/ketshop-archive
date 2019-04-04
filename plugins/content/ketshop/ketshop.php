@@ -676,7 +676,8 @@ class plgContentKetshop extends JPlugin
 
       return true;
     }
-    elseif($context == 'com_ketshop.attribute') { //ATTRIBUTE
+    // ATTRIBUTE
+    elseif($context == 'com_ketshop.attribute') { 
       $options = array();
       foreach($this->post as $key => $groupId) {
 	if(preg_match('#^option_value_([0-9]+)$#', $key, $matches)) {
@@ -685,12 +686,12 @@ class plgContentKetshop extends JPlugin
 	  $value = trim($this->post['option_value_'.$optionNb]);
 	  $text = trim($this->post['option_text_'.$optionNb]);
 
-	  //Checks for empty values. 
+	  // Checks for empty values. 
 	  if($value === '' || $text === '') {
 	    continue;
 	  }
 
-	  // Remove any duplicate whitespace, and ensure all characters are alphanumeric
+	  // Removes any duplicate whitespace, and ensure all characters are alphanumeric
 	  $value = preg_replace('/(\s|[^A-Za-z0-9\-_])+/', '-', $value);
 
 	  $published = 0;
@@ -709,22 +710,21 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      file_put_contents('debog_file.txt', print_r($options, true)); 
-      //Set fields.
+      // Sets fields.
       $columns = array('attrib_id', 'option_value', 'option_text', 'published', 'ordering');
       KetshopHelper::updateMappingTable('#__ketshop_attrib_option', $columns, $options, array($data->id));
 
       return true;
     }
-    elseif($context == 'com_ketshop.filter') { //FILTER
-      //Get all of the POST data.
-      $post = JFactory::getApplication()->input->post->getArray();
+    // FILTER
+    elseif($context == 'com_ketshop.filter') { 
       $attribIds = $attributes = array();
 
-      //Search for possible attributes linked to the filter.
-      foreach($post as $key => $attribId) {
-	if(preg_match('#^attribute_id_([0-9]+)$#', $key)) {
-	  //Prevent duplicate or empty attribute id.
+      // Searchs for possible attributes linked to the filter.
+      foreach($this->post as $key => $attribId) {
+
+	if(preg_match('#^attribute_attribute_id_([0-9]+)$#', $key)) {
+	  // Prevents duplicate or empty attribute id.
 	  if((int)$attribId && !in_array($attribId, $attribIds)) {
 	    $attribute = new JObject;
 	    $attribute->attrib_id = $attribId;
@@ -733,11 +733,12 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      //Set fields.
+      // Sets fields.
       $columns = array('filter_id', 'attrib_id');
       KetshopHelper::updateMappingTable('#__ketshop_filter_attrib', $columns, $attributes, array($data->id));
     }
-    elseif($context == 'com_categories.category' && $data->extension == 'com_ketshop') { //COMPONENT CATEGORIES
+    // COMPONENT CATEGORIES
+    elseif($context == 'com_categories.category' && $data->extension == 'com_ketshop') { 
       return true;
     }
     else { //Hand over to Joomla.

@@ -57,7 +57,7 @@ class KetshopModelFilter extends JModelAdmin
     $query = $db->getQuery(true);
 
     //Gets the group ids linked to the attribute.
-    $query->select('fa.attrib_id AS id, a.name')
+    $query->select('fa.attrib_id AS attribute_id, a.name AS attribute_name')
 	  ->from('#__ketshop_filter_attrib AS fa')
 	  ->join('LEFT', '#__ketshop_attribute AS a ON a.id=fa.attrib_id')
 	  ->where('fa.filter_id='.(int)$pk)

@@ -27,8 +27,7 @@ class KetshopViewFilter extends JViewLegacy
       return false;
     }
 
-    JavascriptHelper::getProductText();
-    JavascriptHelper::getButtonText();
+    JavascriptHelper::loadFieldLabels();
 
     //Display the toolbar.
     $this->addToolBar();

@@ -291,12 +291,12 @@
   margin-top: 10px;
 }
 
-.attribute-item {
-  overflow: hidden; /* Block formatting context. */
+/*.attribute-item {
+  overflow: hidden; 
   margin-top: 30px;
   padding-top: 20px;
   border-top: 1px solid #c0c0c0;
-}
+}*/
 
 .attribute-item .btn-wrapper {
   float: left;
@@ -1049,20 +1049,24 @@ a:link.ketshop-link {
 
 /*** DYNAMICAL ITEMS ***/
 
+.attribute-container,
 .option-container {
   width: 100%;
 }
 
+.add-attribute-container,
 .add-button-container {
   margin-bottom: 30px;
 }
 
+.attribute-item,
 .option-item {
   width: 100%;
   border-bottom: 1px solid #ddd;
   margin-bottom: 20px;
 }
 
+.attribute-cells-row-1,
 .option-cells-row-1 {
   display: table-cell;
   padding-bottom: 10px;
@@ -1107,21 +1111,26 @@ a:link.ketshop-link {
   text-align: center;
 }
 
+.attribute-pagination-inactive,
 .option-pagination-inactive {
   display: none;
 }
 
+.attribute-pagination-browser,
 .option-pagination-browser {
   font-weight: bold;
   margin-left: auto;
   margin-right: auto;
 }
 
+.attribute-pagination-browser .current-page-number,
+.attribute-pagination-browser .page-number,
 .option-pagination-browser .current-page-number,
 .option-pagination-browser .page-number {
   border: 1px solid #ddd;
 }
 
+.attribute-pagination-browser td,
 .option-pagination-browser td {
   padding: 5px;
   margin: 5px;

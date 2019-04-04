@@ -268,7 +268,7 @@ Omkod.DynamicItem = class {
 
   /**
    * Generic function called by a modal child window when an item is 
-   * selected (clicked) into its list.
+   * selected (clicked) into a modal list.
    *
    * @param   integer id     The id of the selected item.
    * @param   string  name   The name of the selected item.
@@ -363,7 +363,7 @@ Omkod.DynamicItem = class {
     // Concatenates the function name allowing the item to go up or down in the item ordering. 
     let functionName = 'reverse'+this.itemTypeUpperCase+'Order';
     // Creates the link allowing the item to go down the item ordering.
-    attribs = {'href':'javascript:void(0);', 'id':this.itemType+'-down-ordering-'+idNb, 'onclick':functionName+'(\'down\','+idNb+')', 'class':'down-ordering'};
+    attribs = {'href':'javascript:void(0);', 'id':this.itemType+'-down-ordering-'+idNb, 'onclick':'reverseOrder(\'down\','+idNb+',\''+this.itemType+'\')', 'class':'down-ordering'};
     let link = this.createElement('a', attribs);
     attribs = {'src':this.rootLocation+'media/com_'+this.componentName+'/images/arrow_down.png', 'title':'arrow down', 'height':16, 'width':16};
     link.appendChild(this.createElement('img', attribs));
@@ -374,7 +374,7 @@ Omkod.DynamicItem = class {
     document.getElementById(this.itemType+'-row-'+row+'-cell-'+cell+'-'+idNb).appendChild(this.createElement('input', attribs));
  
     // Creates the link allowing the item to go up the item ordering.
-    attribs = {'href':'javascript:void(0);', 'id':this.itemType+'-up-ordering-'+idNb, 'onclick':functionName+'(\'up\','+idNb+')', 'class':'up-ordering'};
+    attribs = {'href':'javascript:void(0);', 'id':this.itemType+'-up-ordering-'+idNb, 'onclick':'reverseOrder(\'up\','+idNb+',\''+this.itemType+'\')', 'class':'up-ordering'};
     link = this.createElement('a', attribs);
     attribs = {'src':this.rootLocation+'media/com_'+this.componentName+'/images/arrow_up.png', 'title':'arrow up', 'height':16, 'width':16};
     link.appendChild(this.createElement('img', attribs));
@@ -623,9 +623,9 @@ Omkod.DynamicItem = class {
 
     // Sets the 'beginning' and 'previous' links 
     if(this.currentPageNb > 1) {
-      beginning = '<a href="javascript:void(0);" onclick="browsing'+this.itemTypeUpperCase+'Pages(1);">'+beginning+'</a>';
+      beginning = '<a href="javascript:void(0);" onclick="browsingPages(1, \''+this.itemType+'\');">'+beginning+'</a>';
       let previousPage = this.currentPageNb - 1;
-      previous = '<a href="javascript:void(0);" onclick="browsing'+this.itemTypeUpperCase+'Pages('+previousPage+');">'+previous+'</a>';
+      previous = '<a href="javascript:void(0);" onclick="browsingPages('+previousPage+', \''+this.itemType+'\');">'+previous+'</a>';
     }
 
     let browser = '<td>'+beginning+'</td><td>'+previous+'</td>';
@@ -636,8 +636,8 @@ Omkod.DynamicItem = class {
     // Sets the 'next' and 'end' links 
     if(this.currentPageNb < this.totalPages) {
       let nextPage = this.currentPageNb + 1;
-      next = '<a href="javascript:void(0);" onclick="browsing'+this.itemTypeUpperCase+'Pages('+nextPage+');">'+next+'</a>';
-      end = '<a href="javascript:void(0);" onclick="browsing'+this.itemTypeUpperCase+'Pages('+this.totalPages+');">'+end+'</a>';
+      next = '<a href="javascript:void(0);" onclick="browsingPages('+nextPage+', \''+this.itemType+'\');">'+next+'</a>';
+      end = '<a href="javascript:void(0);" onclick="browsingPages('+this.totalPages+', \''+this.itemType+'\');">'+end+'</a>';
     }
 
     // Sets the page links 
@@ -648,7 +648,7 @@ Omkod.DynamicItem = class {
 	browser += '<td class="current-page-number">'+pageNb+'</td>';
       }
       else {
-	browser += '<td class="page-number"><a href="javascript:void(0);" onclick="browsing'+this.itemTypeUpperCase+'Pages('+pageNb+');">'+pageNb+'</a></td>';
+	browser += '<td class="page-number"><a href="javascript:void(0);" onclick="browsingPages('+pageNb+', \''+this.itemType+'\');">'+pageNb+'</a></td>';
       }
     }
 
