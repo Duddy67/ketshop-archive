@@ -30,7 +30,7 @@ class KetshopViewShipping extends JViewLegacy
 
     //Load Javascript functions.
     JavascriptHelper::loadFunctions(array('region', 'country', 'continent'));
-    JavascriptHelper::getShippingText();
+    JavascriptHelper::loadFieldLabels();
 
     if($this->form->getValue('id')) { //Existing item.
       //Format numbers.

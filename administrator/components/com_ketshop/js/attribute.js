@@ -9,9 +9,8 @@
     // Sets the dynamic item properties.
     let props = {'component':'ketshop', 'item':'option', 'ordering':true, 'rootLocation':rootLocation, 'rowsCells':[5], 'Chosen':true, 'nbItemsPerPage':5};
 
-    const option = new Omkod.DynamicItem(props);
     // Stores the newly created object.
-    GETTER.option = option;
+    GETTER.option = new Omkod.DynamicItem(props);
     // Sets the validating function.
     $('#attribute-form').submit( function(e) { validateFields(e); });
 
@@ -40,6 +39,9 @@
     let fields = {'value':'', 'text':''}; 
 
     if(task[0].value != 'attribute.cancel' && !GETTER.option.validateFields(fields)) {
+      // Shows the dynamic item tab.
+      $('.nav-tabs a[href="#options"]').tab('show');
+
       e.preventDefault();
       e.stopPropagation();
       return false;

@@ -10,9 +10,8 @@
     // Sets the dynamic item properties.
     let props = {'component':'ketshop', 'item':'attribute', 'ordering':false, 'rootLocation':rootLocation, 'rowsCells':[3], 'Chosen':true, 'nbItemsPerPage':5};
 
-    const attribute = new Omkod.DynamicItem(props);
     // Stores the newly created object.
-    GETTER.attribute = attribute;
+    GETTER.attribute = new Omkod.DynamicItem(props); 
     // Sets the validating function. 
     $('#filter-form').submit( function(e) { validateFields(e); });
 
@@ -43,6 +42,9 @@
     let fields = {'attribute-name':''}; 
 
     if(task[0].value != 'filter.cancel' && !GETTER.attribute.validateFields(fields)) {
+      // Shows the dynamic item tab.
+      $('.nav-tabs a[href="#attributes"]').tab('show');
+
       e.preventDefault();
       e.stopPropagation();
       return false;

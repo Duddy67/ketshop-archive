@@ -76,8 +76,7 @@ Joomla.submitbutton = function(task)
 <?php
 $doc = JFactory::getDocument();
 
-//Load the jQuery scripts.
-//$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
+// Loads the required scripts.
 $doc->addScript(JURI::base().'components/com_ketshop/js/omkod-ajax.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/omkod-dynamic-item.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/filter.js');

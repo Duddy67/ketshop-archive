@@ -431,6 +431,9 @@ Omkod.DynamicItem = class {
   validateFields(fields, extraType) {
     // Loops through the item id numbers.
     for(let i = 0; i < this.idNbList.length; i++) {
+      // Computes the current page.
+      let pageNb = Math.ceil((i + 1) / this.nbItemsPerPage);
+
       // Checks the given fields for each item.
       for(let key in fields) {
 	let field = document.getElementById(this.itemType+'-'+key+'-'+this.idNbList[i]);
@@ -460,6 +463,11 @@ Omkod.DynamicItem = class {
 	    Chosen.classList.add('mandatory');
 	  }
 
+	  if(this.nbItemsPerPage !== null) {
+	    // Shows the corresponding page.
+	    this.updatePagination(pageNb);
+	  }
+
           alert(Joomla.JText._('COM_'+this.componentName.toUpperCase()+'_ALERT_MANDATORY_FIELD'));
 	  return false;
 	}
@@ -470,6 +478,11 @@ Omkod.DynamicItem = class {
 
 	  if(Chosen !== null) {
 	    Chosen.classList.add('mandatory');
+	  }
+
+	  if(this.nbItemsPerPage !== null) {
+	    // Shows the corresponding page.
+	    this.updatePagination(pageNb);
 	  }
 
           alert(Joomla.JText._('COM_'+this.componentName.toUpperCase()+'_ALERT_VALUE_TYPE_NOT_VALID'));

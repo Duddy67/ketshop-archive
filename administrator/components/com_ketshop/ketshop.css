@@ -471,222 +471,6 @@
 
 
 
-/* Shipping */
-
-#deliverypoint-button-separator {
-  /*border: 1px solid #666666;*/
-}
-
-.ketshop-deliverypoint-container {
-  overflow: hidden; /* Block formatting context. */
-  margin-top: 10px;
-}
-
-.deliverypoint-item {
-  overflow: hidden; /* Block formatting context. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.deliverypoint-item .btn-wrapper {
-  float: left;
-  margin-right: 20px;
-}
-
-.deliverypoint-name {
-  float: left;
-  border: 1px solid #c0c0c0;
-  width: 40%;
-  margin-right: 40px;
-}
-
-.ketshop-postcode-container {
-  overflow: hidden; /* Block formatting context. */
-  margin-top: 10px;
-}
-
-.postcode-item {
-  overflow: hidden; /* Block formatting context. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.ketshop-city-container {
-  overflow: hidden; /* Block formatting context. */
-  margin-top: 10px;
-}
-
-.city-item {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.ketshop-region-container {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  margin-top: 10px;
-}
-
-.ketshop-region-container div {
-  float: left;
-  width: 100%;
-}
-
-.region-item {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.region-item .btn-wrapper {
-  float: left !important;
-  width: 15% !important;
-}
-
-.ketshop-country-container {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  margin-top: 10px;
-}
-
-.ketshop-country-container div {
-  float: left;
-  width: 100%;
-}
-
-.country-item .btn-wrapper {
-  float: left !important;
-  width: 15% !important;
-}
-
-.country-item {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.ketshop-continent-container {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  margin-top: 10px;
-}
-
-.ketshop-continent-container div {
-  float: left;
-  width: 100%;
-}
-
-.continent-item {
-  /*overflow: hidden;*/ /* Prevent chosen to display select values. */
-  border-top: 1px solid #666666;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.continent-item .btn-wrapper {
-  float: left !important;
-  width: 15% !important;
-}
-
-.item-cost-label {
-  display: block;
-  float: left;
-  margin: 5px 5px 0 20px;
-  font-weight: bold;
-  color: #404040;
-}
-
-.cost-item {
-  float: left;
-  width: 70px;
-  margin-right: 40px;
-}
-
-.from-postcode-label {
-  display: block;
-  float: left;
-  margin: 5px 5px 0 0;
-  font-weight: bold;
-  color: #404040;
-}
-
-.from-postcode {
-  float: left;
-  width: 15%;
-}
-
-.to-postcode-label {
-  display: block;
-  float: left;
-  margin: 5px 5px 0 20px;
-  font-weight: bold;
-  color: #404040;
-}
-
-.to-postcode {
-  float: left;
-  width: 15%;
-}
-
-.city-name-label {
-  display: block;
-  float: left;
-  margin: 5px 40px 0 20px;
-  font-weight: bold;
-  color: #404040;
-}
-
-.city-name-item {
-  float: left;
-  width: 40%;
-}
-
-.region-name-label {
-  display: block;
-  float: left;
-  margin: 5px 40px 0 20px;
-  font-weight: bold;
-  color: #404040;
-}
-
-.region-name-item {
-  float: left;
-  width: 40%;
-}
-
-.country-select-label {
-  display: block;
-  float: left;
-  margin: 5px 5px 0 0;
-  font-weight: bold;
-  color: #404040;
-}
-
-.country-select {
-  float: left;
-  width: 40%;
-}
-
-.continent-select-label {
-  display: block;
-  float: left;
-  margin: 5px 5px 0 0;
-  font-weight: bold;
-  color: #404040;
-}
-
-.continent-select {
-  float: left;
-}
-
-#image_button {
-  margin-left: 10px;
-}
-
-
 /* Translations */
 
 .translated-item-name {
@@ -985,12 +769,6 @@ input.unit-price {
   position:relative;
 }
 
-#address {
-  border-collapse: collapse;
-  width: 100%;
-  margin-top: 10px;
-}
-
 #address td {
   border: 1px solid #202020;
   padding: 2px;
@@ -1049,16 +827,31 @@ a:link.ketshop-link {
 
 /*** DYNAMICAL ITEMS ***/
 
+.continent-container,
+.country-container,
+.region-container,
+.city-container,
+.postcode-container,
 .attribute-container,
 .option-container {
   width: 100%;
 }
 
+.add-continent-container,
+.add-country-container,
+.add-region-container,
+.add-city-container,
+.add-postcode-container,
 .add-attribute-container,
 .add-button-container {
   margin-bottom: 30px;
 }
 
+.continent-item,
+.country-item,
+.region-item,
+.city-item,
+.postcode-item,
 .attribute-item,
 .option-item {
   width: 100%;
@@ -1066,6 +859,11 @@ a:link.ketshop-link {
   margin-bottom: 20px;
 }
 
+.continent-cells-row-1,
+.country-cells-row-1,
+.region-cells-row-1,
+.city-cells-row-1,
+.postcode-cells-row-1,
 .attribute-cells-row-1,
 .option-cells-row-1 {
   display: table-cell;
@@ -1111,11 +909,21 @@ a:link.ketshop-link {
   text-align: center;
 }
 
+.continent-pagination-inactive,
+.country-pagination-inactive,
+.region-pagination-inactive,
+.city-pagination-inactive,
+.postcode-pagination-inactive,
 .attribute-pagination-inactive,
 .option-pagination-inactive {
   display: none;
 }
 
+.continent-pagination-browser,
+.country-pagination-browser,
+.region-pagination-browser,
+.city-pagination-browser,
+.postcode-pagination-browser,
 .attribute-pagination-browser,
 .option-pagination-browser {
   font-weight: bold;
@@ -1123,6 +931,14 @@ a:link.ketshop-link {
   margin-right: auto;
 }
 
+.continent-pagination-browser .current-page-number,
+.continent-pagination-browser .page-number,
+.country-pagination-browser .current-page-number,
+.country-pagination-browser .page-number,
+.region-pagination-browser .current-page-number,
+.region-pagination-browser .page-number,
+.city-pagination-browser .current-page-number,
+.city-pagination-browser .page-number,
 .attribute-pagination-browser .current-page-number,
 .attribute-pagination-browser .page-number,
 .option-pagination-browser .current-page-number,
@@ -1130,6 +946,11 @@ a:link.ketshop-link {
   border: 1px solid #ddd;
 }
 
+.continent-pagination-browser td,
+.country-pagination-browser td,
+.region-pagination-browser td,
+.city-pagination-browser td,
+.postcode-pagination-browser td,
 .attribute-pagination-browser td,
 .option-pagination-browser td {
   padding: 5px;
