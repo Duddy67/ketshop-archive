@@ -17,23 +17,6 @@ class KetshopControllerShipping extends JControllerForm
     $data = $this->input->post->get('jform', array(), 'array');
 
     //Set some jform fields.
-    
-    //Weight and cost values are set to 2 digits.
-    $data['min_weight'] = UtilityHelper::formatNumber($data['min_weight']);
-    $data['max_weight'] = UtilityHelper::formatNumber($data['max_weight']);
-    $data['delivpnt_cost'] = UtilityHelper::formatNumber($data['delivpnt_cost']);
-    $data['global_cost'] = UtilityHelper::formatNumber($data['global_cost']);
-
-    if($data['id']) { //Existing item
-      if($data['delivery_type'] == 'at_destination') {
-	//It's safe to set unused field to zero.
-	$data['delivpnt_cost'] = 0;
-      }
-      else { //at_delivery_point
-	//It's safe to set unused field to zero.
-	$data['global_cost'] = 0;
-      }
-    }
 
     //Saves the modified jform data array 
     $this->input->post->set('jform', $data);

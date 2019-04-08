@@ -4,6 +4,8 @@
   const GETTER = {};
   // The dynamic items to create. {item name:nb of cells}
   const items = {'postcode':4, 'city':3, 'region':3, 'country':3, 'continent':3};
+  // The address fields.
+  const address = ['street', 'city', 'postcode', 'region_code', 'country_code', 'phone'];
 
   // Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
@@ -18,6 +20,9 @@
       GETTER[key]= new Omkod.DynamicItem(props);
     }
 
+    // Sets the validating function.
+    $('#shipping-form').submit( function(e) { validateFields(e); });
+
     let shippingId = $('#jform_id').val();
     let deliveryType = $('#jform_delivery_type').val();
 
@@ -31,8 +36,12 @@
     ajax.prepare(params, data);
     ajax.process(getAjaxResult);
 
-    // Binds the delivery type select tag to the corresponding function. 
-    $('#jform_delivery_type').change( function() { $.fn.switchDeliveryType($('#jform_delivery_type').val()); });
+    // New item.
+    if(shippingId == 0) {
+      // Binds the delivery type select tag to the corresponding function. 
+      $('#jform_delivery_type').change( function() { $.fn.switchDeliveryType($('#jform_delivery_type').val()); });
+    }
+
     $.fn.switchDeliveryType(deliveryType);
   });
 
@@ -57,58 +66,90 @@
 
   validateFields = function(e) {
     let task = document.getElementsByName('task');
-    let fields = {'attribute-name':''}; 
 
-    if(task[0].value != 'filter.cancel' && !GETTER.attribute.validateFields(fields)) {
-      // Shows the dynamic item tab.
-      $('.nav-tabs a[href="#attributes"]').tab('show');
+    for(let key in items) {
+      // Cost is a field common to all the dynamic items.
+      let fields = {'cost':''}; 
 
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
+      // Adds the required field according to the dynamic item.
+      if(key == 'postcode') {
+	fields.from = '';
+	fields.to = '';
+      }
+      else if(key == 'city') {
+	fields.name = '';
+      }
+      else {
+	fields.code = '';
+      }
+
+      if(task[0].value != 'shipping.cancel' && !GETTER[key].validateFields(fields)) {
+	// Shows the dynamic item tab.
+	$('.nav-tabs a[href="#'+key+'-tab"]').tab('show');
+
+	e.preventDefault();
+	e.stopPropagation();
+	return false;
+      }
     }
   }
 
   $.fn.setAddress = function(data) {
-    $('#jform_street').val(data.street);
-    $('#jform_city').val(data.city);
-    $('#jform_postcode').val(data.postcode);
-    $('#jform_region_code').val(data.region_code);
+    // Sets the address fields with the given data.
+    for(let i = 0; i < address.length; i++) {
+      $('#jform_'+address[i]).val(data[address[i]]);
+    }
+
     $('#jform_region_code').trigger('liszt:updated');
-    $('#jform_country_code').val(data.country_code);
     $('#jform_country_code').trigger('liszt:updated');
-    $('#jform_phone').val(data.phone);
   }
 
   $.fn.switchDeliveryType = function(deliveryType) {
     if(deliveryType == 'at_delivery_point') {
+      // Hides the dynamic items.
+      for(let key in items) {
+	$('#'+key).css({'visibility':'hidden','display':'none'});
+	$('a[href="#'+key+'-tab"]').parent().css({'visibility':'hidden','display':'none'});
+      }
+
+      // Makes some fields required or not required according to the delivery type.
+      $('#jform_delivpnt_cost').prop('required', true);
+      $('#jform_delivpnt_cost-lbl').addClass('required');
+      $('#jform_global_cost').prop('required', false);
+      $('#jform_global_cost-lbl').removeClass('required');
+
+      for(let i = 0; i < address.length; i++) {
+	$('#jform_'+address[i]).prop('required', true);
+	$('#jform_'+address[i]+'-lbl').addClass('required');
+      }
+
+      // Shows or hides some fields according to the delivery type.
       $('#address').css({'visibility':'visible','display':'block'});
-      $('#postcode').css({'visibility':'hidden','display':'none'});
-      $('a[href="#postcode-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#city').css({'visibility':'hidden','display':'none'});
-      $('a[href="#city-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#region').css({'visibility':'hidden','display':'none'});
-      $('a[href="#region-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#country').css({'visibility':'hidden','display':'none'});
-      $('a[href="#country-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#continent').css({'visibility':'hidden','display':'none'});
-      $('a[href="#continent-title"]').parent().css({'visibility':'hidden','display':'none'});
       $('#jform_global_cost').parent().parent().css({'visibility':'hidden','display':'none'}); 
       $('#jform_delivpnt_cost').parent().parent().css({'visibility':'visible','display':'block'}); 
+    }
     // at_destination
-    } else { 
-      $('#address').css({'visibility':'hidden','display':'none'});
-      $('#postcode').css({'visibility':'visible','display':'block'});
-      $('a[href="#postcode-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#city').css({'visibility':'visible','display':'block'});
-      $('a[href="#city-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#region').css({'visibility':'visible','display':'block'});
-      $('a[href="#region-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#country').css({'visibility':'visible','display':'block'});
-      $('a[href="#country-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#continent').css({'visibility':'visible','display':'block'});
-      $('a[href="#continent-title"]').parent().css({'visibility':'visible','display':'block'});
+    else { 
+      // Shows the dynamic items.
+      for(let key in items) {
+	$('#'+key).css({'visibility':'visible','display':'block'});
+	$('a[href="#'+key+'-tab"]').parent().css({'visibility':'visible','display':'block'});
+      }
+
+      // Makes some fields required or not required according to the delivery type.
+      $('#jform_global_cost').prop('required', true);
+      $('#jform_global_cost-lbl').addClass('required');
+      $('#jform_delivpnt_cost').prop('required', false);
+      $('#jform_delivpnt_cost-lbl').removeClass('required');
+
+      for(let i = 0; i < address.length; i++) {
+	$('#jform_'+address[i]).prop('required', false);
+	$('#jform_'+address[i]+'-lbl').removeClass('required');
+      }
+
+      // Shows or hides some fields according to the delivery type.
       $('#jform_global_cost').parent().parent().css({'visibility':'visible','display':'block'}); 
+      $('#address').css({'visibility':'hidden','display':'none'});
       $('#jform_delivpnt_cost').parent().parent().css({'visibility':'hidden','display':'none'}); 
     }
   }
@@ -318,271 +359,4 @@
   }
 
 })(jQuery);
-/*(function($) {
-
-  //Run a function when the page is fully loaded including graphics.
-  $(window).load(function() {
-    //Create a container for each item type.
-    $('#postcode').getContainer();
-    $('#city').getContainer();
-    $('#region').getContainer();
-    $('#country').getContainer();
-    $('#continent').getContainer();
-
-    //Get the current delivery type.
-    var deliveryType = $('#jform_delivery_type').val();
-    //Get the shipping item id.
-    var shippingId = $('#jform_id').val();
-    //If the shipping item exists we need to get the data of the dynamical items.
-    if(shippingId != 0) {
-      //Restore the form to its original state filled with the initial data 
-      //in case the user changes some value then press the F5 key.
-      //It also allows to get the delivery type directly from the form tag.
-      $('#shipping-form')[0].reset();
-      deliveryType = $('#jform_delivery_type').val();
-
-      //Gets the token's name as value.
-      var token = $('#token').attr('name');
-      //Sets up the ajax query.
-      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'shipping_id':shippingId, 'item_type':'at_destination'};
-
-      if(deliveryType == 'at_delivery_point') {
-	urlQuery.item_type = 'deliverypoint';
-      } 
-
-      //Ajax call which get item data previously set.
-      $.ajax({
-	  type: 'GET', 
-	  dataType: 'json',
-	  data: urlQuery,
-	  //Get results as a json array.
-	  success: function(results, textStatus, jqXHR) {
-	    //Create an item type for each result retrieved from the database.
-	    if(deliveryType == 'at_delivery_point') {
-	      $.fn.setAddress(results.data);
-	    } else {
-	      $.each(results.data.postcode, function(i, result) { $.fn.createItem('postcode', result); });
-	      $.each(results.data.city, function(i, result) { $.fn.createItem('city', result); });
-	      $.each(results.data.region, function(i, result) { $.fn.createItem('region', result); });
-	      $.each(results.data.country, function(i, result) { $.fn.createItem('country', result); });
-	      $.each(results.data.continent, function(i, result) { $.fn.createItem('continent', result); });
-	    }
-	  },
-	  error: function(jqXHR, textStatus, errorThrown) {
-	    //Display the error.
-	    alert(textStatus+': '+errorThrown);
-	  }
-      });
-    }
-
-    //Bind the delivery type select tag to the switchDelivery function. 
-    $('#jform_delivery_type').change( function() { $.fn.switchDelivery($('#jform_delivery_type').val()); });
-    $.fn.switchDelivery(deliveryType);
-
-  });
-
-
-  $.fn.createCommonElements = function(type, idNb, data) {
-    var properties = '';
-    if(type != 'postcode' && type != 'deliverypoint') {
-      //Create the "name" label.
-      properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE')};
-      $('#'+type+'-item-'+idNb).createHTMLTag('<span>', properties, 'item-name-label');
-      $('#'+type+'-item-'+idNb+' .item-name-label').text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
-      //Move the label span to the top of the item div. 
-      $('#'+type+'-item-'+idNb+' .item-name-label').prependTo('#'+type+'-item-'+idNb);
-    }
-
-    //Create the cost label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_COST_TITLE')};
-    $('#'+type+'-item-'+idNb).createHTMLTag('<span>', properties, 'item-cost-label');
-    $('#'+type+'-item-'+idNb+' .item-cost-label').text(Joomla.JText._('COM_KETSHOP_ITEM_COST_LABEL'));
-    //Create the cost input.
-    //First we need to format cost data if any.
-    if(data.cost !== '') {
-      data.cost = parseFloat(data.cost).toFixed(2);
-    }
-    properties = {'type':'text', 'name':type+'_cost_'+idNb, 'value':data.cost};
-    $('#'+type+'-item-'+idNb).createHTMLTag('<input>', properties, 'cost-item');
-    //Create the item removal button.
-    $('#'+type+'-item-'+idNb).createButton('remove');
-  };
-
-  //Functions which create a specific item type.
-
-  $.fn.createPostcodeItem = function(idNb, data) {
-    //Create the "from" label.
-    var properties = {'title':Joomla.JText._('COM_KETSHOP_FROM_POSTCODE_TITLE')};
-    $('#postcode-item-'+idNb).createHTMLTag('<span>', properties, 'from-postcode-label');
-    $('#postcode-item-'+idNb+' .from-postcode-label').text(Joomla.JText._('COM_KETSHOP_FROM_POSTCODE_LABEL'));
-    //Create the "from" input.
-    properties = {'type':'text', 'name':'postcode_from_'+idNb, 'value':data.from};
-    $('#postcode-item-'+idNb).createHTMLTag('<input>', properties, 'from-postcode');
-    //Create the "to" label.
-    var properties = {'title':Joomla.JText._('COM_KETSHOP_TO_POSTCODE_TITLE')};
-    $('#postcode-item-'+idNb).createHTMLTag('<span>', properties, 'to-postcode-label');
-    $('#postcode-item-'+idNb+' .to-postcode-label').text(Joomla.JText._('COM_KETSHOP_TO_POSTCODE_LABEL'));
-    //Create the "to" input.
-    properties = {'type':'text', 'name':'postcode_to_'+idNb, 'value':data.to};
-    $('#postcode-item-'+idNb).createHTMLTag('<input>', properties, 'to-postcode');
-
-    $.fn.createCommonElements('postcode', idNb, data);
-  };
-
-
-  $.fn.createCityItem = function(idNb, data) {
-    //Create the "name" input.
-    var properties = {'type':'text', 'name':'city_name_'+idNb, 'value':data.name};
-    $('#city-item-'+idNb).createHTMLTag('<input>', properties, 'city-name-item');
-
-    $.fn.createCommonElements('city', idNb, data);
-  };
-
-
-  $.fn.createRegionItem = function(idNb, data) {
-    //Create the "name" input.
-    var properties = {'name':'region_code_'+idNb, 'id':'region-code-'+idNb};
-    $('#region-item-'+idNb).createHTMLTag('<select>', properties, 'region-select');
-
-    //Get the region codes and names.
-    var regions = ketshop.getRegions();
-    var length = regions.length;
-    var options = '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
-    //Create an option tag for each region.
-    for(var i = 0; i < length; i++) {
-      options += '<option value="'+regions[i].code+'">'+regions[i].text+'</option>';
-    }
-
-    //Add the region options to the select tag.
-    $('#region-code-'+idNb).html(options);
-
-    if(data.code !== '') {
-      //Set the selected option.
-      $('#region-code-'+idNb+' option[value="'+data.code+'"]').attr('selected', true);
-    }
-
-    //Use Chosen jQuery plugin.
-    $.fn.updateChosen('region-code-'+idNb);
-
-    $.fn.createCommonElements('region', idNb, data);
-  };
-
-
-  $.fn.createCountryItem = function(idNb, data) {
-    //Create a country select tag.
-    var properties = {'name':'country_code_'+idNb, 'id':'country-code-'+idNb};
-    $('#country-item-'+idNb).createHTMLTag('<select>', properties, 'country-select');
-
-    //Get the country codes and names.
-    var countries = ketshop.getCountries();
-    var length = countries.length;
-    var options = '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
-    //Create an option tag for each country.
-    for(var i = 0; i < length; i++) {
-      options += '<option value="'+countries[i].code+'">'+countries[i].text+'</option>';
-    }
-
-    //Add the country options to the select tag.
-    $('#country-code-'+idNb).html(options);
-
-    if(data.code !== '') {
-      //Set the selected option.
-      $('#country-code-'+idNb+' option[value="'+data.code+'"]').attr('selected', true);
-    }
-
-    //Use Chosen jQuery plugin.
-    $.fn.updateChosen('country-code-'+idNb);
-
-    $.fn.createCommonElements('country', idNb, data);
-  };
-
-
-  //Same thing for continent items.
-  $.fn.createContinentItem = function(idNb, data) {
-    var properties = {'name':'continent_code_'+idNb, 'id':'continent-id-'+idNb};
-    $('#continent-item-'+idNb).createHTMLTag('<select>', properties, 'continent-select');
-
-    var continents = ketshop.getContinents();
-    var length = continents.length;
-    var options = '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
-    for(var i = 0; i < length; i++) {
-      options += '<option value="'+continents[i].code+'">'+continents[i].text+'</option>';
-    }
-
-    $('#continent-id-'+idNb).html(options);
-
-    if(data.code !== '') {
-      //Set the selected option.
-      $('#continent-id-'+idNb+' option[value="'+data.code+'"]').attr('selected', true);
-    }
-
-    //Use Chosen jQuery plugin.
-    $.fn.updateChosen('continent-id-'+idNb);
-
-    $.fn.createCommonElements('continent', idNb, data);
-  };
-
-
-  $.fn.setAddress = function(data) {
-    $('#jform_street').val(data.street);
-    $('#jform_city').val(data.city);
-    $('#jform_postcode').val(data.postcode);
-    $('#jform_region_code').val(data.region_code);
-    $('#jform_region_code').trigger('liszt:updated');
-    $('#jform_country_code').val(data.country_code);
-    $('#jform_country_code').trigger('liszt:updated');
-    $('#jform_phone').val(data.phone);
-  };
-
-
-  //Switch the item types according to the delivery type.
-  $.fn.switchDelivery = function(deliveryType) {
-    if(deliveryType == 'at_delivery_point') {
-      $('#address').css({'visibility':'visible','display':'block'});
-      $('a[href="#address-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#postcode').css({'visibility':'hidden','display':'none'});
-      $('a[href="#postcode-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#city').css({'visibility':'hidden','display':'none'});
-      $('a[href="#city-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#region').css({'visibility':'hidden','display':'none'});
-      $('a[href="#region-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#country').css({'visibility':'hidden','display':'none'});
-      $('a[href="#country-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#continent').css({'visibility':'hidden','display':'none'});
-      $('a[href="#continent-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#globalcost').css({'visibility':'hidden','display':'none'});
-      $('a[href="#globalcost-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#jform_delivpnt_cost').parent().parent().css({'visibility':'visible','display':'block'}); 
-    } else { //at_destination
-      $('#address').css({'visibility':'hidden','display':'none'});
-      $('a[href="#address-title"]').parent().css({'visibility':'hidden','display':'none'});
-      $('#postcode').css({'visibility':'visible','display':'block'});
-      $('a[href="#postcode-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#city').css({'visibility':'visible','display':'block'});
-      $('a[href="#city-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#region').css({'visibility':'visible','display':'block'});
-      $('a[href="#region-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#country').css({'visibility':'visible','display':'block'});
-      $('a[href="#country-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#continent').css({'visibility':'visible','display':'block'});
-      $('a[href="#continent-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#globalcost').css({'visibility':'visible','display':'block'});
-      $('a[href="#globalcost-title"]').parent().css({'visibility':'visible','display':'block'});
-      $('#jform_delivpnt_cost').parent().parent().css({'visibility':'hidden','display':'none'}); 
-    }
-  };
-
-  $.fn.updateChosen = function(id) {
-    $('#'+id).trigger('liszt:updated');
-    $('#'+id).chosen();
-    //Some css attributes have to be modified or the list won't show in the drop down list.
-    //FIXIT: Scrolling doesn't work. 
-    $('.chzn-container .chzn-drop').css('overflow-y', 'auto');
-    $('.chzn-container .chzn-drop').css('overflow-x', 'hidden');
-    $('.chzn-container .chzn-results').css('overflow-x', 'visible');
-    $('.chzn-container .chzn-results').css('overflow-y', 'visible');
-    $('.chzn-search').css('background-color', 'white');
-  };
-
-})(jQuery);*/
 

@@ -51,17 +51,26 @@ Joomla.submitbutton = function(task)
 
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'details', JText::_('COM_KETSHOP_TAB_DETAILS')); ?>
       <div class="row-fluid">
-	  <div class="span4 form-vertical">
-	    <?php
-		  echo $this->form->getControlGroup('delivery_type');
-		  echo $this->form->getControlGroup('global_cost');
-		  echo $this->form->getControlGroup('delivpnt_cost');
-		  echo $this->form->getControlGroup('min_weight');
-		  echo $this->form->getControlGroup('max_weight');
-		  echo $this->form->getControlGroup('min_product');
-		  echo $this->form->getControlGroup('max_product');
-		  echo $this->form->getControlGroup('min_delivery_delay');
-	      ?>
+	<div class="span4 form-vertical">
+	<?php
+            // Existing item.
+	    if($this->item->id) {
+	      // Turns the original select element into a hidden field as the user is no longer allowed to change the item type. 
+	      $this->form->setFieldAttribute('delivery_type', 'type', 'hidden');
+	      // Sets and displays the delivery type value for information.
+	      $this->form->setValue('delivery_type_info', null,JText::_('COM_KETSHOP_OPTION_'.strtoupper($this->item->delivery_type)));
+	      echo $this->form->getControlGroup('delivery_type_info');
+	    }
+
+	    echo $this->form->getControlGroup('delivery_type');
+	    echo $this->form->getControlGroup('global_cost');
+	    echo $this->form->getControlGroup('delivpnt_cost');
+	    echo $this->form->getControlGroup('min_weight');
+	    echo $this->form->getControlGroup('max_weight');
+	    echo $this->form->getControlGroup('min_product');
+	    echo $this->form->getControlGroup('max_product');
+	    echo $this->form->getControlGroup('min_delivery_delay');
+	  ?>
 	  </div>
 	  <div id="address" class="span4 form-vertical">
 	    <?php
@@ -99,35 +108,35 @@ Joomla.submitbutton = function(task)
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'postcode-title', JText::_('COM_KETSHOP_FIELDSET_POSTCODES', true)); ?>
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'postcode-tab', JText::_('COM_KETSHOP_FIELDSET_POSTCODES', true)); ?>
       <div class="row-fluid form-horizontal-desktop">
 	<div class="span12" id="postcode">
 	</div>
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'city-title', JText::_('COM_KETSHOP_FIELDSET_CITIES', true)); ?>
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'city-tab', JText::_('COM_KETSHOP_FIELDSET_CITIES', true)); ?>
       <div class="row-fluid form-horizontal-desktop">
 	<div class="span12" id="city">
 	</div>
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'region-title', JText::_('COM_KETSHOP_FIELDSET_REGIONS', true)); ?>
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'region-tab', JText::_('COM_KETSHOP_FIELDSET_REGIONS', true)); ?>
       <div class="row-fluid form-horizontal-desktop">
 	<div class="span12" id="region">
 	</div>
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'country-title', JText::_('COM_KETSHOP_FIELDSET_COUNTRIES', true)); ?>
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'country-tab', JText::_('COM_KETSHOP_FIELDSET_COUNTRIES', true)); ?>
       <div class="row-fluid form-horizontal-desktop">
 	<div class="span12" id="country">
 	</div>
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'continent-title', JText::_('COM_KETSHOP_FIELDSET_CONTINENTS', true)); ?>
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'continent-tab', JText::_('COM_KETSHOP_FIELDSET_CONTINENTS', true)); ?>
       <div class="row-fluid form-horizontal-desktop">
 	<div class="span12" id="continent">
 	</div>

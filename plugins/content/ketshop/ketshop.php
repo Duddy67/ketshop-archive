@@ -422,26 +422,24 @@ class plgContentKetshop extends JPlugin
 
       return true;
     }
-    elseif($context == 'com_ketshop.shipping') { //SHIPPING
-      //Get all of the POST data.
-      $post = JFactory::getApplication()->input->post->getArray();
-
-      //Retrieve all the new set postcodes, cities, regions, countries,  
-      //or continents (if any) from the POST array.
+    // SHIPPING
+    elseif($context == 'com_ketshop.shipping') { 
+      // Retrieves all the new set postcodes, cities, regions, countries,  
+      // or continents (if any) from the POST array.
       $postcodes = array();
       $cities = array();
       $regions = array();
       $countries = array();
       $continents = array();
 
-      foreach($post as $key => $val) {
+      foreach($this->post as $key => $val) {
 	if(preg_match('#^postcode_from_([0-9]+)$#', $key, $matches)) {
 	  $postcodeNb = $matches[1];
 
 	  $postcode = new JObject;
-	  $postcode->from = $post['postcode_from_'.$postcodeNb];
-	  $postcode->to = $post['postcode_to_'.$postcodeNb];
-	  $postcode->cost = $post['postcode_cost_'.$postcodeNb];
+	  $postcode->from = trim($this->post['postcode_from_'.$postcodeNb]);
+	  $postcode->to = trim($this->post['postcode_to_'.$postcodeNb]);
+	  $postcode->cost = trim($this->post['postcode_cost_'.$postcodeNb]);
 	  $postcodes[] = $postcode; //
 	}
 
@@ -449,8 +447,8 @@ class plgContentKetshop extends JPlugin
 	  $cityNb = $matches[1];
 
 	  $city = new JObject;
-	  $city->name = $post['city_name_'.$cityNb];
-	  $city->cost = $post['city_cost_'.$cityNb];
+	  $city->name = trim($this->post['city_name_'.$cityNb]);
+	  $city->cost = trim($this->post['city_cost_'.$cityNb]);
 	  $cities[] = $city; //
 	}
 
@@ -458,8 +456,8 @@ class plgContentKetshop extends JPlugin
 	  $regionNb = $matches[1];
 
 	  $region = new JObject;
-	  $region->code = $post['region_code_'.$regionNb];
-	  $region->cost = $post['region_cost_'.$regionNb];
+	  $region->code = trim($this->post['region_code_'.$regionNb]);
+	  $region->cost = trim($this->post['region_cost_'.$regionNb]);
 	  $regions[] = $region; //
 	}
 
@@ -467,8 +465,8 @@ class plgContentKetshop extends JPlugin
 	  $countryNb = $matches[1];
 
 	  $country = new JObject;
-	  $country->code = $post['country_code_'.$countryNb];
-	  $country->cost = $post['country_cost_'.$countryNb];
+	  $country->code = trim($this->post['country_code_'.$countryNb]);
+	  $country->cost = trim($this->post['country_cost_'.$countryNb]);
 	  $countries[] = $country; //
 	}
 
@@ -476,8 +474,8 @@ class plgContentKetshop extends JPlugin
 	  $continentNb = $matches[1];
 
 	  $continent = new JObject;
-	  $continent->code = $post['continent_code_'.$continentNb];
-	  $continent->cost = $post['continent_cost_'.$continentNb];
+	  $continent->code = trim($this->post['continent_code_'.$continentNb]);
+	  $continent->cost = trim($this->post['continent_cost_'.$continentNb]);
 	  $continents[] = $continent; //
 	}
       }
@@ -485,8 +483,8 @@ class plgContentKetshop extends JPlugin
       $db = JFactory::getDbo();
       $query = $db->getQuery(true);
 
-      //Delete all the previous postcodes, cities, regions, countries
-      //continents and delivery points linked to the shipping.
+      // Deletes all the previous postcodes, cities, regions, countries
+      // continents and delivery points linked to the shipping.
       $query->delete('#__ketshop_ship_postcode')
 	    ->where('shipping_id='.(int)$data->id);
       $db->setQuery($query);
@@ -516,19 +514,19 @@ class plgContentKetshop extends JPlugin
       $db->setQuery($query);
       $db->execute();
 
-      //Store items according to the delivery type chosen by the user.
+      // Stores items according to the delivery type chosen by the user.
       if($data->delivery_type == 'at_destination') {
-	//Store postcodes if any.
+	// Stores postcodes if any.
 	if(count($postcodes)) {
 	  $values = array();
 	  foreach($postcodes as $postcode) {
 	    $values[] = $data->id.','.$db->Quote($postcode->from).','.$db->Quote($postcode->to).','.$postcode->cost;
 	  }
 
-	  //Note: The "from" and "to" fields MUST be "backticked" as they are
-	  //reserved SQL words.
+	  // N.B: The "from" and "to" fields MUST be "backticked" as they are
+	  // reserved SQL words.
 	  $columns = array('shipping_id', $db->quoteName('from'), $db->quoteName('to'), 'cost');
-	  //Insert a new row for each zip codes item linked to the shipping.
+	  // Inserts a new row for each zip codes item linked to the shipping.
 	  $query->clear();
 	  $query->insert('#__ketshop_ship_postcode')
 		->columns($columns)
@@ -537,7 +535,7 @@ class plgContentKetshop extends JPlugin
 	  $db->execute();
 	}
 
-	//Store cities if any.
+	// Stores cities if any.
 	if(count($cities)) {
 	  $values = array();
 	  foreach($cities as $city) {
@@ -545,7 +543,7 @@ class plgContentKetshop extends JPlugin
 	  }
 
 	  $columns = array('shipping_id', 'name', 'cost');
-	  //Insert a new row for each city item linked to the shipping.
+	  // Inserts a new row for each city item linked to the shipping.
 	  $query->clear();
 	  $query->insert('#__ketshop_ship_city')
 		->columns($columns)
@@ -554,7 +552,7 @@ class plgContentKetshop extends JPlugin
 	  $db->execute();
 	}
 
-	//Store regions if any.
+	// Stores regions if any.
 	if(count($regions)) {
 	  $values = array();
 	  foreach($regions as $region) {
@@ -562,7 +560,7 @@ class plgContentKetshop extends JPlugin
 	  }
 
 	  $columns = array('shipping_id', 'code', 'cost');
-	  //Insert a new row for each region item linked to the shipping.
+	  // Inserts a new row for each region item linked to the shipping.
 	  $query->clear();
 	  $query->insert('#__ketshop_ship_region')
 		->columns($columns)
@@ -571,7 +569,7 @@ class plgContentKetshop extends JPlugin
 	  $db->execute();
 	}
 
-	//Store countries if any.
+	// Stores countries if any.
 	if(count($countries)) {
 	  $values = array();
 	  foreach($countries as $country) {
@@ -579,7 +577,7 @@ class plgContentKetshop extends JPlugin
 	  }
 
 	  $columns = array('shipping_id', 'code', 'cost');
-	  //Insert a new row for each country item linked to the shipping.
+	  // Inserts a new row for each country item linked to the shipping.
 	  $query->clear();
 	  $query->insert('#__ketshop_ship_country')
 		->columns($columns)
@@ -588,7 +586,7 @@ class plgContentKetshop extends JPlugin
 	  $db->execute();
 	}
 
-	//Store continents if any.
+	// Stores continents if any.
 	if(count($continents)) {
 	  $values = array();
 	  foreach($continents as $continent) {
@@ -596,7 +594,7 @@ class plgContentKetshop extends JPlugin
 	  }
 
 	  $columns = array('shipping_id', 'code', 'cost');
-	  //Insert a new row for each continent item linked to the shipping.
+	  // Inserts a new row for each continent item linked to the shipping.
 	  $query->clear();
 	  $query->insert('#__ketshop_ship_continent')
 		->columns($columns)
@@ -605,24 +603,24 @@ class plgContentKetshop extends JPlugin
 	  $db->execute();
 	}
       }
-      else { //at_delivery_point
-	//Retrieve jform to get the needed extra fields.
-	$jform = $post['jform'];
+      // at_delivery_point
+      else { 
+	// Retrieves the jform to get the needed extra fields.
+	$jform = $this->post['jform'];
 
-	//Store the address data.
-	$address = array('street' => $jform['street'],
-			 'city' => $jform['city'],
+	// Stores the address data.
+	$address = array('street' => trim($jform['street']),
+			 'city' => trim($jform['city']),
 			 'region_code' => $jform['region_code'],
-			 'postcode' => $jform['postcode'],
+			 'postcode' => trim($jform['postcode']),
 			 'country_code' => $jform['country_code'],
-			 'phone' => $jform['phone'],
-			 //The shipping description is used as note, so we set the note
-			 //address field to empty.
+			 'phone' => trim($jform['phone']),
+			 // The shipping description is used as note, so we set the note
+			 // address field to empty.
 			 'note' => '');
 
-	//Get the proper query to use for this address. 
+	// Gets the proper query to use for this address. 
 	$query = UtilityHelper::getAddressQuery($address, 'shipping', 'delivery_point', $data->id);
-	//Execute the query.
 	$db = JFactory::getDbo();
 	$db->setQuery($query);
 	$db->execute();

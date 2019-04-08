@@ -36,7 +36,7 @@ class KetshopTableShipping extends JTable
    */
   public function store($updateNulls = false)
   {
-    //Gets the current date and time (UTC).
+    // Gets the current date and time (UTC).
     $now = JFactory::getDate()->toSql();
     $user = JFactory::getUser();
 
@@ -54,6 +54,21 @@ class KetshopTableShipping extends JTable
       if(empty($this->created_by)) {
 	$this->created_by = $user->get('id');
       }
+    }
+
+    // Weight and cost values are set to 2 digits.
+    $this->min_weight = UtilityHelper::formatNumber($this->min_weight);
+    $this->max_weight = UtilityHelper::formatNumber($this->max_weight);
+    $this->delivpnt_cost = UtilityHelper::formatNumber($this->delivpnt_cost);
+    $this->global_cost = UtilityHelper::formatNumber($this->global_cost);
+
+    // It's safer to set unused field to zero.
+    if($this->delivery_type == 'at_destination') {
+      $this->delivpnt_cost = 0;
+    }
+    // at_delivery_point
+    else { 
+      $this->global_cost = 0;
     }
 
     return parent::store($updateNulls);

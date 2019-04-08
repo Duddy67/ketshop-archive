@@ -79,6 +79,10 @@
 		<option value="at_delivery_point">COM_KETSHOP_OPTION_AT_DELIVERY_POINT</option>
 	</field>
 
+	<field name="delivery_type_info" type="text" label="COM_KETSHOP_FIELD_DELIVERY_TYPE_LABEL"
+		description="COM_KETSHOP_FIELD_DELIVERY_TYPE_DESC" readonly="true"
+		class="readonly" filter="unset" />
+
 	<field name="published" type="list"
 	        label="JSTATUS"
 	        description="JFIELD_PUBLISHED_DESC"
@@ -92,7 +96,7 @@
 
 	<field name="default_language" type="text" label="COM_KETSHOP_FIELD_LANGUAGE_LABEL"
 		description="COM_KETSHOP_FIELD_LANGUAGE_DESC" readonly="true"
-		class="readonly" />
+		class="readonly" filter="unset" />
 
 	<field name="description" type="editor" class="inputbox"
 		label="COM_KETSHOP_FIELD_DESCRIPTION_LABEL"
