@@ -71,13 +71,32 @@
 		<option value="total_prod_amount">COM_KETSHOP_OPTION_TOTAL_PRODUCT_AMOUNT</option>
 	</field>
 
+	<field name="comparison_opr" type="list"
+		label="COM_KETSHOP_FIELD_PRICE_RULE_OPERATOR_LABEL"
+		description="COM_KETSHOP_FIELD_PRICE_RULE_COMPARISON_OPERATOR_DESC"
+		default="e">
+		<option value="e">=</option>
+		<option value="gt">&gt;</option>
+		<option value="lt">&lt;</option>
+		<option value="gtoet">&gt;=</option>
+		<option value="ltoet">&lt;=</option>
+	</field>
+
 	<field name="logical_opr" type="list"
-		label="COM_KETSHOP_FIELD_PRICE_RULE_LOGICAL_OPERATOR_LABEL"
+		label="COM_KETSHOP_FIELD_PRICE_RULE_OPERATOR_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_LOGICAL_OPERATOR_DESC"
 		size="1" class="logical-operator" >
 		<option value="AND">COM_KETSHOP_OPTION_AND_CONDITION</option>
 		<option value="OR">COM_KETSHOP_OPTION_OR_CONDITION</option>
 	</field>
+
+	<field name="condition_qty" type="text"
+		label="COM_KETSHOP_ITEM_QUANTITY_LABEL"
+		description="COM_KETSHOP_ITEM_QUANTITY_LABEL" />
+
+	<field name="condition_amount" type="text"
+		label="COM_KETSHOP_ITEM_AMOUNT_LABEL"
+		description="COM_KETSHOP_ITEM_AMOUNT_LABEL" />
 
 	<field name="recipient" type="list"
 		label="COM_KETSHOP_FIELD_PRICE_RULE_RECIPIENT_LABEL"

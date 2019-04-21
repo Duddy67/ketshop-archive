@@ -28,7 +28,7 @@ Omkod.DynamicItem = class {
     // Creates the item container as well as the add button container.
     let attribs = {'id':this.itemType+'-container', 'class':this.itemType+'-container'};
     this.container = this.createElement('div', attribs);
-    attribs = {'id':'add-button-container', 'class':'add-button-container'};
+    attribs = {'id':this.itemType+'-add-button-container', 'class':'add-button-container'};
     this.addButtonContainer = this.createElement('div', attribs);
 
     // Adds both the div and add button containers to the DOM. 
@@ -73,7 +73,7 @@ Omkod.DynamicItem = class {
     }
 
     if(action == 'remove') {
-      button.addEventListener('click', (e) => { e.preventDefault(); this.removeItem(idNb); } );
+      button.addEventListener('click', (e) => { e.preventDefault(); this.removeItem(idNb, true); } );
     }
 
     if(action == 'select') {
@@ -182,13 +182,17 @@ Omkod.DynamicItem = class {
    * Removes the item corresponding to the given id number.
    *
    * @param   string   idNb   The id number of the item to remove.
+   * @param   string   warning  If true a confirmation window is shown before deletion.
    *
    * @return  void
   */
-  removeItem(idNb) {
-    // Asks the user to confirm deletion.
-    if(confirm(Joomla.JText._('COM_'+this.componentName.toUpperCase()+'_REMOVE_DYNAMIC_ITEM')) === false) {
-      return;
+  removeItem(idNb, warning) {
+
+    if(warning) {
+      // Asks the user to confirm deletion.
+      if(confirm(Joomla.JText._('COM_'+this.componentName.toUpperCase()+'_REMOVE_DYNAMIC_ITEM')) === false) {
+	return;
+      }
     }
 
     // Removes the item from its div id.
@@ -213,6 +217,18 @@ Omkod.DynamicItem = class {
       if(this.nbItemsPerPage !== null) {
 	this.updatePagination(this.currentPageNb);
       }
+    }
+  }
+
+  /**
+   * Removes all of the items from the container.
+   *
+   * @return  void
+  */
+  removeItems() {
+    let idNbList = this.idNbList.slice();
+    for(let i = 0; i < idNbList.length; i++) {
+      this.removeItem(idNbList[i]);
     }
   }
 

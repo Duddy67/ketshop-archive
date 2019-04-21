@@ -16,27 +16,12 @@ JLoader::register('KetshopHelperRoute', JPATH_ROOT.'/components/com_ketshop/help
 $jinput = JFactory::getApplication()->input;
 
 $idNb = $jinput->get->get('id_nb', 0, 'int');
-//The type of the calling item.
-$type = $jinput->get->get('type', '', 'string');
+$function = $jinput->get('function', 'selectItem');
+$dynamicItemType = $jinput->get->get('dynamic_item_type', '', 'string');
 $productType = $jinput->get->get('product_type', '', 'string');
-
-//Set the Javascript function to call.  
-if($type == 'translation') {
-  $function = $jinput->get('function', 'selectItem');
-}
-elseif($type == 'order') {
-  $function = $jinput->get('function', 'jQuery.selectProduct');
-}
-else {
-  $function = $jinput->get('function', 'jQuery.selectItem');
-  //Build the needed GET variable. 
-  if(!empty($productType)) {
-    $productType = '&product_type='.$productType;
-  }
-}
-
-if(!empty($type)) {
-  $typeVariable = '&type='.$type;
+// Builds the needed query variable. 
+if(!empty($productType)) {
+  $productType = '&product_type='.$productType;
 }
 
 $currency = UtilityHelper::getCurrency();
@@ -45,7 +30,7 @@ $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&function='.$function.'&'.JSession::getFormToken().'=1'.$typeVariable);?>" method="post" name="adminForm" id="adminForm" class="form-inline">
+<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&function='.$function.'&id_nb='.$idNb.'&dynamic_item_type='.$dynamicItemType.$productType.'&'.JSession::getFormToken().'=1');?>" method="post" name="adminForm" id="adminForm" class="form-inline">
 
   <fieldset class="filter clearfix">
     <div class="btn-toolbar">
@@ -129,21 +114,18 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 	      <td class="has-context">
 		<div class="pull-left">
 
-	    <?php if($type == 'translation' || $type == 'order') : //Provide only product id and product name. ?>
-	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');">
-
-	    <?php elseif($type == 'bundleproduct') : //A bundle is created, (we need stock quantity). ?>
+	    <?php if($dynamicItemType == 'bundleproduct') : // A bundle is created, (we need stock quantity). ?>
 	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo
-		  $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>','<?php echo $item->stock; ?>');">
-	    <?php else : //Price rule ?>
-	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>');">
+		  $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($dynamicItemType); ?>','<?php echo $item->stock; ?>');">
+	    <?php else : ?>
+	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($dynamicItemType); ?>');">
 	    <?php endif; ?>
 		  <?php echo $this->escape($item->name); ?>
-	    <?php if($type == 'order' && !empty($item->variant_name)) : //. ?>
+	    <?php if($dynamicItemType == 'order' && !empty($item->variant_name)) : //. ?>
 	      <span class="small">&nbsp;<?php echo $this->escape($item->variant_name); ?></span>
 	    <?php endif; ?></a>
 
-	    <?php if($type == 'order' && !empty($item->variants)) : //. ?>
+	    <?php if($dynamicItemType == 'order' && !empty($item->variants)) : //. ?>
 	      <div class="small">
 	      <table>
 		<thead><tr>

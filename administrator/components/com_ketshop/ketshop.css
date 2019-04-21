@@ -79,7 +79,7 @@
 }
 
 /* Price rules */
-
+/*
 .price-rule-panel {
   overflow: hidden;
   text-align: left;
@@ -99,23 +99,22 @@
 }
 
 #condition-button-separator {
-  /*border: 1px solid #666666;*/
 }
 
 .ketshop-condition-container {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
   margin-top: 20px;
 }
 
 .condition-cart-amount-item {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #666666;
 }
 
 .condition-item {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #ccc;
@@ -153,11 +152,11 @@
 }
 
 .item-amount {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
 }
 
 .item-quantity {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
 }
 
 .condition-select {
@@ -185,7 +184,7 @@
 }
 
 .ketshop-target-container {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
   margin-top: 10px;
 }
 
@@ -194,7 +193,7 @@
 }
 
 .target-item {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #ccc;
@@ -206,7 +205,7 @@
 }
 
 .ketshop-recipient-container {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
 }
 
 .recipient-select {
@@ -214,7 +213,7 @@
 }
 
 .recipient-item {
-  overflow: hidden; /* Block formatting context. */
+  overflow: hidden; 
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #ccc;
@@ -224,7 +223,7 @@
   float: left;
   margin-right: 20px;
 }
-
+*/
 
 
 /* Bundle products  */
@@ -827,6 +826,9 @@ a:link.ketshop-link {
 
 /*** DYNAMICAL ITEMS ***/
 
+.recipient-container,
+.condition-container,
+.target-container,
 .continent-container,
 .country-container,
 .region-container,
@@ -837,6 +839,9 @@ a:link.ketshop-link {
   width: 100%;
 }
 
+.add-recipient-container,
+.add-condition-container,
+.add-target-container,
 .add-continent-container,
 .add-country-container,
 .add-region-container,
@@ -847,6 +852,9 @@ a:link.ketshop-link {
   margin-bottom: 30px;
 }
 
+.recipient-item,
+.condition-item,
+.target-item,
 .continent-item,
 .country-item,
 .region-item,
@@ -859,6 +867,9 @@ a:link.ketshop-link {
   margin-bottom: 20px;
 }
 
+.recipient-cells-row-1,
+.condition-cells-row-1,
+.target-cells-row-1,
 .continent-cells-row-1,
 .country-cells-row-1,
 .region-cells-row-1,
@@ -909,6 +920,9 @@ a:link.ketshop-link {
   text-align: center;
 }
 
+.recipient-pagination-inactive,
+.condition-pagination-inactive,
+.target-pagination-inactive,
 .continent-pagination-inactive,
 .country-pagination-inactive,
 .region-pagination-inactive,
@@ -919,6 +933,9 @@ a:link.ketshop-link {
   display: none;
 }
 
+.recipient-pagination-browser,
+.condition-pagination-browser,
+.target-pagination-browser,
 .continent-pagination-browser,
 .country-pagination-browser,
 .region-pagination-browser,
@@ -931,6 +948,9 @@ a:link.ketshop-link {
   margin-right: auto;
 }
 
+.recipient-pagination-browser .current-page-number,
+.condition-pagination-browser .current-page-number,
+.target-pagination-browser .current-page-number,
 .continent-pagination-browser .current-page-number,
 .continent-pagination-browser .page-number,
 .country-pagination-browser .current-page-number,
@@ -946,6 +966,9 @@ a:link.ketshop-link {
   border: 1px solid #ddd;
 }
 
+.recipient-pagination-browser td,
+.condition-pagination-browser td,
+.target-pagination-browser td,
 .continent-pagination-browser td,
 .country-pagination-browser td,
 .region-pagination-browser td,

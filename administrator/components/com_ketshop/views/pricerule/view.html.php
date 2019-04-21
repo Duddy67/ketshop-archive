@@ -28,7 +28,8 @@ class KetshopViewPricerule extends JViewLegacy
     }
 
     //Load the Javascript text functions.
-    JavascriptHelper::getPriceRuleText();
+    //JavascriptHelper::getPriceRuleText();
+    JavascriptHelper::loadFieldLabels();
 
     //Display the toolbar.
     $this->addToolBar();

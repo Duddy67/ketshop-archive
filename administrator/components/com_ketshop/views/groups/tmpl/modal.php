@@ -18,15 +18,15 @@ JHtml::_('behavior.multiselect');
 
 $jinput = JFactory::getApplication()->input;
 $idNb = $jinput->get->get('id_nb', 0, 'uint');
-$type = $jinput->get->get('type', '', 'string');
-$function = $jinput->get('function', 'jQuery.selectItem');
+$dynamicItemType = $jinput->get->get('dynamic_item_type', '', 'string');
+$function = $jinput->get('function', 'selectItem');
 
 $user = JFactory::getUser();
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn = $this->escape($this->state->get('list.direction'));
 ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=groups&layout=modal&tmpl=component&id_nb='.$idNb.'&type='.$type.'&function='.$function);?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=groups&layout=modal&tmpl=component&id_nb='.$idNb.'&dynamic_item_type='.$dynamicItemType.'&function='.$function);?>" method="post" name="adminForm" id="adminForm">
 	<fieldset class="filter clearfix">
 	  <div class="btn-toolbar">
 	    <div class="btn-group pull-left">
@@ -86,9 +86,7 @@ $listDirn = $this->escape($this->state->get('list.direction'));
 					<?php echo str_repeat('<span class="gi">&mdash;</span>', $item->level) ?>
 
 	    <a class="pointer" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo
-		$item->id; ?>', '<?php echo
-		$this->escape(addslashes($item->title)); ?>', '<?php echo
-		$this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>');">
+		$item->id; ?>', '<?php echo $this->escape(addslashes($item->title)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($dynamicItemType); ?>');">
 		    <?php echo $this->escape($item->title); ?></a>
 
 				</td>

@@ -14,14 +14,14 @@ JHtml::_('formbehavior.chosen', 'select');
 
 $jinput = JFactory::getApplication()->input;
 $idNb = $jinput->get->get('id_nb', 0, 'uint');
-$type = $jinput->get->get('type', '', 'string');
+$dynamicItemType = $jinput->get->get('dynamic_item_type', '', 'string');
 $field = $jinput->get('field');
-$function = $jinput->get('function', 'jQuery.selectItem');
+$function = $jinput->get('function', 'selectItem');
 
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn = $this->escape($this->state->get('list.direction'));
 ?>
-<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=users&layout=modal&tmpl=component&id_nb='.$idNb.'&type='.$type.'&groups='.JRequest::getVar('groups', '', 'default', 'BASE64').'&excluded='.JRequest::getVar('excluded', '', 'default', 'BASE64'));?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo JRoute::_('index.php?option=com_ketshop&view=users&layout=modal&tmpl=component&function='.$function.'&id_nb='.$idNb.'&dynamic_item_type='.$dynamicItemType.'&groups='.JRequest::getVar('groups', '', 'default', 'BASE64').'&excluded='.JRequest::getVar('excluded', '', 'default', 'BASE64'));?>" method="post" name="adminForm" id="adminForm">
 	<fieldset class="filter clearfix">
 	  <div class="btn-toolbar">
 	    <div class="btn-group pull-left">
@@ -85,10 +85,7 @@ $listDirn = $this->escape($this->state->get('list.direction'));
 			<tr class="row<?php echo $i % 2; ?>">
 				<td>
 
-	    <a class="pointer" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo
-		$item->id; ?>', '<?php echo
-		$this->escape(addslashes($item->name)); ?>', '<?php echo
-		$this->escape($idNb); ?>', '<?php echo $this->escape($type); ?>');">
+	    <a class="pointer" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>(<?php echo $item->id; ?>, '<?php echo $this->escape(addslashes($item->name)); ?>', <?php echo $idNb; ?>, '<?php echo $this->escape($dynamicItemType); ?>');">
 		    <?php echo $this->escape($item->name); ?></a>
 
 				</td>

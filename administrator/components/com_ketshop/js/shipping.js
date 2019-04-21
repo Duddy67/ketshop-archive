@@ -17,7 +17,7 @@
       // Sets the dynamic item properties.
       let props = {'component':'ketshop', 'item':key, 'ordering':false, 'rootLocation':rootLocation, 'rowsCells':[items[key]], 'Chosen':true, 'nbItemsPerPage':5};
       // Stores the newly created object.
-      GETTER[key]= new Omkod.DynamicItem(props);
+      GETTER[key] = new Omkod.DynamicItem(props);
     }
 
     // Sets the validating function.
@@ -69,12 +69,12 @@
 
     for(let key in items) {
       // Cost is a field common to all the dynamic items.
-      let fields = {'cost':''}; 
+      let fields = {'cost':'unsigned_float'}; 
 
       // Adds the required field according to the dynamic item.
       if(key == 'postcode') {
-	fields.from = '';
-	fields.to = '';
+	fields.from = 'unsigned_int';
+	fields.to = 'unsigned_int';
       }
       else if(key == 'city') {
 	fields.name = '';

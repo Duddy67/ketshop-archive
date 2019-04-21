@@ -30,11 +30,12 @@ class KetshopViewPricerule extends JViewLegacy
 
     $results['recipient'] = $model->getRecipientData($priceRuleId, $recipientType);
 
-    //Calls the corresponding function.
+    // Calls the corresponding function.
     if($priceRuleType == 'cart') {
       $results['condition'] = $model->getConditionData($priceRuleId, $conditionType);
     }
-    else { //catalog
+    // catalog
+    else { 
       $results['target'] = $model->getTargetData($priceRuleId, $targetType);
     }
 
