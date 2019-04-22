@@ -45,12 +45,12 @@
 
     $('#jform_type').change( function() { $.fn.changePriceruleType($('#jform_type').val()); });
     $('#jform_operation').change( function() { $.fn.changeOperationType($('#jform_operation').val()); });
+    $('#jform_modifier').change( function() { $.fn.changeModifierType($('#jform_modifier').val()); });
     $('#jform_target').change( function() { GETTER.target.removeItems(); });
     $('#jform_recipient').change( function() { GETTER.recipient.removeItems(); });
     $('#jform_condition').change( function() { $.fn.changeConditionType($('#jform_condition').val()); });
-    //$.fn.switchDeliveryType(deliveryType);
+    //
     $.fn.changePriceruleType($('#jform_type').val());
-    $.fn.changeConditionType($('#jform_condition').val());
   });
 
   getAjaxResult = function(result) {
@@ -93,9 +93,6 @@
 	break;
     }
 
-    //let Type = type.slice(0,1).toUpperCase() + type.slice(1);
-
-    //return 'index.php?option=com_ketshop&view='+view+'&layout=modal&tmpl=component&function=select'+Type+'Item&id_nb='+idNb+'&dynamic_item_type='+type+productType;
     return 'index.php?option=com_ketshop&view='+view+'&layout=modal&tmpl=component&id_nb='+idNb+'&dynamic_item_type='+dynamicItemType+productType;
   }
 
@@ -103,13 +100,24 @@
     if(type == 'catalog') {
       $('#target-container').css({'visibility':'visible','display':'block'});
       $('#target-pagination').css({'visibility':'visible','display':'block'});
+      // Hides the condition section.
+      GETTER.condition.removeItems();
+      $('#condition').css({'visibility':'hidden','display':'none'});
+      $('a[href="#pricerule-condition"]').parent().css({'visibility':'hidden','display':'none'});
     }
     // cart
     else {
       GETTER.target.removeItems();
       $('#target-container').css({'visibility':'hidden','display':'none'});
       $('#target-pagination').css({'visibility':'hidden','display':'none'});
+      // Shows the condition section.
+      $('#condition').css({'visibility':'visible','display':'block'});
+      $('a[href="#pricerule-condition"]').parent().css({'visibility':'visible','display':'block'});
+      $.fn.changeConditionType($('#jform_condition').val());
     }
+
+    $.fn.changeOperationType($('#jform_operation').val());
+    $.fn.switchTargetOptions(type);
   }
 
   $.fn.changeOperationType = function(type) {
@@ -117,7 +125,14 @@
     let modifierType = $('#jform_modifier').val();
 
     if(priceruleType == 'catalog') {
-      $('#jform_modifier').parent().parent().css({'visibility':'visibility','display':'block'});
+      $('#jform_application').parent().parent().css({'visibility':'visible','display':'block'});
+      $('#jform_modifier').parent().parent().css({'visibility':'visible','display':'block'});
+
+      if((type == '-%' || type == '+%') || (modifierType == 'profit_margin_modifier' && (type == '-' || type == '+'))) {
+	$('#jform_application').parent().parent().css({'visibility':'hidden','display':'none'});
+      }
+
+      $.fn.changeModifierType(modifierType);
     }
     // cart
     else {
@@ -130,9 +145,19 @@
     }
   }
 
+  $.fn.changeModifierType = function(type) {
+    let operationType = $('#jform_operation').val();
+    if((operationType == '-' || operationType == '+') && type == 'profit_margin_modifier') {
+      $('#jform_application').parent().parent().css({'visibility':'hidden','display':'none'});
+    }
+    else if((operationType == '-' || operationType == '+') && type == 'sale_price_modifier') {
+      $('#jform_application').parent().parent().css({'visibility':'visible','display':'block'});
+    }
+  }
+
   $.fn.changeConditionType = function(type) {
     // First removes all the items.
-    GETTER['condition'].removeItems();
+    GETTER.condition.removeItems();
 
     // Shows or hides fields according to the condition type.
     if(type == 'total_prod_qty' || type == 'total_prod_amount') {
@@ -158,6 +183,29 @@
       $('#jform_condition_qty').parent().parent().css({'visibility':'hidden','display':'none'});
       $('#jform_condition_amount').parent().parent().css({'visibility':'hidden','display':'none'});
     }
+  }
+
+  $.fn.switchTargetOptions = function(priceRuleType) {
+    let catalog = ['product', 'product_cat', 'bundle'];
+    let cart = ['shipping_cost', 'cart_amount'];
+    //
+    $('#jform_target > option').each(function() {
+      $(this).prop('disabled', true);
+      if(priceRuleType == 'catalog') {
+	if(GETTER.target.inArray($(this).val(), catalog)) {
+	  $(this).prop('disabled', false);
+	}
+      }
+      else if(GETTER.target.inArray($(this).val(), cart)) {
+	$(this).prop('disabled', false);
+
+	if($(this).val() == 'shipping_cost') {
+	  $(this).prop('selected', true);
+	}
+      }
+    });
+
+    $('#jform_target').trigger('liszt:updated');
   }
 
   /** Callback functions **/
