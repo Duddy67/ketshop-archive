@@ -79,7 +79,7 @@ class KetshopModelPricerule extends JModelAdmin
     $query = $db->getQuery(true);
 
     //Sets attribute and table names according to the recipient type. 
-    $name = 'name';
+    $name = 'name AS item_name';
     $table = '#__users';
     if($recipientType == 'customer_group') {
       $name = 'title AS item_name';
@@ -104,7 +104,7 @@ class KetshopModelPricerule extends JModelAdmin
     $query = $db->getQuery(true);
 
     //Sets attribute and table names according to the target type. 
-    $name = 'name';
+    $name = 'name AS item_name';
     $table = '#__ketshop_product';
     if($targetType == 'product_cat') {
       $name = 'title AS item_name';
@@ -131,16 +131,20 @@ class KetshopModelPricerule extends JModelAdmin
     //Build the SQL query according to the condition type.
     $join = '';
     if($conditionType == 'total_prod_amount') {
-      $select = 'item_id, operator, item_amount';
-    } elseif($conditionType == 'total_prod_qty') {
+      $select = 'item_id, operator, TRUNCATE(item_amount, 2) AS item_amount';
+    }
+    elseif($conditionType == 'total_prod_qty') {
       $select = 'item_id, operator, item_qty';
-    } elseif($conditionType == 'product_cat_amount') {
-      $select = 'item_id, title AS name, operator, item_amount';
+    }
+    elseif($conditionType == 'product_cat_amount') {
+      $select = 'item_id, title AS name, operator, TRUNCATE(item_amount, 2) AS item_amount';
       $join = '#__categories ON id=item_id';
-    } elseif($conditionType == 'product_cat') {
+    }
+    elseif($conditionType == 'product_cat') {
       $select = 'item_id, title AS item_name, operator, item_qty';
       $join = '#__categories ON id=item_id';
-    } else {
+    }
+    else {
       $select = 'item_id, item_name, operator, item_qty';
       $join = '#__ketshop_product ON id=item_id';
     }

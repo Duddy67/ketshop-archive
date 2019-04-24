@@ -67,9 +67,8 @@
 
   // Builds a link to a modal window according to the item type.
   $.fn.createLinkToModal = function(dynamicItemType, idNb) {
-    var productType = view = '';
+    let productType = view = '';
 
-    //Check for the value of the item type.
     switch($('#jform_'+dynamicItemType).val()) {
       case 'product':
 	view = 'products';
@@ -96,6 +95,7 @@
     return 'index.php?option=com_ketshop&view='+view+'&layout=modal&tmpl=component&id_nb='+idNb+'&dynamic_item_type='+dynamicItemType+productType;
   }
 
+  // Shows / hides some fields and section according to the selected price rule type.
   $.fn.changePriceruleType = function(type) {
     if(type == 'catalog') {
       $('#target-container').css({'visibility':'visible','display':'block'});
@@ -113,13 +113,16 @@
       // Shows the condition section.
       $('#condition').css({'visibility':'visible','display':'block'});
       $('a[href="#pricerule-condition"]').parent().css({'visibility':'visible','display':'block'});
+      // Sets the condition fields.
       $.fn.changeConditionType($('#jform_condition').val());
     }
 
+    // Sets both the action and target fields.
     $.fn.changeOperationType($('#jform_operation').val());
     $.fn.switchTargetOptions(type);
   }
 
+  // Shows / hides some fields from the action section according to the selected operation type.
   $.fn.changeOperationType = function(type) {
     let priceruleType = $('#jform_type').val();
     let modifierType = $('#jform_modifier').val();
@@ -132,6 +135,7 @@
 	$('#jform_application').parent().parent().css({'visibility':'hidden','display':'none'});
       }
 
+      // Sets the application field.
       $.fn.changeModifierType(modifierType);
     }
     // cart
@@ -161,11 +165,13 @@
 
     // Shows or hides fields according to the condition type.
     if(type == 'total_prod_qty' || type == 'total_prod_amount') {
+      // These condition types don't use dynamic items.
       $('#condition-add-button-container').css({'visibility':'hidden','display':'none'});
       $('#condition-pagination').css({'visibility':'hidden','display':'none'});
       $('#jform_logical_opr').parent().parent().css({'visibility':'hidden','display':'none'});
       $('#jform_comparison_opr').parent().parent().css({'visibility':'visible','display':'block'});
 
+      // Shows the value type matching the selected condition type. 
       if(type == 'total_prod_qty') {
 	$('#jform_condition_qty').parent().parent().css({'visibility':'visible','display':'block'});
 	$('#jform_condition_amount').parent().parent().css({'visibility':'hidden','display':'none'});
@@ -185,10 +191,11 @@
     }
   }
 
+  // Enables or disables some target options according to the selected price rule type.
   $.fn.switchTargetOptions = function(priceRuleType) {
     let catalog = ['product', 'product_cat', 'bundle'];
     let cart = ['shipping_cost', 'cart_amount'];
-    //
+    // Loops through the options.
     $('#jform_target > option').each(function() {
       $(this).prop('disabled', true);
       if(priceRuleType == 'catalog') {
@@ -204,7 +211,7 @@
 	}
       }
     });
-
+    // Updates the Chosen plugin.
     $('#jform_target').trigger('liszt:updated');
   }
 
@@ -273,74 +280,98 @@
   populateConditionItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'item_id':'', 'item_name':'', 'comparison_opr':'', 'item_qty':'', 'item_amount':''};
+      data = {'item_id':'', 'item_name':'', 'operator':'', 'item_qty':'', 'item_amount':''};
     }
 
-    // Element label.
-    let attribs = {'class':'item-space', 'id':'condition-label-'+idNb};
-    $('#condition-row-1-cell-1-'+idNb).append(GETTER.condition.createElement('span', attribs));
-    $('#condition-label-'+idNb).html('&nbsp;');
+    let conditionType = $('#jform_condition').val();
+    // These 2 following condition types don't use dynamic items. They are based on a
+    // single operator and a single value.
+    if(conditionType == 'total_prod_qty' || conditionType == 'total_prod_amount') {
+      // First deletes the item previously created by the Omkod library.
+      GETTER.condition.removeItems();
 
-    // Creates the hidden input element to store the selected condition id (ie: product, product category or bundle id).
-    attribs = {'type':'hidden', 'name':'condition_item_id_'+idNb, 'id':'condition-item-id-'+idNb, 'value':data.item_id};
-    let elem = GETTER.condition.createElement('input', attribs);
-    $('#condition-row-1-cell-1-'+idNb).append(elem);
-    // Builds the link to the modal window.
-    let url = $('#root-location').val()+'administrator/'+$.fn.createLinkToModal('condition', idNb);
-    let button = GETTER.condition.createButton('select', idNb, url);
-    $('#condition-row-1-cell-1-'+idNb).append(button);
+      // Sets the regular jform fields.
 
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE'), 'class':'item-label', 'id':'condition-itemname-label-'+idNb};
-    $('#condition-row-1-cell-2-'+idNb).append(GETTER.condition.createElement('span', attribs));
-    $('#condition-itemname-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
+      $('#jform_comparison_opr option[value="'+data.operator+'"]').attr('selected', true);
+      // Updates the Chosen plugin.
+      $('#jform_comparison_opr').trigger('liszt:updated');
 
-    attribs = {'type':'text', 'disabled':'disabled', 'id':'condition-item-name-'+idNb, 'value':data.item_name};
-    elem = GETTER.condition.createElement('input', attribs);
-    $('#condition-row-1-cell-2-'+idNb).append(elem);
+      if(conditionType == 'total_prod_qty') {
+	$('#jform_condition_qty').val(data.item_qty);
+      }
+      // total_prod_amount
+      else {
+	$('#jform_condition_amount').val(data.item_amount);
+      }
+    }
+    // Condition types which use dynamic items.
+    else {
+      // Element label.
+      let attribs = {'class':'item-space', 'id':'condition-label-'+idNb};
+      $('#condition-row-1-cell-1-'+idNb).append(GETTER.condition.createElement('span', attribs));
+      $('#condition-label-'+idNb).html('&nbsp;');
 
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_COMPARISON_OPERATOR_TITLE'), 'class':'item-label', 'id':'condition-operator-label-'+idNb};
-    $('#condition-row-1-cell-3-'+idNb).append(GETTER.condition.createElement('span', attribs));
-    $('#condition-operator-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_COMPARISON_OPERATOR_LABEL'));
+      // Creates the hidden input element to store the selected condition id (ie: product, product category or bundle id).
+      attribs = {'type':'hidden', 'name':'condition_item_id_'+idNb, 'id':'condition-item-id-'+idNb, 'value':data.item_id};
+      let elem = GETTER.condition.createElement('input', attribs);
+      $('#condition-row-1-cell-1-'+idNb).append(elem);
+      // Builds the link to the modal window.
+      let url = $('#root-location').val()+'administrator/'+$.fn.createLinkToModal('condition', idNb);
+      let button = GETTER.condition.createButton('select', idNb, url);
+      $('#condition-row-1-cell-1-'+idNb).append(button);
 
-    // Select tag:
-    attribs = {'name':'condition_comparison_opr_'+idNb, 'id':'condition-comparison-opr-'+idNb};
-    elem = GETTER.condition.createElement('select', attribs);
-    let optionValues = {'e':'=', 'gt':'&gt;', 'lt':'&lt;', 'gtoet':'&gt;=', 'ltoet':'&lt;='};
-    let options = '';
+      // Element label.
+      attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE'), 'class':'item-label', 'id':'condition-itemname-label-'+idNb};
+      $('#condition-row-1-cell-2-'+idNb).append(GETTER.condition.createElement('span', attribs));
+      $('#condition-itemname-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
 
-    for(let key in optionValues) {
-      let value = key;
-      let selected = '';
+      attribs = {'type':'text', 'disabled':'disabled', 'id':'condition-item-name-'+idNb, 'value':data.item_name};
+      elem = GETTER.condition.createElement('input', attribs);
+      $('#condition-row-1-cell-2-'+idNb).append(elem);
 
-      if(data.comparison_opr == value) {
-	selected = 'selected="selected"';
+      // Element label.
+      attribs = {'title':Joomla.JText._('COM_KETSHOP_COMPARISON_OPERATOR_TITLE'), 'class':'item-label', 'id':'condition-operator-label-'+idNb};
+      $('#condition-row-1-cell-3-'+idNb).append(GETTER.condition.createElement('span', attribs));
+      $('#condition-operator-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_COMPARISON_OPERATOR_LABEL'));
+
+      // Select tag:
+      attribs = {'name':'condition_comparison_opr_'+idNb, 'id':'condition-comparison-opr-'+idNb};
+      elem = GETTER.condition.createElement('select', attribs);
+      let optionValues = {'e':'=', 'gt':'&gt;', 'lt':'&lt;', 'gtoet':'&gt;=', 'ltoet':'&lt;='};
+      let options = '';
+
+      for(let key in optionValues) {
+	let value = key;
+	let selected = '';
+
+	if(data.operator == value) {
+	  selected = 'selected="selected"';
+	}
+
+	options += '<option value="'+value+'" '+selected+'>'+optionValues[key]+'</option>';
       }
 
-      options += '<option value="'+value+'" '+selected+'>'+optionValues[key]+'</option>';
+      $('#condition-row-1-cell-3-'+idNb).append(elem);
+      $('#condition-comparison-opr-'+idNb).html(options);
+      // Update the chosen plugin.
+      $('#condition-comparison-opr-'+idNb).chosen();
+
+      let valueType = 'qty'; 
+      let itemValue = data.item_qty;
+      if($('#jform_condition').val() == 'product_cat_amount') {
+	valueType = 'amount'; 
+	itemValue = data.item_amount;
+      }
+
+      // Element label.
+      attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_'+valueType.toUpperCase()+'_TITLE'), 'class':'item-label', 'id':'condition-item'+valueType+'-label-'+idNb};
+      $('#condition-row-1-cell-4-'+idNb).append(GETTER.condition.createElement('span', attribs));
+      $('#condition-item'+valueType+'-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_'+valueType.toUpperCase()+'_LABEL'));
+
+      // Text input tag:
+      attribs = {'type':'text', 'name':'condition_item_'+valueType+'_'+idNb, 'id':'condition-item-'+valueType+'-'+idNb, 'value':itemValue};
+      $('#condition-row-1-cell-4-'+idNb).append(GETTER.condition.createElement('input', attribs));
     }
-
-    $('#condition-row-1-cell-3-'+idNb).append(elem);
-    $('#condition-comparison-opr-'+idNb).html(options);
-    // Update the chosen plugin.
-    $('#condition-comparison-opr-'+idNb).chosen();
-
-    let valueType = 'qty'; 
-    let itemValue = data.item_qty;
-    if($('#jform_condition').val() == 'product_cat_amount') {
-      valueType = 'amount'; 
-      itemValue = data.item_amount;
-    }
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_'+valueType.toUpperCase()+'_TITLE'), 'class':'item-label', 'id':'condition-item'+valueType+'-label-'+idNb};
-    $('#condition-row-1-cell-4-'+idNb).append(GETTER.condition.createElement('span', attribs));
-    $('#condition-item'+valueType+'-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_'+valueType.toUpperCase()+'_LABEL'));
-
-    // Text input tag:
-    attribs = {'type':'text', 'name':'condition_item_'+valueType+'_'+idNb, 'id':'condition-item-'+valueType+'-'+idNb, 'value':itemValue};
-    $('#condition-row-1-cell-4-'+idNb).append(GETTER.condition.createElement('input', attribs));
 
   }
 

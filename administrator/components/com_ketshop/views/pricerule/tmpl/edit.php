@@ -45,7 +45,7 @@ Joomla.submitbutton = function(task)
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'details', JText::_('COM_KETSHOP_TAB_DETAILS')); ?>
 
       <div class="row-fluid">
-	<div class="span6">
+	<div class="span8">
 	  <div class="form-vertical">
 	    <?php
 		  echo $this->form->getControlGroup('type');
