@@ -263,9 +263,8 @@ class plgContentKetshop extends JPlugin
 
       return true;
     }
-    elseif($context == 'com_ketshop.pricerule') { //PRICE RULE
-      //Get all of the POST data.
-      $post = JFactory::getApplication()->input->post->getArray();
+    // PRICE RULE
+    elseif($context == 'com_ketshop.pricerule') { 
 
       $ruleType = $data->type;
       $targetType = $data->target;       // product, bundle, product group (ie: category).
@@ -277,22 +276,22 @@ class plgContentKetshop extends JPlugin
 	$conditionType = $data->condition; // product, bundle, category, cart amount, product quantity.
 	$conditions = array();
 
-	foreach($post as $key => $val) {
+	foreach($this->post as $key => $val) {
 	  //
 	  if(preg_match('#^condition_id_([0-9]+)$#', $key, $matches)) {
 	    $conditionNb = $matches[1];
-	    $conditionId = $post['condition_id_'.$conditionNb];
-	    $operator = $post['operator_'.$conditionNb];
+	    $conditionId = $this->post['condition_id_'.$conditionNb];
+	    $operator = $this->post['operator_'.$conditionNb];
 
 	    $condition = new JObject;
 	    $condition->id = $conditionId;
 	    $condition->operator = $operator;
 
 	    if($conditionType == 'product_cat_amount' || $conditionType == 'total_prod_amount') {
-	      $condition->amount = $post['condition_item_amount_'.$conditionNb];
+	      $condition->amount = $this->post['condition_item_amount_'.$conditionNb];
 	    }
 	    else {
-	      $conditionQty = $post['condition_item_qty_'.$conditionNb];
+	      $conditionQty = $this->post['condition_item_qty_'.$conditionNb];
 	      $condition->quantity = $conditionQty;
 	    }
 
@@ -301,45 +300,46 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      //Retrieve all the ids of the new set targets from the POST array.
+      // Retrieve all the ids of the new set targets from the POST array.
       $targetIds = array();
 
-      //Note: There is no item dynamicaly added in target when cart rule is selected. So
-      //we don't have to store anything into database.
+      // N.B: There is no item dynamicaly added in target when cart rule is selected. 
+      //      So there's no need to store anything into database.
 
       $db = JFactory::getDbo();
       $query = $db->getQuery(true);
 
       if($ruleType == 'catalog') {
-	foreach($post as $key => $val) {
-	  if(preg_match('#^target_id_([0-9]+)$#', $key, $matches)) {
+	foreach($this->post as $key => $val) {
+	  if(preg_match('#^target_item_id_([0-9]+)$#', $key, $matches)) {
 	    $targetNb = $matches[1];
-	    //Store target ids.
-	    $targetIds[] = $post['target_id_'.$targetNb];
+	    // Stores target ids.
+	    $targetIds[] = $this->post['target_item_id_'.$targetNb];
 	  }
 	}
 
-	//Don't go further if no values has been set. 
+	// Don't go further if no values has been set. 
 	if(empty($targetIds)) {
 	  return true;
 	}
 
-	//Remove duplicate ids in case an item has been set twice or more.
+	// Removes duplicate ids in case an item has been set twice or more.
 	$targetIds = array_unique($targetIds);
       }
 
-      //Retrieve all the new set recipients from the POST array.
+      // Retrieves all the new set recipients from the POST array.
       $recipientIds = array();
-      foreach($post as $key=>$val) {
-	if(preg_match('#^recipient_id_([0-9]+)$#', $key, $matches)) {
+
+      foreach($this->post as $key=>$val) {
+	if(preg_match('#^recipient_item_id_([0-9]+)$#', $key, $matches)) {
 	  $recipientNb = $matches[1];
-	  //Store recipient ids.
-	  $recipientIds[] = $post['recipient_id_'.$recipientNb];
+	  // Stores recipient ids.
+	  $recipientIds[] = $this->post['recipient_item_id_'.$recipientNb];
 	}
       }
 
-      //Delete all the previous targets, recipients, and conditions linked to
-      //the price rule.
+      // Deletes all the previous targets, recipients, and conditions linked to
+      // the price rule.
       $query->clear();
       $query->delete('#__ketshop_prule_target')
 	    ->where('prule_id='.(int)$data->id);
@@ -358,7 +358,7 @@ class plgContentKetshop extends JPlugin
       $db->setQuery($query);
       $db->execute();
 
-      //Insert the new targets, recipients, and conditions which has been set.
+      // Inserts the new targets, recipients, and conditions which has been set.
 
       if(count($conditions)) {
 	$values = array();
@@ -392,11 +392,12 @@ class plgContentKetshop extends JPlugin
 
       if(count($targetIds)) {
 	$values = array();
+
 	foreach($targetIds as $targetId) {
 	  $values[] = $data->id.','.$targetId;
 	}
 
-	//Insert a new row for each target item linked to the price rule.
+	// Inserts a new row for each target item linked to the price rule.
 	$query->clear();
 	$query->insert('#__ketshop_prule_target')
 	      ->columns($columns)
@@ -407,11 +408,12 @@ class plgContentKetshop extends JPlugin
 
       if(count($recipientIds)) {
 	$values = array();
+
 	foreach($recipientIds as $recipientId) {
 	  $values[] = $data->id.','.$recipientId;
 	}
 
-	//Insert a new row for each recipient item linked to the price rule.
+	// Inserts a new row for each recipient item linked to the price rule.
 	$query->clear();
 	$query->insert('#__ketshop_prule_recipient')
 	      ->columns($columns)
@@ -437,6 +439,7 @@ class plgContentKetshop extends JPlugin
 	  $postcodeNb = $matches[1];
 
 	  $postcode = new JObject;
+	  $postcode->shipping_id = $data->id;
 	  $postcode->from = trim($this->post['postcode_from_'.$postcodeNb]);
 	  $postcode->to = trim($this->post['postcode_to_'.$postcodeNb]);
 	  $postcode->cost = trim($this->post['postcode_cost_'.$postcodeNb]);
@@ -447,6 +450,7 @@ class plgContentKetshop extends JPlugin
 	  $cityNb = $matches[1];
 
 	  $city = new JObject;
+	  $city->shipping_id = $data->id;
 	  $city->name = trim($this->post['city_name_'.$cityNb]);
 	  $city->cost = trim($this->post['city_cost_'.$cityNb]);
 	  $cities[] = $city; //
@@ -456,6 +460,7 @@ class plgContentKetshop extends JPlugin
 	  $regionNb = $matches[1];
 
 	  $region = new JObject;
+	  $region->shipping_id = $data->id;
 	  $region->code = trim($this->post['region_code_'.$regionNb]);
 	  $region->cost = trim($this->post['region_cost_'.$regionNb]);
 	  $regions[] = $region; //
@@ -465,6 +470,7 @@ class plgContentKetshop extends JPlugin
 	  $countryNb = $matches[1];
 
 	  $country = new JObject;
+	  $country->shipping_id = $data->id;
 	  $country->code = trim($this->post['country_code_'.$countryNb]);
 	  $country->cost = trim($this->post['country_cost_'.$countryNb]);
 	  $countries[] = $country; //
@@ -474,134 +480,28 @@ class plgContentKetshop extends JPlugin
 	  $continentNb = $matches[1];
 
 	  $continent = new JObject;
+	  $continent->shipping_id = $data->id;
 	  $continent->code = trim($this->post['continent_code_'.$continentNb]);
 	  $continent->cost = trim($this->post['continent_cost_'.$continentNb]);
 	  $continents[] = $continent; //
 	}
       }
 
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true);
-
-      // Deletes all the previous postcodes, cities, regions, countries
-      // continents and delivery points linked to the shipping.
-      $query->delete('#__ketshop_ship_postcode')
-	    ->where('shipping_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $query->clear();
-      $query->delete('#__ketshop_ship_city')
-	    ->where('shipping_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $query->clear();
-      $query->delete('#__ketshop_ship_region')
-	    ->where('shipping_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $query->clear();
-      $query->delete('#__ketshop_ship_country')
-	    ->where('shipping_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $query->clear();
-      $query->delete('#__ketshop_ship_continent')
-	    ->where('shipping_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
       // Stores items according to the delivery type chosen by the user.
       if($data->delivery_type == 'at_destination') {
-	// Stores postcodes if any.
-	if(count($postcodes)) {
-	  $values = array();
-	  foreach($postcodes as $postcode) {
-	    $values[] = $data->id.','.$db->Quote($postcode->from).','.$db->Quote($postcode->to).','.$postcode->cost;
-	  }
+	$db = JFactory::getDbo();
+	// N.B: The "from" and "to" fields MUST be "backticked" as they are
+	// reserved SQL words.
+	$columns = array('shipping_id', $db->quoteName('from'), $db->quoteName('to'), 'cost');
+	KetshopHelper::updateMappingTable('#__ketshop_ship_postcode', $columns, $postcodes, $data->id);
 
-	  // N.B: The "from" and "to" fields MUST be "backticked" as they are
-	  // reserved SQL words.
-	  $columns = array('shipping_id', $db->quoteName('from'), $db->quoteName('to'), 'cost');
-	  // Inserts a new row for each zip codes item linked to the shipping.
-	  $query->clear();
-	  $query->insert('#__ketshop_ship_postcode')
-		->columns($columns)
-		->values($values);
-	  $db->setQuery($query);
-	  $db->execute();
-	}
+	$columns = array('shipping_id', 'name', 'cost');
+	KetshopHelper::updateMappingTable('#__ketshop_ship_city', $columns, $cities, $data->id);
 
-	// Stores cities if any.
-	if(count($cities)) {
-	  $values = array();
-	  foreach($cities as $city) {
-	    $values[] = $data->id.','.$db->Quote($city->name).','.$city->cost;
-	  }
-
-	  $columns = array('shipping_id', 'name', 'cost');
-	  // Inserts a new row for each city item linked to the shipping.
-	  $query->clear();
-	  $query->insert('#__ketshop_ship_city')
-		->columns($columns)
-		->values($values);
-	  $db->setQuery($query);
-	  $db->execute();
-	}
-
-	// Stores regions if any.
-	if(count($regions)) {
-	  $values = array();
-	  foreach($regions as $region) {
-	    $values[] = $data->id.','.$db->Quote($region->code).','.$region->cost;
-	  }
-
-	  $columns = array('shipping_id', 'code', 'cost');
-	  // Inserts a new row for each region item linked to the shipping.
-	  $query->clear();
-	  $query->insert('#__ketshop_ship_region')
-		->columns($columns)
-		->values($values);
-	  $db->setQuery($query);
-	  $db->execute();
-	}
-
-	// Stores countries if any.
-	if(count($countries)) {
-	  $values = array();
-	  foreach($countries as $country) {
-	    $values[] = $data->id.','.$db->Quote($country->code).','.$country->cost;
-	  }
-
-	  $columns = array('shipping_id', 'code', 'cost');
-	  // Inserts a new row for each country item linked to the shipping.
-	  $query->clear();
-	  $query->insert('#__ketshop_ship_country')
-		->columns($columns)
-		->values($values);
-	  $db->setQuery($query);
-	  $db->execute();
-	}
-
-	// Stores continents if any.
-	if(count($continents)) {
-	  $values = array();
-	  foreach($continents as $continent) {
-	    $values[] = $data->id.','.$db->Quote($continent->code).','.$continent->cost;
-	  }
-
-	  $columns = array('shipping_id', 'code', 'cost');
-	  // Inserts a new row for each continent item linked to the shipping.
-	  $query->clear();
-	  $query->insert('#__ketshop_ship_continent')
-		->columns($columns)
-		->values($values);
-	  $db->setQuery($query);
-	  $db->execute();
-	}
+	$columns = array('shipping_id', 'code', 'cost');
+	KetshopHelper::updateMappingTable('#__ketshop_ship_region', $columns, $regions, $data->id);
+	KetshopHelper::updateMappingTable('#__ketshop_ship_country', $columns, $countries, $data->id);
+	KetshopHelper::updateMappingTable('#__ketshop_ship_continent', $columns, $continents, $data->id);
       }
       // at_delivery_point
       else { 
@@ -700,8 +600,9 @@ class plgContentKetshop extends JPlugin
 	  $ordering = $this->post['option_ordering_'.$optionNb];
 
 	  $option = new JObject;
-	  $option->value = $value;
-	  $option->text = $text;
+	  $option->attrib_id = $data->id;
+	  $option->option_value = $value;
+	  $option->option_text = $text;
 	  $option->published = $published;
 	  $option->ordering = $ordering;
 	  $options[] = $option;
@@ -710,7 +611,7 @@ class plgContentKetshop extends JPlugin
 
       // Sets fields.
       $columns = array('attrib_id', 'option_value', 'option_text', 'published', 'ordering');
-      KetshopHelper::updateMappingTable('#__ketshop_attrib_option', $columns, $options, array($data->id));
+      KetshopHelper::updateMappingTable('#__ketshop_attrib_option', $columns, $options, $data->id);
 
       return true;
     }
@@ -725,6 +626,7 @@ class plgContentKetshop extends JPlugin
 	  // Prevents duplicate or empty attribute id.
 	  if((int)$attribId && !in_array($attribId, $attribIds)) {
 	    $attribute = new JObject;
+	    $attribute->filter_id = $data->id;
 	    $attribute->attrib_id = $attribId;
 	    $attributes[] = $attribute;
 	  }
@@ -733,7 +635,7 @@ class plgContentKetshop extends JPlugin
 
       // Sets fields.
       $columns = array('filter_id', 'attrib_id');
-      KetshopHelper::updateMappingTable('#__ketshop_filter_attrib', $columns, $attributes, array($data->id));
+      KetshopHelper::updateMappingTable('#__ketshop_filter_attrib', $columns, $attributes, $data->id);
     }
     // COMPONENT CATEGORIES
     elseif($context == 'com_categories.category' && $data->extension == 'com_ketshop') { 

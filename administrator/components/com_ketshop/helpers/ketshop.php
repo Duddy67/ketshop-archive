@@ -241,18 +241,18 @@ class KetshopHelper
 
 
   /**
-   * Update a mapping table according to the variables passed as arguments.
+   * Updates a mapping table according to the variables passed as arguments.
    *
-   * @param string $table The name of the table to update (eg: #__table_name).
-   * @param array $columns Array of table's column, (primary key name must be set as the first array's element).
-   * @param array $data Array of JObject containing the column values, (values order must match the column order).
-   * @param array $ids Array containing the ids of the items to update.
+   * @param string  $table   The name of the table to update (eg: #__table_name).
+   * @param array   $columns Array of table's column. Important: Primary key name must be set as the first array's element.
+   * @param array   $data    Array of JObject containing the column values, (values order must match the column order).
+   * @param integer $pkId    The common id which hold the data rows together.
    *
    * @return void
    */
-  public static function updateMappingTable($table, $columns, $data, $ids)
+  public static function updateMappingTable($table, $columns, $data, $pkId)
   {
-    //Ensure we have a valid primary key.
+    // Ensures first we have a valid primary key.
     if(isset($columns[0]) && !empty($columns[0])) {
       $pk = $columns[0];
     }
@@ -260,46 +260,44 @@ class KetshopHelper
       return;
     }
 
-    // Create a new query object.
+    // Creates a new query object.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
-    //Delete all the previous items linked to the primary id(s).
+    // Deletes all the previous items linked to the primary key.
     $query->delete($db->quoteName($table));
-    $query->where($pk.' IN('.implode(',', $ids).')');
+    $query->where($pk.'='.(int)$pkId);
     $db->setQuery($query);
     $db->execute();
 
-    //If no item has been defined no need to go further. 
+    // If no item has been defined no need to go further. 
     if(count($data)) {
-      //List of the numerical fields (no quotes must be used).
-      $integers = array('id','prod_id','bundle_id','quantity','ordering');
+      // List of the numerical fields for which no quotes must be used.
+      $unquoted = array('id','prod_id','attrib_id','filter_id','shipping_id',
+	                'cost','bundle_id','quantity','ordering','published');
 
-      //Build the VALUES clause of the INSERT MySQL query.
+      // Builds the VALUES clause of the INSERT MySQL query.
       $values = array();
-      foreach($ids as $id) {
-	foreach($data as $itemValues) {
-	  //Set the primary id to link the item with.
-	  $row = $id.',';
 
-	  foreach($itemValues as $key => $value) {
-	    //No integer values must be quoted.
-	    if(!in_array($key, $integers)) {
-	      $row .= $db->Quote($value).',';
-	    }
-	    else { //Don't quote the numerical values.
-	      $row .= $value.',';
-	    }
+      foreach($data as $itemValues) {
+	$row = '';
+	foreach($itemValues as $key => $value) {
+	  if(in_array($key, $unquoted)) {
+	    // Don't quote the numerical values.
+	    $row .= $value.',';
 	  }
-
-	  //Remove comma from the end of the string.
-	  $row = substr($row, 0, -1);
-	  //Insert a new row in the "values" clause.
-	  $values[] = $row;
+	  else { 
+	    $row .= $db->Quote($value).',';
+	  }
 	}
+
+	// Removes comma from the end of the string.
+	$row = substr($row, 0, -1);
+	// Inserts a new row in the "values" clause.
+	$values[] = $row;
       }
 
-      //Insert a new row for each item linked to the primary id(s).
+      // Inserts a new row for each item linked to the primary id(s).
       $query->clear();
       $query->insert($db->quoteName($table));
       $query->columns($columns);
