@@ -114,6 +114,10 @@
 		<option value="cart">COM_KETSHOP_OPTION_CART</option>
 	</field>
 
+	<field name="type_info" type="text" label="COM_KETSHOP_FIELD_TYPE_LABEL"
+		description="COM_KETSHOP_FIELD_TYPE_DESC" readonly="true"
+		class="readonly" filter="unset" />
+
 	<field name="behavior" type="list"
 		label="COM_KETSHOP_FIELD_PRICE_RULE_BEHAVIOR_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_BEHAVIOR_DESC"
@@ -136,6 +140,7 @@
 	</field>
 
 	<field name="show_rule" type="radio"
+	       class="btn-group btn-group-yesno"
 		label="COM_KETSHOP_FIELD_PRICE_RULE_SHOW_RULE_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_SHOW_RULE_DESC"
 		default="1">

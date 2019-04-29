@@ -15,6 +15,7 @@
  * behavior:	Defines if the rule is exclusive or cumulative (XOR AND).
  * condition:	Defines what is the condition: quantity (product, products group, bundle) or amount (cart,products group). Only for cart rule.
  * logical_opr:	Conditions can be combined with AND or OR logical operators. Only for cart rules.
+ * comparison_opr:  Only for cart rules.
  * target:	Defines the target of the rule. Product, products group or bundle for catalog rules. Cart amount or shipping cost for cart rules.
  * recipient:	Defines the recipient of the rule: user or users group for both cart and catalog rules.
  */
@@ -459,8 +460,8 @@ class PriceruleHelper
 
     //Get all the cart price rules concerning the current user (or the group he's in).
     //The list of result is ordered to determine the level of the rules.
-    $query->select('pr.id,pr.type,pr.operation,pr.value,pr.behavior,pr.ordering,pr.show_rule,'. 
-		   'pr.condition, pr.logical_opr, pr.target, pr.recipient,'.$translatedFields.'pr.application')
+    $query->select('pr.id,pr.type,pr.operation,pr.value,pr.behavior,pr.ordering,pr.show_rule,pr.condition,pr.logical_opr,'. 
+		   'comparison_opr, condition_amount, condition_qty, pr.target, pr.recipient,'.$translatedFields.'pr.application')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.
 			 'AND prr.item_id='.$userId.') OR (pr.recipient="customer_group" '.
@@ -508,6 +509,21 @@ class PriceruleHelper
     //Add the corresponding conditions (array) to each price rules.
     foreach($cartPriceRules as $key => $cartPriceRule) {
       $cartPriceRules[$key]['conditions'] = array();
+
+      // These 2 following condition types don't use dynamic items. They are based on a
+      // single operator and a single value stored into the price rule table.
+      if($cartPriceRule['condition'] == 'total_prod_qty' || $cartPriceRule['condition'] == 'total_prod_amount') {
+	// Sets up a fake condition item so that the condition can be treated as a reguar item in
+	// the checkCartPriceRuleConditions function.
+	$condition = array('operator' => $cartPriceRule['comparison_opr'], 
+	                   'item_qty' => $cartPriceRule['condition_qty'],
+	                   'item_amount' => $cartPriceRule['condition_amount'],
+	                   'prule_id' => $cartPriceRule['id'],
+	                   'item_id' => 0);
+	$cartPriceRules[$key]['conditions'][] = $condition;
+	// Moves to the next price rule.
+	continue;
+      }
 
       foreach($conditions as $condition) {
         if($condition['prule_id'] == $cartPriceRule['id']) {

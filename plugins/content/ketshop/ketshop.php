@@ -265,34 +265,34 @@ class plgContentKetshop extends JPlugin
     }
     // PRICE RULE
     elseif($context == 'com_ketshop.pricerule') { 
-
       $ruleType = $data->type;
       $targetType = $data->target;       // product, bundle, product group (ie: category).
       $recipientType = $data->recipient; // customer,customer group
+      $conditionType = $data->condition; // product, bundle, category, product amount, product quantity.
 
-      //
-      if($ruleType == 'cart') {
-	//Retrieve all the new set conditions from the POST array.
-	$conditionType = $data->condition; // product, bundle, category, cart amount, product quantity.
-	$conditions = array();
-
+      $conditions = array();
+      // N.B: The 'total_prod' conditions are treated directly in the price rule table as
+      //      they refer to the content of the cart, thereby no item is required. 
+      if($ruleType == 'cart' && $conditionType != 'total_prod_amount' && $conditionType != 'total_prod_qty') {
+	// Retrieves all the new conditions from the POST array.
 	foreach($this->post as $key => $val) {
 	  //
-	  if(preg_match('#^condition_id_([0-9]+)$#', $key, $matches)) {
+	  if(preg_match('#^condition_item_id_([0-9]+)$#', $key, $matches)) {
 	    $conditionNb = $matches[1];
-	    $conditionId = $this->post['condition_id_'.$conditionNb];
-	    $operator = $this->post['operator_'.$conditionNb];
+	    $conditionId = (int)$this->post['condition_item_id_'.$conditionNb];
 
 	    $condition = new JObject;
-	    $condition->id = $conditionId;
-	    $condition->operator = $operator;
+	    $condition->prule_id = $data->id;
+	    $condition->item_id = $conditionId;
+	    $condition->operator = $this->post['condition_comparison_opr_'.$conditionNb];
+	    $condition->item_amount = 0;
+	    $condition->item_qty = 0;
 
 	    if($conditionType == 'product_cat_amount' || $conditionType == 'total_prod_amount') {
-	      $condition->amount = $this->post['condition_item_amount_'.$conditionNb];
+	      $condition->item_amount = $this->post['condition_item_amount_'.$conditionNb];
 	    }
 	    else {
-	      $conditionQty = $this->post['condition_item_qty_'.$conditionNb];
-	      $condition->quantity = $conditionQty;
+	      $condition->item_qty = $this->post['condition_item_qty_'.$conditionNb];
 	    }
 
 	    $conditions[] = $condition;
@@ -300,129 +300,57 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      // Retrieve all the ids of the new set targets from the POST array.
-      $targetIds = array();
-
       // N.B: There is no item dynamicaly added in target when cart rule is selected. 
       //      So there's no need to store anything into database.
-
-      $db = JFactory::getDbo();
-      $query = $db->getQuery(true);
+      $targets = $targetIds = array();
 
       if($ruleType == 'catalog') {
 	foreach($this->post as $key => $val) {
 	  if(preg_match('#^target_item_id_([0-9]+)$#', $key, $matches)) {
 	    $targetNb = $matches[1];
-	    // Stores target ids.
-	    $targetIds[] = $this->post['target_item_id_'.$targetNb];
+	    $targetId = (int)$this->post['target_item_id_'.$targetNb];
+
+	    // Prevents duplicate or empty target id.
+	    if($targetId && !in_array($targetId, $targetIds)) {
+	      $target = new JObject;
+	      $target->prule_id = $data->id;
+	      $target->item_id = $targetId;
+	      $targets[] = $target;
+	      //
+	      $targetIds[] = $targetId;
+	    }
 	  }
 	}
-
-	// Don't go further if no values has been set. 
-	if(empty($targetIds)) {
-	  return true;
-	}
-
-	// Removes duplicate ids in case an item has been set twice or more.
-	$targetIds = array_unique($targetIds);
       }
 
-      // Retrieves all the new set recipients from the POST array.
-      $recipientIds = array();
+      $recipients = $recipientIds = array();
 
-      foreach($this->post as $key=>$val) {
+      // Retrieves all the new recipients from the POST array.
+      foreach($this->post as $key => $val) {
 	if(preg_match('#^recipient_item_id_([0-9]+)$#', $key, $matches)) {
 	  $recipientNb = $matches[1];
-	  // Stores recipient ids.
-	  $recipientIds[] = $this->post['recipient_item_id_'.$recipientNb];
+	  $recipientId = (int)$this->post['recipient_item_id_'.$recipientNb];
+
+	  // Prevents duplicate or empty target id.
+	  if($recipientId && !in_array($recipientId, $recipientIds)) {
+	      $recipient = new JObject;
+	      $recipient->prule_id = $data->id;
+	      $recipient->item_id = $recipientId;
+	      $recipients[] = $recipient;
+	      //
+	      $recipientIds[] = $recipientId;
+	  }
 	}
       }
 
-      // Deletes all the previous targets, recipients, and conditions linked to
-      // the price rule.
-      $query->clear();
-      $query->delete('#__ketshop_prule_target')
-	    ->where('prule_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $query->clear();
-      $query->delete('#__ketshop_prule_recipient')
-	    ->where('prule_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $query->clear();
-      $query->delete('#__ketshop_prule_condition')
-	    ->where('prule_id='.(int)$data->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      // Inserts the new targets, recipients, and conditions which has been set.
-
-      if(count($conditions)) {
-	$values = array();
-	foreach($conditions as $condition) {
-	  //Build the values SQL according to the selected condition type.
-	  if($conditionType == 'total_prod_amount') {
-	    $values[] = $data->id.', 0,'.$db->Quote($condition->operator).','.$condition->amount.', NULL';
-	  }
-	  elseif($conditionType == 'total_prod_qty') {
-	    $values[] = $data->id.', 0,'.$db->Quote($condition->operator).', NULL,'.$condition->quantity;
-	  }
-	  elseif($conditionType == 'product_cat_amount') {
-	    $values[] = $data->id.','.$condition->id.','.$db->Quote($condition->operator).','.$condition->amount.', NULL';
-	  }
-	  else { //product, bundle or product cat quantity.
-	    $values[] = $data->id.','.$condition->id.','.$db->Quote($condition->operator).', NULL,'.$condition->quantity;
-	  }
-	}
-
-	//Insert a new row for each condition item linked to the price rule.
-	$columns = array('prule_id', 'item_id', 'operator', 'item_amount', 'item_qty');
-	$query->clear();
-	$query->insert('#__ketshop_prule_condition')
-	      ->columns($columns)
-	      ->values($values);
-	$db->setQuery($query);
-	$db->execute();
-      }
+      $columns = array('prule_id', 'item_id', 'operator', 'item_amount', 'item_qty');
+      KetshopHelper::updateMappingTable('#__ketshop_prule_condition', $columns, $conditions, $data->id);
 
       $columns = array('prule_id', 'item_id');
+      KetshopHelper::updateMappingTable('#__ketshop_prule_target', $columns, $targets, $data->id);
+      KetshopHelper::updateMappingTable('#__ketshop_prule_recipient', $columns, $recipients, $data->id);
 
-      if(count($targetIds)) {
-	$values = array();
-
-	foreach($targetIds as $targetId) {
-	  $values[] = $data->id.','.$targetId;
-	}
-
-	// Inserts a new row for each target item linked to the price rule.
-	$query->clear();
-	$query->insert('#__ketshop_prule_target')
-	      ->columns($columns)
-	      ->values($values);
-	$db->setQuery($query);
-	$db->execute();
-      }
-
-      if(count($recipientIds)) {
-	$values = array();
-
-	foreach($recipientIds as $recipientId) {
-	  $values[] = $data->id.','.$recipientId;
-	}
-
-	// Inserts a new row for each recipient item linked to the price rule.
-	$query->clear();
-	$query->insert('#__ketshop_prule_recipient')
-	      ->columns($columns)
-	      ->values($values);
-	$db->setQuery($query);
-	$db->execute();
-      }
-
-      return true;
+      return;
     }
     // SHIPPING
     elseif($context == 'com_ketshop.shipping') { 
@@ -550,7 +478,8 @@ class plgContentKetshop extends JPlugin
       }
 
     }
-    elseif($context == 'com_ketshop.deliverypoint') { //DELIVERY POINT
+    // DELIVERY POINT  Still existing ?????
+    elseif($context == 'com_ketshop.deliverypoint') { 
       //Get all of the POST data.
       $post = JFactory::getApplication()->input->post->getArray();
       //Retrieve jform to get the needed extra fields.
@@ -629,6 +558,7 @@ class plgContentKetshop extends JPlugin
 	    $attribute->filter_id = $data->id;
 	    $attribute->attrib_id = $attribId;
 	    $attributes[] = $attribute;
+	    $attribIds[] = $attribId;
 	  }
 	}
       }

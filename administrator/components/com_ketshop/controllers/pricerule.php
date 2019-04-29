@@ -17,38 +17,47 @@ class KetshopControllerPricerule extends JControllerForm
 
   public function save($key = null, $urlVar = null)
   {
-    //Get the jform data.
+    // Gets the jform data.
     $data = $this->input->post->get('jform', array(), 'array');
 
-    //Remove the unwanted field from jform according to the rule type selected.
-    //We also set the show_rule value according to the chosen options.
+    // Resets the unwanted field from jform according to the rule type selected.
+    // Sets also the show_rule value according to the chosen options.
     if($data['type'] == 'catalog') {
-      unset($data['condition']);
+      $data['condition'] = '';
       $data['logical_opr'] = '';
+      $data['comparison_opr'] = '';
+      $data['condition_qty'] = 0;
+      $data['condition_amount'] = 0;
 
-      //Price rules based on profit margin cannot be shown.
+      // Price rules based on profit margin cannot be shown.
       if($data['modifier'] == 'profit_margin_modifier') {
 	$data['show_rule'] = 0;
       }
     }
     else { // cart
-      unset($data['modifier']);
+      $data['modifier'] = '';
 
-      //Cart rules with cart amount target cannot be hidden.
+      // Cart rules with cart amount target cannot be hidden.
       if($data['target'] == 'cart_amount') {
 	$data['show_rule'] = 1;
       }
 
-      //Those conditions are unique so there is no need to use a logical operator.
+      // Those conditions are unique so there is no need to use a logical operator.
       if($data['condition'] == 'total_prod_amount' || $data['condition'] == 'total_prod_qty') {
 	$data['logical_opr'] = '';
       }
+      else {
+	// Used only with the "total_prod" conditions.
+	$data['comparison_opr'] = '';
+	$data['condition_qty'] = 0;
+	$data['condition_amount'] = 0;
+      }
     }
 
-    //Updates the jform data array 
+    // Updates the jform data array 
     $this->input->post->set('jform', $data);
 
-    //Hand over to the parent function.
+    // Hands over to the parent function.
     return parent::save($key = null, $urlVar = null);
   }
 

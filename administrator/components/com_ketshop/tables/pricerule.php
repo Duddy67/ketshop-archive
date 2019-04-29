@@ -36,7 +36,7 @@ class KetshopTablePricerule extends JTable
    */
   public function store($updateNulls = false)
   {
-    //Gets the current date and time (UTC).
+    // Gets the current date and time (UTC).
     $now = JFactory::getDate()->toSql();
     $user = JFactory::getUser();
 
@@ -55,14 +55,14 @@ class KetshopTablePricerule extends JTable
 	$this->created_by = $user->get('id');
       }
 
-      //Get the number of rows in the table.
+      // Gets the number of rows in the table.
       $query = $this->_db->getQuery(true)
               ->select('COUNT(*)')
               ->from('#__ketshop_price_rule');
       $this->_db->setQuery($query);
       $result = $this->_db->loadResult();
 
-      //Increment of 1 the order of the new item.
+      // Increments of 1 the order of the new item.
       $this->ordering = $result + 1;
     }
 

@@ -65,6 +65,63 @@
     }
   }
 
+  validateFields = function(e) {
+    let task = document.getElementsByName('task');
+    let priceruleType = $('#jform_type').val();
+    let conditionType = $('#jform_condition').val();
+
+    // First ensures that the required items have been selected according 
+    // to the price rule configuration.
+
+    // In any case at least one recipient must be selected.
+    // In case of catalog price rule type, at least one product must be selected.
+    // In case of cart price rule type and no 'total' condition type, at least one product must be selected.
+    if(task[0].value != 'pricerule.cancel' && (GETTER.recipient.idNbList.length == 0 ||
+       (priceruleType == 'catalog' && GETTER.target.idNbList.length == 0) || 
+       (priceruleType == 'cart' && conditionType != 'total_prod_qty' && conditionType != 'total_prod_amount' && GETTER.condition.idNbList.length == 0))) {
+      //
+      alert(Joomla.JText._('COM_KETSHOP_NO_ITEM_SELECTED'));
+
+      let itemName = 'recipient';
+      if(priceruleType == 'catalog' && GETTER.target.idNbList.length == 0) {
+	itemName = 'target';
+      }
+      else if(priceruleType == 'cart' && GETTER.condition.idNbList.length == 0) {
+	itemName = 'condition';
+      }
+
+      // Shows the dynamic item tab.
+      $('.nav-tabs a[href="#pricerule-'+itemName+'"]').tab('show');
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+
+    // Checks the amount or quantity value.
+    for(let key in items) {
+      //
+      let fields = {'item-name':''};
+
+      if(key == 'condition') {
+	if(conditionType == 'product_cat_amount') {
+	  fields['item-amount'] = 'unsigned_float';
+	}
+	else {
+	  fields['item-qty'] = 'unsigned_int';
+	}
+      }
+
+      if(task[0].value != 'pricerule.cancel' && !GETTER[key].validateFields(fields)) {
+	// Shows the dynamic item tab.
+	$('.nav-tabs a[href="#pricerule-'+key+'"]').tab('show');
+
+	e.preventDefault();
+	e.stopPropagation();
+	return false;
+      }
+    }
+  }
+
   // Builds a link to a modal window according to the item type.
   $.fn.createLinkToModal = function(dynamicItemType, idNb) {
     let productType = view = '';
@@ -151,11 +208,24 @@
 
   $.fn.changeModifierType = function(type) {
     let operationType = $('#jform_operation').val();
+    let priceRuleType = $('#jform_type').val();
+
     if((operationType == '-' || operationType == '+') && type == 'profit_margin_modifier') {
       $('#jform_application').parent().parent().css({'visibility':'hidden','display':'none'});
     }
     else if((operationType == '-' || operationType == '+') && type == 'sale_price_modifier') {
       $('#jform_application').parent().parent().css({'visibility':'visible','display':'block'});
+    }
+
+    //Enable show_rule radio buttons.
+    //$('#jform_show_rule').prop('disabled', false);
+
+    if(type == 'profit_margin_modifier' && priceRuleType == 'catalog') {
+      // Rule must not be showed when it applies on profit margin.
+      $('#jform_show_rule0').attr('checked', false);
+      $('#jform_show_rule1').attr('checked', 'checked');
+      //$('#jform_show_rule0').prop('checked', false);
+      //$('#jform_show_rule').prop('disabled', true);
     }
   }
 
@@ -214,6 +284,11 @@
     // Updates the Chosen plugin.
     $('#jform_target').trigger('liszt:updated');
   }
+
+  //Show/Hide the show_rule radio button.
+  $.fn.setShowRule = function() {
+  }
+
 
   /** Callback functions **/
 
@@ -287,22 +362,8 @@
     // These 2 following condition types don't use dynamic items. They are based on a
     // single operator and a single value.
     if(conditionType == 'total_prod_qty' || conditionType == 'total_prod_amount') {
-      // First deletes the item previously created by the Omkod library.
+      // Deletes the item previously created by the Omkod library.
       GETTER.condition.removeItems();
-
-      // Sets the regular jform fields.
-
-      $('#jform_comparison_opr option[value="'+data.operator+'"]').attr('selected', true);
-      // Updates the Chosen plugin.
-      $('#jform_comparison_opr').trigger('liszt:updated');
-
-      if(conditionType == 'total_prod_qty') {
-	$('#jform_condition_qty').val(data.item_qty);
-      }
-      // total_prod_amount
-      else {
-	$('#jform_condition_amount').val(data.item_amount);
-      }
     }
     // Condition types which use dynamic items.
     else {

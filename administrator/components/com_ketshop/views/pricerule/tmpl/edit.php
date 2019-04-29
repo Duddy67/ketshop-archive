@@ -22,12 +22,13 @@ var checkPriceRule;
 Joomla.submitbutton = function(task)
 {
   if(task == 'pricerule.cancel' || document.formvalidator.isValid(document.id('pricerule-form'))) {
-    if(task == 'pricerule.cancel' || (checkNumber('jform_value', true) && checkPriceRule())) {
+      Joomla.submitform(task, document.getElementById('pricerule-form'));
+    /*if(task == 'pricerule.cancel' || (checkNumber('jform_value', true) && checkPriceRule())) {
       Joomla.submitform(task, document.getElementById('pricerule-form'));
     }
     else {
       alert('<?php echo $this->escape(JText::_('COM_KETSHOP_ERROR_NUMBER_NOT_VALID'));?>');
-    }
+    }*/
   }
 }
 </script>
@@ -48,6 +49,15 @@ Joomla.submitbutton = function(task)
 	<div class="span8">
 	  <div class="form-vertical">
 	    <?php
+		  // Existing item.
+		  if($this->item->id) {
+		    // Turns the original select element into a hidden field as the user is no longer allowed to change the item type.
+		    $this->form->setFieldAttribute('type', 'type', 'hidden');
+		    // Sets and displays the price rule type value for information.
+		    $this->form->setValue('type_info', null,JText::_('COM_KETSHOP_OPTION_'.strtoupper($this->item->type)));
+		    echo $this->form->getControlGroup('type_info');
+		  }
+
 		  echo $this->form->getControlGroup('type');
 		  echo $this->form->getControlGroup('behavior');
 		  echo $this->form->getControlGroup('show_rule');
@@ -80,6 +90,7 @@ Joomla.submitbutton = function(task)
 		echo $this->form->getControlGroup('logical_opr');
 		echo $this->form->getControlGroup('comparison_opr');
 		echo $this->form->getControlGroup('condition_qty');
+		$this->form->setValue('condition_amount', null, UtilityHelper::formatNumber($this->item->condition_amount));
 		echo $this->form->getControlGroup('condition_amount');
 	  ?>
 	</div>

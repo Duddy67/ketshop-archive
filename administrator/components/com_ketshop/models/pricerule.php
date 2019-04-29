@@ -130,14 +130,8 @@ class KetshopModelPricerule extends JModelAdmin
 
     //Build the SQL query according to the condition type.
     $join = '';
-    if($conditionType == 'total_prod_amount') {
-      $select = 'item_id, operator, TRUNCATE(item_amount, 2) AS item_amount';
-    }
-    elseif($conditionType == 'total_prod_qty') {
-      $select = 'item_id, operator, item_qty';
-    }
-    elseif($conditionType == 'product_cat_amount') {
-      $select = 'item_id, title AS name, operator, TRUNCATE(item_amount, 2) AS item_amount';
+    if($conditionType == 'product_cat_amount') {
+      $select = 'item_id, title AS item_name, operator, TRUNCATE(item_amount, 2) AS item_amount';
       $join = '#__categories ON id=item_id';
     }
     elseif($conditionType == 'product_cat') {
@@ -145,7 +139,7 @@ class KetshopModelPricerule extends JModelAdmin
       $join = '#__categories ON id=item_id';
     }
     else {
-      $select = 'item_id, item_name, operator, item_qty';
+      $select = 'item_id, name AS item_name, operator, item_qty';
       $join = '#__ketshop_product ON id=item_id';
     }
 
