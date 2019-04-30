@@ -46,7 +46,7 @@
     $('#jform_type').change( function() { $.fn.changePriceruleType($('#jform_type').val()); });
     $('#jform_operation').change( function() { $.fn.changeOperationType($('#jform_operation').val()); });
     $('#jform_modifier').change( function() { $.fn.changeModifierType($('#jform_modifier').val()); });
-    $('#jform_target').change( function() { GETTER.target.removeItems(); });
+    $('#jform_target').change( function() { $.fn.changeTargetType($('#jform_target').val()); });
     $('#jform_recipient').change( function() { GETTER.recipient.removeItems(); });
     $('#jform_condition').change( function() { $.fn.changeConditionType($('#jform_condition').val()); });
     //
@@ -164,7 +164,6 @@
     }
     // cart
     else {
-      GETTER.target.removeItems();
       $('#target-container').css({'visibility':'hidden','display':'none'});
       $('#target-pagination').css({'visibility':'hidden','display':'none'});
       // Shows the condition section.
@@ -177,6 +176,7 @@
     // Sets both the action and target fields.
     $.fn.changeOperationType($('#jform_operation').val());
     $.fn.switchTargetOptions(type);
+    $.fn.changeTargetType($('#jform_target').val());
   }
 
   // Shows / hides some fields from the action section according to the selected operation type.
@@ -217,16 +217,47 @@
       $('#jform_application').parent().parent().css({'visibility':'visible','display':'block'});
     }
 
-    //Enable show_rule radio buttons.
-    //$('#jform_show_rule').prop('disabled', false);
+    // Unlocks the radio buttons in case meanwhile the situation has changed.
+    $('#jform_show_rule').removeClass('readonly disabled');
+    $('#jform_show_rule').css('pointer-events','auto');
 
     if(type == 'profit_margin_modifier' && priceRuleType == 'catalog') {
       // Rule must not be showed when it applies on profit margin.
+      $.fn.switchShowRuleBtn();
+    }
+  }
+
+  $.fn.changeTargetType = function(type) {
+    GETTER.target.removeItems();
+    let priceRuleType = $('#jform_type').val();
+
+    // Unlocks the radio buttons in case meanwhile the situation has changed.
+    $('#jform_show_rule').removeClass('readonly disabled');
+    $('#jform_show_rule').css('pointer-events','auto');
+
+    if(type == 'cart_amount' && priceRuleType == 'cart') {
+      // A cart rule with a 'cart amount' target cannot be hidden.
+      $.fn.switchShowRuleBtn(true);
+    }
+  }
+
+  $.fn.switchShowRuleBtn = function(yes) {
+    if(yes) {
+      $('#jform_show_rule1').attr('checked', false);
+      $('#jform_show_rule0').attr('checked', 'checked');
+      $('label[for="jform_show_rule1"]').removeClass('active btn-danger');
+      $('label[for="jform_show_rule0"]').addClass('active btn-success');
+    }
+    else {
       $('#jform_show_rule0').attr('checked', false);
       $('#jform_show_rule1').attr('checked', 'checked');
-      //$('#jform_show_rule0').prop('checked', false);
-      //$('#jform_show_rule').prop('disabled', true);
+      $('label[for="jform_show_rule0"]').removeClass('active btn-success');
+      $('label[for="jform_show_rule1"]').addClass('active btn-danger');
     }
+
+    // Locks the radio buttons.
+    $('#jform_show_rule').addClass('readonly disabled');
+    $('#jform_show_rule').css('pointer-events','none');
   }
 
   $.fn.changeConditionType = function(type) {
@@ -276,7 +307,8 @@
       else if(GETTER.target.inArray($(this).val(), cart)) {
 	$(this).prop('disabled', false);
 
-	if($(this).val() == 'shipping_cost') {
+	// Selects the shipping_cost option by default when the price rule is new.
+	if($('#jform_id').val() == 0 && $(this).val() == 'shipping_cost') {
 	  $(this).prop('selected', true);
 	}
       }
@@ -284,11 +316,6 @@
     // Updates the Chosen plugin.
     $('#jform_target').trigger('liszt:updated');
   }
-
-  //Show/Hide the show_rule radio button.
-  $.fn.setShowRule = function() {
-  }
-
 
   /** Callback functions **/
 
