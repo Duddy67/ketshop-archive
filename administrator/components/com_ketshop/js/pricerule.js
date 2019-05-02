@@ -120,6 +120,37 @@
 	return false;
       }
     }
+
+    let validate = true;
+
+    // Checks for the quantity and amount condition fields.
+    if(priceruleType == 'cart') {
+      // In case the field was previously not valid.
+      $('#jform_condition_qty').removeClass('mandatory');
+
+      if(conditionType == 'total_prod_qty' && !GETTER.condition.checkValueType($('#jform_condition_qty').val(), 'unsigned_int')) {
+	validate = false;
+	$('#jform_condition_qty').addClass('mandatory');
+      }
+
+      // In case the field was previously not valid.
+      $('#jform_condition_amount').removeClass('mandatory');
+
+      if(conditionType == 'total_prod_amount' && !GETTER.condition.checkValueType($('#jform_condition_amount').val(),'unsigned_float')) {
+	validate = false;
+	$('#jform_condition_amount').addClass('mandatory');
+      }
+    }
+
+    if(task[0].value != 'pricerule.cancel' && !validate) {
+      alert(Joomla.JText._('COM_KETSHOP_ALERT_VALUE_TYPE_NOT_VALID'));
+      // Shows the dynamic item tab.
+      $('.nav-tabs a[href="#pricerule-condition"]').tab('show');
+
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
   }
 
   // Builds a link to a modal window according to the item type.
@@ -276,9 +307,11 @@
       if(type == 'total_prod_qty') {
 	$('#jform_condition_qty').parent().parent().css({'visibility':'visible','display':'block'});
 	$('#jform_condition_amount').parent().parent().css({'visibility':'hidden','display':'none'});
+	$('#jform_condition_amount').val('');
       }
       else {
 	$('#jform_condition_qty').parent().parent().css({'visibility':'hidden','display':'none'});
+	$('#jform_condition_qty').val('');
 	$('#jform_condition_amount').parent().parent().css({'visibility':'visible','display':'block'});
       }
     }

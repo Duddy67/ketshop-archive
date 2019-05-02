@@ -16,19 +16,11 @@ $canDo = KetshopHelper::getActions();
 ?>
 
 <script type="text/javascript">
-//Global variables. It will be set as function in product.js file.
-var checkPriceRule;
 
 Joomla.submitbutton = function(task)
 {
   if(task == 'pricerule.cancel' || document.formvalidator.isValid(document.id('pricerule-form'))) {
       Joomla.submitform(task, document.getElementById('pricerule-form'));
-    /*if(task == 'pricerule.cancel' || (checkNumber('jform_value', true) && checkPriceRule())) {
-      Joomla.submitform(task, document.getElementById('pricerule-form'));
-    }
-    else {
-      alert('<?php echo $this->escape(JText::_('COM_KETSHOP_ERROR_NUMBER_NOT_VALID'));?>');
-    }*/
   }
 }
 </script>
@@ -90,7 +82,9 @@ Joomla.submitbutton = function(task)
 		echo $this->form->getControlGroup('logical_opr');
 		echo $this->form->getControlGroup('comparison_opr');
 		echo $this->form->getControlGroup('condition_qty');
-		$this->form->setValue('condition_amount', null, UtilityHelper::formatNumber($this->item->condition_amount));
+		if($this->item->id) {
+		  $this->form->setValue('condition_amount', null, UtilityHelper::formatNumber($this->item->condition_amount));
+		}
 		echo $this->form->getControlGroup('condition_amount');
 	  ?>
 	</div>
@@ -103,7 +97,9 @@ Joomla.submitbutton = function(task)
 	<div class="span6">
 	  <?php
 		echo $this->form->getControlGroup('operation');
-		$this->form->setValue('value', null, UtilityHelper::formatNumber($this->item->value));
+		if($this->item->id) {
+		  $this->form->setValue('value', null, UtilityHelper::formatNumber($this->item->value));
+		}
 		echo $this->form->getControlGroup('value');
 		echo $this->form->getControlGroup('modifier');
 		echo $this->form->getControlGroup('application');
@@ -141,7 +137,4 @@ $doc = JFactory::getDocument();
 $doc->addScript(JURI::base().'components/com_ketshop/js/omkod-ajax.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/omkod-dynamic-item.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/pricerule.js');
-
-//$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
-//$doc->addScript(JURI::base().'components/com_ketshop/js/pricerule.js');
 

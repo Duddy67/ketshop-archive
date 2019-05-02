@@ -45,7 +45,7 @@
 	<field name="value" type="text"
 		label="COM_KETSHOP_FIELD_PRICE_RULE_VALUE_LABEL"
 		description="COM_KETSHOP_FIELD_PRICE_RULE_VALUE_DESC"
-		size="15" required="true" />
+		size="15" default="" required="true" />
 
 
 	<field name="target" type="list"
