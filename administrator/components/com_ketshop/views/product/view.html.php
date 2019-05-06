@@ -31,9 +31,11 @@ class KetshopViewProduct extends JViewLegacy
     $this->config = JComponentHelper::getParams('com_ketshop');
 
     //Load Javascript functions.
-    JavascriptHelper::getProductText();
-    JavascriptHelper::getCommonText();
-    JavascriptHelper::loadFunctions(array('user', 'shortcut', 'product_attributes'));
+    //JavascriptHelper::getProductText();
+    //JavascriptHelper::getCommonText();
+    JavascriptHelper::loadFieldLabels();
+    //JavascriptHelper::loadFunctions(array('user', 'shortcut', 'product_attributes', 'attribute_options'));
+    JavascriptHelper::loadFunctions(array('user', 'shortcut', 'attribute_options'));
 
     //New item.
     if($this->form->getValue('id') == 0) {

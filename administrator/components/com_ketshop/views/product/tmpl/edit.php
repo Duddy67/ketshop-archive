@@ -130,7 +130,7 @@ Joomla.submitbutton = function(task)
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'attributes', JText::_('COM_KETSHOP_SUBMENU_ATTRIBUTES', true)); ?>
 	<div class="row-fluid">
-	  <div class="span6 form-vertical" id="attribute">
+	  <div class="span12 form-vertical" id="attribute">
 	      <?php if($this->item->has_variants) {
 		      echo $this->form->getControlGroup('variant_name'); 
 		    } ?>
@@ -149,7 +149,7 @@ Joomla.submitbutton = function(task)
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'images', JText::_('COM_KETSHOP_SUBMENU_IMAGES', true)); ?>
 	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span6" id="image">
+	  <div class="span12" id="image">
 	    <?php echo $this->form->getInput('imageurl'); //Must be loaded to call the overrided media file.
 		  echo $this->form->getControlGroup('img_reduction_rate');
 	    ?>
@@ -166,7 +166,7 @@ Joomla.submitbutton = function(task)
   </div>
 
   <input type="hidden" name="task" value="" />
-  <input type="hidden" id="base-url" name="base_url" value="<?php echo JURI::root(); ?>" />
+  <input type="hidden" name="root_location" id="root-location" value="<?php echo JUri::root(); ?>" />
   <input type="hidden" id="is-admin" name="is_admin" value="1" />
   <?php if(!$this->item->id) : //New item. Get the type of the product from the current url query.  ?>
     <input type="hidden" id="product-type" name="product_type" value="<?php echo JFactory::getApplication()->input->get('type', '', 'string'); ?>" />
@@ -175,9 +175,12 @@ Joomla.submitbutton = function(task)
 </form>
 
 <?php
+// Loads the required scripts.
 $doc = JFactory::getDocument();
+$doc->addScript(JURI::base().'components/com_ketshop/js/omkod-ajax.js');
+$doc->addScript(JURI::base().'components/com_ketshop/js/omkod-dynamic-item.js');
+$doc->addScript(JURI::base().'components/com_ketshop/js/product.js');
 
 //Load the jQuery scripts.
-$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
-$doc->addScript(JURI::base().'components/com_ketshop/js/product.js');
+//$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
 

@@ -211,7 +211,7 @@ trait ProductTrait
 
 
   /**
-   * Returns the attribute select elements bound to a given product.  
+   * Returns the attributes bound to a given product.  
    *
    * @param   integer  $productId  The id of the product.
    *
@@ -221,35 +221,29 @@ trait ProductTrait
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    //Fetches the attribute ids bound to the product.  
-    $query->select('attrib_id')
+    //
+    $query->select('attrib_id AS attribute_id, option_value AS selected_option, name AS attribute_name')
 	  ->from('#__ketshop_prod_attrib')
+	  ->join('LEFT', '#__ketshop_attribute ON id=attrib_id')
 	  ->where('prod_id='.(int)$productId);
     $db->setQuery($query);
-    $attribIds = $db->loadColumn();
 
-    $attributes = array();
-
-    foreach($attribIds as $attribId) {
-      $attributes[] = $this->getAttribute($attribId);
-    }
-
-    return $attributes;
+    return $db->loadAssocList();
   }
 
 
   /**
-   * Returns the attribute select element for a given id.  
+   * Returns the attribute item structure for a given id.  
    *
    * @param   integer  $attributeId	The id of the attribute.
    *
-   * @return  array	                The attribute. 
+   * @return  array	                The attribute item structure. 
    */
   public function getAttribute($attributeId) 
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    //Get the option values of the attribute.
+    // Gets the attribute data as option values.
     $query->select('a.multiselect, a.name, a.published AS attribute_published, ao.option_value, ao.option_text, ao.published')
 	  ->from('#__ketshop_attribute AS a')
 	  ->join('INNER', '#__ketshop_attrib_option AS ao ON ao.attrib_id=a.id')

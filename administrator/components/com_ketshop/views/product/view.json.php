@@ -21,11 +21,16 @@ class KetshopViewProduct extends JViewLegacy
     //Collects the required variables.
     $context = $jinput->get('context', '', 'string');
     $productId = $jinput->get('product_id', 0, 'uint');
+    $isAdmin = $jinput->get('is_admin', 0, 'uint');
     $model = $this->getModel();
     $results = array();
 
+    $results['attribute'] = $model->getProductAttributes($productId);
+    $results['image'] = $model->getImageData($productId, $isAdmin);
+    $results['variant'] = array();
+
     //Calls the corresponding functions.
-    if($context == 'product_elements') {
+    /*if($context == 'product_elements') {
       //Gathers all the elements linked to the product.
       $productType = $jinput->get('product_type', '', 'string');
       $isAdmin = $jinput->get('is_admin', 0, 'uint');
@@ -50,7 +55,7 @@ class KetshopViewProduct extends JViewLegacy
     else {
       echo new JResponseJson($results, JText::_('COM_KETSHOP_ERROR_UNKNOWN_CONTEXT'), true);
       return;
-    }
+    }*/
 
     echo new JResponseJson($results);
   }

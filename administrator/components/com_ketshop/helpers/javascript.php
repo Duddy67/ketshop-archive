@@ -162,7 +162,7 @@ class JavascriptHelper
 
   //Build and load Javascript functions which return different kind of data,
   //generaly as a JSON array.
-  public static function loadFunctions($names, $data = '')
+  public static function loadFunctions($names, $data = null)
   {
     $js = array();
     //Create a name space in order put functions into it.
@@ -195,11 +195,16 @@ class JavascriptHelper
     }
 
     //Returns the attributes used with the product.
-    if(in_array('product_attributes', $names)) {
+    /*if(in_array('product_attributes', $names)) {
       $productAttributes = JavascriptHelper::getProductAttributes();
       $js .= 'getProductAttributes: function() {'."\n";
       $js .= ' return '.$productAttributes.';'."\n";
       $js .= '},'."\n";
+    }*/
+
+    if(in_array('attribute_options', $names)) {
+      $attributeOptions = JavascriptHelper::getAttributeOptions();
+      $js .= 'attributeOptions: '.$attributeOptions.',';
     }
 
     //Returns the id of the current user.
@@ -222,19 +227,34 @@ class JavascriptHelper
       $js .= '},'."\n";
     }
 
-    //Build a generic Javascript function which return any data as a string.
-    if(in_array('data', $names)) {
-      $js .= 'getData: function() {'."\n";
-      $js .= ' return "'.$data.'";'."\n";
-      $js .= '},'."\n";
+    // Checks for getter functions.
+    $getters = preg_grep('#^getter_#', $names);
+
+    if(!empty($getters)) {
+
+      foreach($getters as $key => $getter) {
+	// Builds a getter Javascript function which return the given data.
+	$chunks = explode('_', $getter);
+	$functionName = 'get';
+
+	foreach($chunks as $chunk) {
+	  if($chunk != 'getter') {
+	    $functionName .= ucfirst($chunk);
+	  }
+	}
+
+	$js .= $functionName.': function() {'."\n";
+	$js .= ' return '.$data[$key].';'."\n";
+	$js .= '},'."\n";
+      }
     }
 
-    //Remove coma from the end of the string, (-2 due to the carriage return "\n").
+    // Removes coma from the end of the string, (-2 due to the carriage return "\n").
     $js = substr($js, 0, -2); 
 
     $js .= '};'."\n\n";
 
-    //Place the Javascript code into the html page header.
+    // Places the Javascript code into the html page header.
     $doc = JFactory::getDocument();
     $doc->addScriptDeclaration($js);
   }
@@ -290,17 +310,53 @@ class JavascriptHelper
   }
 
 
-  public static function getProductAttributes()
+  /*public static function getProductAttributes()
   {
-    $prodId = JFactory::getApplication()->input->get('id', 0, 'uint');
+    $productId = JFactory::getApplication()->input->get('id', 0, 'uint');
 
     //Invokes the model's function.
     $model = JModelLegacy::getInstance('Product', 'KetshopModel');
     $attributes = $model->getProductAttributes($prodId);
 
     return json_encode($attributes);
-  }
+  }*/
 
+  public static function getAttributeOptions()
+  {
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    // Fetches all the attribute options.
+    $query->select('ao.*, a.multiselect')
+	  ->from('#__ketshop_attrib_option AS ao')
+	  ->join('INNER', '#__ketshop_attribute AS a ON a.id = ao.attrib_id')
+          ->order('attrib_id, ordering');
+    $db->setQuery($query);
+    $options = $db->loadAssocList();
+
+    $attributeOptions = array();
+
+    // Reshapes the result structure.
+    foreach($options as $option) {
+      // Gets the attribute id to which the option belongs to.
+      $attribId = $option['attrib_id'];
+
+      if(!array_key_exists($attribId, $attributeOptions)) {
+	// Uses the attribute id as array key.
+	$attributeOptions[$attribId]['options'] = array();
+	$attributeOptions[$attribId]['multiselect'] = $option['multiselect'];
+      }
+
+      // Deletes the attribute id and multiselect fields as they're now useless. 
+      unset($option['attrib_id']);
+      unset($option['multiselect']);
+
+      // Stores the option in the corresponding attribute.
+      $attributeOptions[$attribId]['options'][] = $option;
+    }
+
+    return json_encode($attributeOptions);
+  }
 
   //Return continent ids and names as a JSON array.
   public static function getContinents()

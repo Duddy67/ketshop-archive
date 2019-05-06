@@ -1,447 +1,231 @@
-
 (function($) {
+  // A global variable to store then access the dynamical item objects. 
+  const GETTER = {};
+  // The dynamic items to create. {item name:nb of cells}
+  const items = {'attribute':4, 'image':[4,1]};
 
-  //Run a function when the page is fully loaded including graphics.
+  // Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
-    //Get the product item id.
-    var productId = $('#jform_id').val();
+    // The input element containing the root location.
+    let rootLocation = $('#root-location').val();
+    let productId = $('#jform_id').val();
+    let isAdmin = $('#is-admin').val();
 
     if(productId != 0) {
-      //Get the type of the product from the form value.
-      var productType = $('#jform_type').val();
-    } else {
-      //Get the type of the product from the hidden input tag.
-      var productType = $('#product-type').val();
+      items.variant = 3;
     }
 
-    //Create a container for each item type.
-    $('#attribute').getContainer();
+    // Loops through the item array to instanciate all of the dynamic item objects.
+    for(let key in items) {
+      // Sets the dynamic item properties.
+      let props = {'component':'ketshop', 'item':key, 'rootLocation':rootLocation, 'Chosen':true, 'nbItemsPerPage':5};
 
-    if(productType == 'normal' && productId != 0) {
-      $('#variant').getContainer();
+      props.rowsCells = [items[key]];
+      props.ordering = false;
+
+      if(key == 'image') {
+	// Some properties are different for images.
+	props.rowsCells = items[key];
+	props.ordering = true;
+      }
+
+      // Stores the newly created object.
+      GETTER[key] = new Omkod.DynamicItem(props);
     }
 
-    if(productType == 'bundle') {
-      $('#bundleproduct').getContainer();
-    }
+    // Sets the validating function.
+    $('#product-form').submit( function(e) { validateFields(e); });
 
-    $('#image').getContainer();
-
-    //Set as function the global variables previously declared in edit.php file.
-    checkAlias = $.fn.checkAlias;
-    checkVariantValType = $.fn.checkVariantValType;
-
-    //If the product item exists we need to get the data of the dynamical items.
-    if(productId != 0) {
-      var isAdmin = $('#is-admin').val();
-
-      //Gets the token's name as value.
-      var token = $('#token').attr('name');
-      //Sets up the ajax query.
-      var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'product_elements', 'product_id':productId, 'product_type':productType, 'is_admin':isAdmin};
-
-      //Ajax call which get item data previously set.
-      $.ajax({
-	  type: 'GET', 
-	  dataType: 'json',
-	  data: urlQuery,
-	  //Get results as a json array.
-	  success: function(results, textStatus, jqXHR) {
-	    //Create an item type for each result type retrieved from the database.
-	    $.each(results.data.image, function(i, result) { $.fn.createItem('image', result); });
-	    $.each(results.data.attribute, function(i, result) { $.fn.createItem('attribute', result); });
-	    $.each(results.data.variant, function(i, result) { $.fn.createItem('variant', result); });
-
-	    if(productType == 'bundle') {
-	      $.each(results.data.product, function(i, result) { $.fn.createItem('bundleproduct', result); });
-	    }
-	  },
-	  error: function(jqXHR, textStatus, errorThrown) {
-	    //Display the error.
-	    alert(textStatus+': '+errorThrown);
-	  }
-      });
-    }
-
+    // Prepares then run the Ajax query.
+    const ajax = new Omkod.Ajax();
+    let params = {'method':'GET', 'dataType':'json', 'indicateFormat':true, 'async':true};
+    // Gets the form security token.
+    let token = jQuery('#token').attr('name');
+    // N.B: Invokes first the ajax() function in the global controller to check the token.
+    let data = {[token]:1, 'task':'ajax', 'product_id':productId, 'is_admin':isAdmin};
+    ajax.prepare(params, data);
+    ajax.process(getAjaxResult);
   });
 
-
-  $.fn.checkAlias = function() {
-    var rtn;
-    var productId = $('#jform_id').val();
-    var catid = $('#jform_catid').val();
-    var name = $('#jform_name').val();
-    var alias = $('#jform_alias').val();
-    //Gets the token's name as value.
-    var token = $('#token').attr('name');
-    //Sets up the ajax query.
-    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'check_alias', 'product_id':productId, 'catid':catid, 'name':name, 'alias':alias};
-
-    //Ajax call which check for unique alias.
-    $.ajax({
-	type: 'GET', 
-	dataType: 'json',
-	async: false, //We need a synchronous calling here.
-	data: urlQuery,
-	//Get result.
-	success: function(results, textStatus, jqXHR) {
-	  rtn = results.data;
-	},
-	error: function(jqXHR, textStatus, errorThrown) {
-	  //Display the error.
-	  alert(textStatus+': '+errorThrown);
-	}
-    });
-
-    return rtn;
-  };
-
-
-  $.fn.createAttributeItem = function(idNb, data) {
-    //Create the hidden input tag to store the attribute id.
-    var properties = {'type':'hidden', 'name':'attribute_id_'+idNb, 'id':'attribute-id-'+idNb, 'value':data.id};
-    $('#attribute-item-'+idNb).createHTMLTag('<input>', properties);
-
-    //Build the link to the modal window displaying the attribute list.
-    var baseUrl = $('#base-url').val();
-    var linkToModal = baseUrl+'administrator/index.php?option=com_ketshop&view=attributes&layout=modal&tmpl=component&id_nb='+idNb;
-    $('#attribute-item-'+idNb).createButton('select', 'javascript:void(0);', linkToModal);
-
-    //Create the "Value" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_VALUE_TITLE')};
-    $('#attribute-item-'+idNb).createHTMLTag('<span>', properties, 'item-name-label');
-    $('#attribute-item-'+idNb+' .item-name-label').text(Joomla.JText._('COM_KETSHOP_ITEM_VALUE_LABEL'));
-
-    //Creates an empty select list.
-    properties = {'name':'attribute_value_'+idNb, 'id':'attribute-value-'+idNb};
-    $('#attribute-item-'+idNb).createHTMLTag('<select>', properties, 'attribute-value-select');
-
-    //Some data has been provided.
-    if(data.id != '') {
-      $.fn.loadAttributeOptions(idNb, data);
+  getAjaxResult = function(result) {
+    if(result.success === true) {
+      // Loops through the item array to create all of the dynamic items.
+      for(let key in items) {
+	$.each(result.data[key], function(i, item) { GETTER[key].createItem(item); });
+      }
     }
-
-    //Create the removal button.
-    $('#attribute-item-'+idNb).createButton('remove');
-    $('#attribute-item-'+idNb).append('<span class="attribute-separator">&nbsp;</span>');
-  };
-
-
-  $.fn.loadAttributeOptions = function(idNb, data, attributeId) {
-    //Variant attributes need an extra id to sort them out later.
-    var extraId = ['', ''];
-    //Checks if an attribute id is provided.
-    if($.isNumeric(attributeId)) {
-      extraId[0] = '-'+attributeId; //For the tag id (hyphen)
-      extraId[1] = '_'+attributeId; //For the tag name (underscore)
+    else {
+      alert('Error: '+result.message);
     }
+  }
 
-    var disabled = '';
-    //If the multiselect option is set we use a multi select drop down list.
-    if(data.multiselect == 1) {
-      var properties = {'multiple':'multiple', 'name':'attribute_value_'+idNb+extraId[1]+'[]'};
-      $('#attribute-value-'+idNb+extraId[0]).attr(properties);
-      //Prevents the very first option to be checked.
-      disabled = 'disabled="disabled"';
-    }
+  validateFields = function(e) {
+    let task = document.getElementsByName('task');
+  }
 
-    //Fill the drop down list with the corresponding data.
-    var options = '';
-    //Creates the very first option.
-    options += '<option value="" '+disabled+'> - '+data.name+' - </option>';
+  $.fn.setAttributeOptions = function(idNb, attribId, data) {
+    // Gets the options corresponding to the given attribute id.
+    let attributeOptions = ketshop.attributeOptions[attribId].options;
+    let multiselect = ketshop.attributeOptions[attribId].multiselect;
+    let options = '';
 
-    for(var i = 0; i < data.options.length; i++) {
-      //Check if this option is selected.
-      var isSelected = data.options[i].selected;
-      //Creates the options.
-      options += '<option value="'+data.options[i].option_value+'" '+isSelected+'>'+data.options[i].option_text+'</option>';
-    }
-
-    //Adds the options to the select list.
-    $('#attribute-value-'+idNb+extraId[0]).append(options);
-
-    //Change the item class to indicate that the item is unpublished archived or trashed.
-    if(data.published != 1) {
-      $('#attribute-item-'+idNb).prop('class', 'unpublished-item');
-    }
-  };
-
-
-  //Function called from the attribute modal child window, so we have to be specific
-  //and use the window object and the jQuery alias as well.
-  window.jQuery.selectAttribute = function(id, name, idNb) {
-    //Invoke our standard function to set the id an name of the
-    //selected item. 
-    window.jQuery.selectItem(id, name, idNb, 'attribute');
-    //Empties all the possible options of the select list. 
+    // Deletes all the possible previous options.
     $('#attribute-value-'+idNb).empty();
+    // By default use the multi select mode.
+    $('#attribute-value-'+idNb).attr('multiple', 'true');
 
-    //Gets the token's name as value.
-    var token = $('#token').attr('name');
-    //Sets up the ajax query.
-    var urlQuery = {[token]:1, 'task':'ajax', 'format':'json', 'context':'attribute', 'attribute_id':id};
-
-    //Get the fields and their values from database.
-    $.ajax({
-	type: 'GET', 
-	dataType: 'json',
-	data: urlQuery,
-	//Get results as a json array.
-	success: function(results, textStatus, jqXHR) {
-	  //Load the options of the selected attribute.
-	  $.fn.loadAttributeOptions(idNb, results.data);
-	},
-	error: function(jqXHR, textStatus, errorThrown) {
-	  //Display the error.
-	  alert(textStatus+': '+errorThrown);
-	}
-    });
-  };
-
-
-  $.fn.createImageItem = function(idNb, data) {
-    //Get the id of the current user.
-    var userId = ketshop.getUserId();
-    //Build the link to the Joomla image server.
-    var baseUrl = $('#base-url').val();
-    var link = baseUrl+'administrator/index.php?option=com_media&view=images&tmpl=component&asset=com_ketshop&author='+userId+'&fieldid='+idNb+'&folder=ketshop';
-    $('#image-item-'+idNb).createButton('select', 'javascript:void(0);', link);
-
-    //Create the "alt" label.
-    var properties = {'title':Joomla.JText._('COM_KETSHOP_IMAGE_ALT_TITLE')};
-    $('#image-item-'+idNb).createHTMLTag('<span>', properties, 'image-alt-label');
-    $('#image-item-'+idNb+' .image-alt-label').text(Joomla.JText._('COM_KETSHOP_IMAGE_ALT_LABEL'));
-    //Create the "alt" input.
-    properties = {'type':'text', 'name':'image_alt_'+idNb, 'value':data.alt};
-    $('#image-item-'+idNb).createHTMLTag('<input>', properties, 'image-alt');
-
-    //Create the "order" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_IMAGE_ORDERING_TITLE')};
-    $('#image-item-'+idNb).createHTMLTag('<span>', properties, 'image-ordering-label');
-    $('#image-item-'+idNb+' .image-ordering-label').text(Joomla.JText._('COM_KETSHOP_IMAGE_ORDERING_LABEL'));
-
-    //Get the number of image items within the container then use it as ordering
-    //number for the current item.
-    var ordering = $('#image-container').children('div').length;
-    if(data.ordering !== '') {
-      ordering = data.ordering;
-    }
-    //Create the "order" input.
-    properties = {'type':'text', 'name':'image_ordering_'+idNb, 'readonly':'readonly', 'value':ordering};
-    $('#image-item-'+idNb).createHTMLTag('<input>', properties, 'image-ordering');
-    //Create the removal button.
-    $('#image-item-'+idNb).createButton('remove_image');
-
-    //Create a div in which img tag is nested.
-    properties = {'id':'img-div-'+idNb};
-    $('#image-item-'+idNb).createHTMLTag('<div>', properties, 'div-product-image');
-    //Create the img tag within the div.
-    properties = {'src':data.src, 'width':data.width, 'height':data.height, 'id':'product-img-'+idNb};
-    $('#img-div-'+idNb).createHTMLTag('<img>', properties, 'product-image');
-
-    if(data.src !== '') {
-      //Div is resized to fit the image dimensions and a 1px gray border is defined. 
-      $('#img-div-'+idNb).css({'width':data.width+'px','height':data.height+'px','border':'1px solid #c0c0c0'});
+    // Single select mode.
+    if(multiselect == 0) {
+      $('#attribute-value-'+idNb).removeAttr('multiple');
+      // Creates the very first list option.
+      options += '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
     }
 
-    //Create the hidden inputs needed to save image data.
-    properties = {'type':'hidden', 'name':'image_src_'+idNb, 'id':'image-src-'+idNb, 'value':data.src};
-    $('#image-item-'+idNb).createHTMLTag('<input>', properties);
-    properties = {'type':'hidden', 'name':'image_width_'+idNb, 'id':'image-width-'+idNb, 'value':data.width};
-    $('#image-item-'+idNb).createHTMLTag('<input>', properties);
-    properties = {'type':'hidden', 'name':'image_height_'+idNb, 'id':'image-height-'+idNb, 'value':data.height};
-    $('#image-item-'+idNb).createHTMLTag('<input>', properties);
-  };
+    // Destroys the div structure previously created by the Chosen plugin. 
+    $('#attribute-value-'+idNb).chosen('destroy');
 
-  //Remove the selected image item then reset the order of the other items left.
-  $.fn.imageReorder = function(idNb) {
-    //Remove the selected image.
-    $('#image-container').removeItem(idNb);
-
-    //List all of the div children (ie: image items) of the image container 
-    //in order to reset their ordering value.
-    $('#image-container').children('div').each(function(i, div) {
-	//Reset the ordering input tag value.
-	$(div).children('.image-ordering').val(i+1);
-	});
-  };
-
-
-  $.fn.createBundleproductItem = function(idNb, data) {
-    //Create the hidden input tag to store the bundle product id.
-    var properties = {'type':'hidden', 'name':'bundleproduct_id_'+idNb, 'id':'bundleproduct-id-'+idNb, 'value':data.id};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<input>', properties);
-
-    //Build the link to the modal window displaying the products.
-    //Note: product_type parameter ask product model to only display normal
-    //product type (it prevents to have a bundle product types in the modal list). 
-    var linkToModal = 'index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&id_nb='+idNb+'&type=bundleproduct&product_type=normal';
-    $('#bundleproduct-item-'+idNb).createButton('select', 'javascript:void(0);', linkToModal);
-
-    //Create the "name" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE')};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<span>', properties, 'item-name-label');
-    $('#bundleproduct-item-'+idNb+' .item-name-label').text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
-
-    // Create a dummy text field to store the name.
-    properties = {'type':'text', 'disabled':'disabled', 'id':'bundleproduct-name-'+idNb, 'value':data.name};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<input>', properties, 'bundleproduct-name');
-
-    //Create the "quantity" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_ITEM_QUANTITY_TITLE')};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<span>', properties, 'item-quantity-label');
-    $('#bundleproduct-item-'+idNb+' .item-quantity-label').text(Joomla.JText._('COM_KETSHOP_ITEM_QUANTITY_LABEL'));
-    //Create text field to store the bundle product quantity.
-    properties = {'type':'text', 'name':'bundleproduct_quantity_'+idNb, 'id':'bundleproduct-quantity-'+idNb, 'value':data.quantity};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<input>', properties, 'bundleproduct-quantity');
-
-    //Create the "stock" label.
-    properties = {'title':Joomla.JText._('COM_KETSHOP_PRODUCT_STOCK_TITLE')};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<span>', properties, 'product-stock-label');
-    $('#bundleproduct-item-'+idNb+' .product-stock-label').text(Joomla.JText._('COM_KETSHOP_PRODUCT_STOCK_LABEL'));
-    //Create text field to store the bundle product stock value.
-    properties = {'type':'text', 'disabled':'disabled', 'name':'bundleproduct_stock_'+idNb, 'id':'bundleproduct-stock-'+idNb, 'value':data.stock};
-    $('#bundleproduct-item-'+idNb).createHTMLTag('<input>', properties, 'bundleproduct-stock');
-    //Create the removal button.
-    $('#bundleproduct-item-'+idNb).createButton('remove');
-  };
-
-
-  $.fn.checkVariantValType = function() {
-    var fieldTypes = {'ordering':'unsigned_int','variant_name':'string','stock':'unsigned_int',
-                      'base_price':'unsigned_float','sale_price':'unsigned_float','code':'string',
-                      'availability_delay':'unsigned_int','weight':'unsigned_float','length':'unsigned_float',
-                      'width':'unsigned_float','height':'unsigned_float'};
-    var ret = empty = true;
-
-    for(var key in fieldTypes) {
-      $('input[name^="'+key+'_"]').each(function(i, tag) { 
-	empty = false; //Set the empty flag to indicate that at least one option is set.
-	if(!$.fn.checkValueType(tag.value, fieldTypes[key])) {
-	  ret = false;
-	  //Show off the concerned field.
-	  alertRed(tag.id, 'product-variants');
-
-	  alert(Joomla.JText._('COM_KETSHOP_ERROR_INCORRECT_VALUE_TYPE')+' : '+tag.value+'\r'+Joomla.JText._('COM_KETSHOP_EXPECTED_VALUE_TYPE')+' : '+fieldTypes[key]);
-
-	  return false; //Important: Just breaks the each() loop but doesn't return false to the calling function.
-	}
-      });
-
-      if(!ret) {
-        return false;
-      }
+    // Handles the selected options in multiselect mode.
+    if(data !== undefined && multiselect == 1) {
+      // Converts the string format array to a valid JS array.
+      var selectedOptions = JSON.parse(data.selected_option);
     }
 
-    //Some variants have been set.
-    //Check that the variant name field of the main product has been set.
-    if(!empty && $('#jform_variant_name').val() == '') {
-      alert(Joomla.JText._('COM_KETSHOP_OPTION_NAME_MAIN_PRODUCT_EMPTY'));
-      return false;
-    }
-
-    return true;
-  };
-
-
-  $.fn.createVariantItem = function(idNb, data) {
-    //First create divs in which we'll put all the variant fields.
-    var properties = {'id':'variant-left-div-'+idNb};
-    $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
-
-    properties = {'id':'variant-center-div-'+idNb};
-    $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
-
-    properties = {'id':'variant-right-div-'+idNb};
-    $('#variant-item-'+idNb).createHTMLTag('<div>', properties, 'span3 variant-div');
-
-    //Gets the attributes linked to the product (in the attributes tab).
-    //Note: Used whenever a brand new variant item is created.
-    var attributes = ketshop.getProductAttributes();
-
-    //If data is provided gets the attributes with the selected options.
-    if(data.var_id != '' && data.attributes.length > 0) {
-      attributes = data.attributes;
-    }
-
-    for(var i = 0; i < attributes.length; i++) {
-      //Creates a div for the select element.
-      properties = {'id':'variant-attribute-div-'+idNb+'-'+attributes[i].id};
-      $('#variant-right-div-'+idNb).createHTMLTag('<div>', properties, 'variant-attribute-div');
-
-      properties = {'title':attributes[i].name};
-      $('#variant-attribute-div-'+idNb+'-'+attributes[i].id).createHTMLTag('<span>', properties, 'item-name-label');
-      $('#variant-attribute-div-'+idNb+'-'+attributes[i].id+' .item-name-label').text(attributes[i].name);
-
-      //Creates an empty select list.
-      properties = {'name':'attribute_value_'+idNb+'_'+attributes[i].id, 'id':'attribute-value-'+idNb+'-'+attributes[i].id};
-      $('#variant-attribute-div-'+idNb+'-'+attributes[i].id).createHTMLTag('<select>', properties, 'attribute-value-select');
-      $.fn.loadAttributeOptions(idNb, attributes[i], attributes[i].id);
-    }
-
-    //Create the hidden input tag to store the variant id.
-    properties = {'type':'hidden', 'name':'variant_id_'+idNb, 'id':'variant-id-'+idNb, 'value':data.var_id};
-    $('#variant-item-'+idNb).createHTMLTag('<input>', properties);
-
-    //Associative array where keys are field names and values are field ids.
-    var fields = {'published':'published','ordering':'ordering','variant_name':'variant-name',
-                  'stock':'stock','base_price':'base-price','sale_price':'sale-price',
-		  'sales':'sales','code':'code','availability_delay':'availability-delay',
-		  'weight':'weight','length':'length','width':'width','height':'height'};
-
-    var i = 0; //Needed for position.
-
-    //Build variant fields.
-    for(var key in fields) {
-      var fieldName = key;
-      var fieldId = fields[key];
-      var position = 'left';
-
-      if(i > 5) {
-	position = 'center';
-      }
-
-      //The published value is managed with a select tag.
-      if(fieldName == 'published') {
-	properties = {'name':fieldId+'_'+idNb, 'id':fieldId+'-'+idNb};
-	$('#variant-'+position+'-div-'+idNb).createHTMLTag('<select>', properties, 'variant-field');
-	options = '';
-	for(var j = 0; j < 2; j++) {
-	  selected = '';
-
-	  if(data[fieldName] == j) {
-	    selected = 'selected="selected"';
-	  }
-
-	  options += '<option value="'+j+'" '+selected+'>'+Joomla.JText._('COM_KETSHOP_YESNO_'+j)+'</option>';
-	}
-
-	//Add the options to the select tag.
-	$('#'+fieldId+'-'+idNb).html(options);
-      }
-      else { //Build a text input.
-	properties = {'type':'text', 'name':fieldName+'_'+idNb, 'id':fieldId+'-'+idNb, 'value':data[fieldName]};
-	$('#variant-'+position+'-div-'+idNb).createHTMLTag('<input>', properties, 'variant-field');
-
-	//Sales field is not allowed to be edited.	
-	if(fieldName == 'sales') {
-	  $('#'+fieldId+'-'+idNb).prop('readonly', true);
-	  $('#'+fieldId+'-'+idNb).addClass('readonly');
+    // Loops through the options.
+    for(let i = 0; i < attributeOptions.length; i++) {
+      let selected = '';
+      if(data !== undefined) {
+	// Sets the selected option(s) according to the select mode (single or multi).
+	if((multiselect == 0 && data.selected_option == attributeOptions[i].option_value) ||
+	   (multiselect == 1 && GETTER.attribute.inArray(attributeOptions[i].option_value, selectedOptions))) {
+	  selected = 'selected="selected"';
 	}
       }
 
-      properties = {'title':Joomla.JText._('COM_KETSHOP_'+fieldName.toUpperCase()+'_TITLE'), 'id':fieldId+'-'+idNb+'-lbl'};
-      newTag = $('<span>').attr(properties);
-      newTag.addClass('variant-label');
-      $('#'+fieldId+'-'+idNb).before(newTag);
-      $('#'+fieldId+'-'+idNb+'-lbl').text(Joomla.JText._('COM_KETSHOP_'+fieldName.toUpperCase()+'_LABEL'));
+      options += '<option value="'+attributeOptions[i].option_value+'" '+selected+'>'+attributeOptions[i].option_text+'</option>';
+    }
+    
+    // Adds the options to the select list.
+    $('#attribute-value-'+idNb).append(options);
+    // Recreates a new Chosen div structure.
+    $('#attribute-value-'+idNb).chosen();
+  }
 
-      i++;
+  /** Callback functions **/
+
+  populateAttributeItem = function(idNb, data) {
+    // Defines the default field values.
+    if(data === undefined) {
+      data = {'attribute_id':'', 'attribute_name':'', 'selected_option':''};
     }
 
-    //Create the item removal button.
-    $('#variant-item-'+idNb).createButton('remove');
-  };
+    // Element label.
+    let attribs = {'class':'item-space', 'id':'attribute-label-'+idNb};
+    $('#attribute-row-1-cell-1-'+idNb).append(GETTER.attribute.createElement('span', attribs));
+    $('#attribute-label-'+idNb).html('&nbsp;');
+
+    // Creates the hidden input element to store the selected attribute id.
+    attribs = {'type':'hidden', 'name':'attribute_attribute_id_'+idNb, 'id':'attribute-attribute-id-'+idNb, 'value':data.attribute_id};
+    let elem = GETTER.attribute.createElement('input', attribs);
+    $('#attribute-row-1-cell-1-'+idNb).append(elem);
+    let url = $('#root-location').val()+'administrator/index.php?option=com_ketshop&view=attributes&layout=modal&tmpl=component&function=selectAttributeItem&dynamic_item_type=attribute&id_nb='+idNb;
+    let button = GETTER.attribute.createButton('select', idNb, url);
+    $('#attribute-row-1-cell-1-'+idNb).append(button);
+
+    // Element label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE'), 'class':'item-label', 'id':'attribute-attributename-label-'+idNb};
+    $('#attribute-row-1-cell-2-'+idNb).append(GETTER.attribute.createElement('span', attribs));
+    $('#attribute-attributename-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
+
+    attribs = {'type':'text', 'disabled':'disabled', 'id':'attribute-attribute-name-'+idNb, 'value':data.attribute_name};
+    elem = GETTER.attribute.createElement('input', attribs);
+    $('#attribute-row-1-cell-2-'+idNb).append(elem);
+
+    // Element label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_VALUE_TITLE'), 'class':'item-label', 'id':'attribute-valuename-label-'+idNb};
+    $('#attribute-row-1-cell-3-'+idNb).append(GETTER.attribute.createElement('span', attribs));
+    $('#attribute-valuename-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_VALUE_LABEL'));
+
+    // Select tag:
+    attribs = {'name':'attribute_value_'+idNb, 'id':'attribute-value-'+idNb};
+    elem = GETTER.attribute.createElement('select', attribs);
+    $('#attribute-row-1-cell-3-'+idNb).append(elem);
+
+    if(data.attribute_id != '') {
+      $.fn.setAttributeOptions(idNb, data.attribute_id, data);
+    }
+  }
+
+  populateImageItem = function(idNb, data) {
+    // Defines the default field values.
+    if(data === undefined) {
+      data = {'src':'', 'width':'', 'height':'', 'alt':''};
+    }
+
+    // Element label.
+    let attribs = {'class':'item-space', 'id':'image-label-'+idNb};
+    $('#image-row-1-cell-1-'+idNb).append(GETTER.image.createElement('span', attribs));
+    $('#image-label-'+idNb).html('&nbsp;');
+
+    // Creates the hidden input elements to store the image attributes.
+    attribs = {'type':'hidden', 'name':'image_src_'+idNb, 'id':'image-src-'+idNb, 'value':data.src};
+    let elem = GETTER.image.createElement('input', attribs);
+    $('#image-row-1-cell-1-'+idNb).append(elem);
+    attribs = {'type':'hidden', 'name':'image_width_'+idNb, 'id':'image-width-'+idNb, 'value':data.width};
+    elem = GETTER.image.createElement('input', attribs);
+    $('#image-row-1-cell-1-'+idNb).append(elem);
+    attribs = {'type':'hidden', 'name':'image_height_'+idNb, 'id':'image-height-'+idNb, 'value':data.height};
+    elem = GETTER.image.createElement('input', attribs);
+    $('#image-row-1-cell-1-'+idNb).append(elem);
+
+    // Gets the id of the current user.
+    let userId = ketshop.getUserId();
+
+    let url = $('#root-location').val()+'administrator/index.php?option=com_media&view=images&tmpl=component&asset=com_ketshop&author='+userId+'&fieldid='+idNb+'&folder=ketshop';
+    let button = GETTER.attribute.createButton('select', idNb, url);
+    $('#image-row-1-cell-1-'+idNb).append(button);
+
+    // Element label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_IMAGE_ALT_TITLE'), 'class':'item-label', 'id':'image-alt-label-'+idNb};
+    $('#image-row-1-cell-2-'+idNb).append(GETTER.image.createElement('span', attribs));
+    $('#image-alt-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_IMAGE_ALT_LABEL'));
+
+    // Text input tag:
+    attribs = {'type':'text', 'name':'image_alt_'+idNb, 'id':'image-alt-'+idNb, 'value':data.alt};
+    $('#image-row-1-cell-2-'+idNb).append(GETTER.image.createElement('input', attribs));
+
+    // Div tag:
+    attribs = {'id':'img-div-'+idNb, 'class':'div-product-image'};
+    $('#image-row-2-cell-1-'+idNb).append(GETTER.image.createElement('div', attribs));
+
+    // Image tag:
+    attribs = {'src':data.src, 'width':data.width, 'height':data.height, 'id':'product-img-'+idNb};
+    // Embeds the img tag into the div.
+    $('#img-div-'+idNb).append(GETTER.image.createElement('img', attribs));
+  }
+
+  populateVarianteItem = function(idNb, data) {
+    // Defines the default field values.
+    if(data === undefined) {
+      data = {'base_price':'', 'sale_price':'', 'stock':''};
+    }
+  }
+
+  selectAttributeItem = function(id, name, idNb, dynamicItemType) {
+    // Calls the parent function from the corresponding instance.
+    GETTER[dynamicItemType].selectItem(id, name, idNb, 'attribute', true);
+    // Populates the attribute values with the proper options.
+    $.fn.setAttributeOptions(idNb, id);
+  }
+
+  browsingPages = function(pageNb, dynamicItemType) {
+    // Calls the parent function from the corresponding instance.
+    GETTER[dynamicItemType].updatePagination(pageNb);
+  }
+
+  reverseOrder = function(direction, idNb, dynamicItemType) {
+    // Calls the parent function from the corresponding instance.
+    GETTER[dynamicItemType].reverseOrder(direction, idNb);
+  }
 
 })(jQuery);
 
