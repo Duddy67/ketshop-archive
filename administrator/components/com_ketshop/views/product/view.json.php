@@ -27,7 +27,8 @@ class KetshopViewProduct extends JViewLegacy
 
     $results['attribute'] = $model->getProductAttributes($productId);
     $results['image'] = $model->getImageData($productId, $isAdmin);
-    $results['variant'] = array();
+    //$results['variant'] = array();
+    $results['variant'] = $model->getVariantData($productId);
 
     //Calls the corresponding functions.
     /*if($context == 'product_elements') {

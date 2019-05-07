@@ -126,11 +126,11 @@ trait ProductTrait
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //Gets the variants bound to the given product.
-    $query->select('prod_id, var_id, variant_name, base_price, sale_price, sales, code, stock,'.
-		   'availability_delay, weight, length, width, height, published, ordering') 
+    $query->select('var_id, variant_name, base_price, sale_price, sales, code, stock,'.
+		   'availability_delay, weight, length, width, height, published') 
 	  ->from('#__ketshop_product_variant')
 	  ->where('prod_id='.$productId)
-	  ->order('var_id');
+	  ->order('ordering');
     $db->setQuery($query);
     $variants = $db->loadAssocList();
 
@@ -152,19 +152,19 @@ trait ProductTrait
       //Sets and stores the attributes linked to the variant.
       foreach($variants as $key => $variant) {
 	//Adds the unset attributes to the variant.
-	$variants[$key]['attributes'] = $attributes;
+	/*$variants[$key]['attributes'] = $attributes;
 
 	foreach($results as $data) {
 	  //The attribute is bound to the current variant.
 	  if($data['var_id'] == $variant['var_id']) {
 	    //Loops through the unset variant attributes and sets their option values.
 	    foreach($variants[$key]['attributes'] as $k => $attribute) {
-	      if($data['attrib_id'] == $attribute['id']) {
+	      if($data['attrib_id'] == $attribute['attribute_id']) {
 		$variants[$key]['attributes'][$k] = $this->setAttribute($attribute, $data);
 	      }
 	    }
 	  }
-	}
+	}*/
 
 	//Format some numerical values.
 	$variants[$key]['weight'] = UtilityHelper::formatNumber($variants[$key]['weight']);

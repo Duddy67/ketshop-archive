@@ -487,7 +487,7 @@
 
 /* Product variants */
 
-.ketshop-variant-container {
+/*.ketshop-variant-container {
   margin-top: 10px;
   width: 100%;
 }
@@ -529,6 +529,7 @@
 .variant-attribute-div .item-name-label {
   margin-bottom: 5px;
 }
+*/
 
 
 
@@ -825,6 +826,7 @@ a:link.ketshop-link {
 
 /*** DYNAMICAL ITEMS ***/
 
+.variant-container,
 .image-container,
 .recipient-container,
 .condition-container,
@@ -839,6 +841,7 @@ a:link.ketshop-link {
   width: 100%;
 }
 
+.add-variant-container,
 .add-image-container,
 .add-recipient-container,
 .add-condition-container,
@@ -853,6 +856,7 @@ a:link.ketshop-link {
   margin-bottom: 30px;
 }
 
+.variant-item,
 .image-item,
 .recipient-item,
 .condition-item,
@@ -869,6 +873,8 @@ a:link.ketshop-link {
   margin-bottom: 20px;
 }
 
+.variant-cells-row-1,
+.variant-cells-row-2,
 .image-cells-row-1,
 .recipient-cells-row-1,
 .condition-cells-row-1,
@@ -887,6 +893,7 @@ a:link.ketshop-link {
   /*border: 1px solid #ddd;*/
 }
 
+.variant-order-number,
 .image-order-number,
 .option-order-number {
   width: 20px;
@@ -920,10 +927,16 @@ a:link.ketshop-link {
   display: block;
 }
 
+.item-small-field {
+  width: 103px !important;
+}
+
+.variant-cell-6-row-1,
 .option-cell-3-row-1 {
   text-align: center;
 }
 
+.variant-pagination-inactive,
 .image-pagination-inactive,
 .recipient-pagination-inactive,
 .condition-pagination-inactive,
@@ -938,6 +951,7 @@ a:link.ketshop-link {
   display: none;
 }
 
+.variant-pagination-browser,
 .image-pagination-browser,
 .recipient-pagination-browser,
 .condition-pagination-browser,
@@ -954,6 +968,7 @@ a:link.ketshop-link {
   margin-right: auto;
 }
 
+.variant-pagination-browser .current-page-number,
 .image-pagination-browser .current-page-number,
 .recipient-pagination-browser .current-page-number,
 .condition-pagination-browser .current-page-number,
@@ -973,6 +988,7 @@ a:link.ketshop-link {
   border: 1px solid #ddd;
 }
 
+.variant-pagination-browser td,
 .image-pagination-browser td,
 .recipient-pagination-browser td,
 .condition-pagination-browser td,

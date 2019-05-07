@@ -141,7 +141,7 @@ Joomla.submitbutton = function(task)
       <?php if($this->item->id) : //Existing product  ?>
 	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-variants', JText::_('COM_KETSHOP_SUBMENU_PRODUCT_VARIANTS', true)); ?>
 	  <div class="row-fluid form-horizontal-desktop">
-	    <div class="span9" id="variant">
+	    <div class="span12" id="variant">
 	    </div>
 	  </div>
 	<?php echo JHtml::_('bootstrap.endTab'); ?>
@@ -180,7 +180,4 @@ $doc = JFactory::getDocument();
 $doc->addScript(JURI::base().'components/com_ketshop/js/omkod-ajax.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/omkod-dynamic-item.js');
 $doc->addScript(JURI::base().'components/com_ketshop/js/product.js');
-
-//Load the jQuery scripts.
-//$doc->addScript(JURI::base().'components/com_ketshop/js/common.js');
 
