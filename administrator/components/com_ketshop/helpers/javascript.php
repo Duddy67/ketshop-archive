@@ -194,17 +194,15 @@ class JavascriptHelper
       $js .= '},'."\n";
     }
 
-    //Returns the attributes used with the product.
-    /*if(in_array('product_attributes', $names)) {
+    // Returns the attributes used with the product.
+    if(in_array('product_attributes', $names)) {
       $productAttributes = JavascriptHelper::getProductAttributes();
-      $js .= 'getProductAttributes: function() {'."\n";
-      $js .= ' return '.$productAttributes.';'."\n";
-      $js .= '},'."\n";
-    }*/
+      $js .= 'productAttributes: '.$productAttributes.','."\n";
+    }
 
     if(in_array('attribute_options', $names)) {
       $attributeOptions = JavascriptHelper::getAttributeOptions();
-      $js .= 'attributeOptions: '.$attributeOptions.',';
+      $js .= 'attributeOptions: '.$attributeOptions.','."\n";
     }
 
     //Returns the id of the current user.
@@ -310,16 +308,18 @@ class JavascriptHelper
   }
 
 
-  /*public static function getProductAttributes()
+  public static function getProductAttributes()
   {
     $productId = JFactory::getApplication()->input->get('id', 0, 'uint');
 
-    //Invokes the model's function.
+    // Invokes the model's function.
     $model = JModelLegacy::getInstance('Product', 'KetshopModel');
-    $attributes = $model->getProductAttributes($prodId);
+    //
+    $attributes = $model->getProductAttributes($productId, false);
 
     return json_encode($attributes);
-  }*/
+  }
+
 
   public static function getAttributeOptions()
   {

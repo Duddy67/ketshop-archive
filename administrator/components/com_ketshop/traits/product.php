@@ -125,9 +125,11 @@ trait ProductTrait
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    //Gets the variants bound to the given product.
-    $query->select('var_id, variant_name, base_price, sale_price, sales, code, stock,'.
-		   'availability_delay, weight, length, width, height, published') 
+    // Gets the variants bound to the given product.
+    // N.B: The field names must match the specific order of the dynamic item. 
+    $query->select('var_id AS id_nb, variant_name, TRUNCATE(base_price,2) AS base_price, TRUNCATE(sale_price,2) AS sale_price,'.
+		   'stock, sales, published, TRUNCATE(weight,2) AS weight, TRUNCATE(length,2) AS length, TRUNCATE(width,2) AS width,'.
+		   'TRUNCATE(height,2) AS height, code, availability_delay') 
 	  ->from('#__ketshop_product_variant')
 	  ->where('prod_id='.$productId)
 	  ->order('ordering');
@@ -137,42 +139,23 @@ trait ProductTrait
     if(!empty($variants)) {
       //Fetches the option values of the variant attributes linked to the given product.
       $query->clear();
-      $query->select('var_id, attrib_id, option_value') 
+      $query->select('var_id, attrib_id, option_value AS selected_option') 
 	    ->from('#__ketshop_var_attrib')
 	    ->where('prod_id='.$productId)
 	    ->order('var_id');
       $db->setQuery($query);
-      $results = $db->loadAssocList();
-
-      $config = JComponentHelper::getParams('com_ketshop');
-      //Gets the attributes linked to the product (in the attributes tab).
-      //Note: These attributes are unset (ie: they have no option selected).
-      $attributes = $this->getProductAttributes($productId);
+      $attributes = $db->loadAssocList();
 
       //Sets and stores the attributes linked to the variant.
       foreach($variants as $key => $variant) {
 	//Adds the unset attributes to the variant.
-	/*$variants[$key]['attributes'] = $attributes;
+	$variants[$key]['attributes'] = array();
 
-	foreach($results as $data) {
-	  //The attribute is bound to the current variant.
-	  if($data['var_id'] == $variant['var_id']) {
-	    //Loops through the unset variant attributes and sets their option values.
-	    foreach($variants[$key]['attributes'] as $k => $attribute) {
-	      if($data['attrib_id'] == $attribute['attribute_id']) {
-		$variants[$key]['attributes'][$k] = $this->setAttribute($attribute, $data);
-	      }
-	    }
+	foreach($attributes as $attribute) {
+	  if($attribute['var_id'] == $variant['id_nb']) {
+	    $variants[$key]['attributes'][] = $attribute;
 	  }
-	}*/
-
-	//Format some numerical values.
-	$variants[$key]['weight'] = UtilityHelper::formatNumber($variants[$key]['weight']);
-	$variants[$key]['length'] = UtilityHelper::formatNumber($variants[$key]['length']);
-	$variants[$key]['width'] = UtilityHelper::formatNumber($variants[$key]['width']);
-	$variants[$key]['height'] = UtilityHelper::formatNumber($variants[$key]['height']);
-	$variants[$key]['base_price'] = UtilityHelper::formatNumber($variants[$key]['base_price'], $config->get('digits_precision'));
-	$variants[$key]['sale_price'] = UtilityHelper::formatNumber($variants[$key]['sale_price'], $config->get('digits_precision'));
+	}
       }
     }
 
@@ -214,16 +197,22 @@ trait ProductTrait
    * Returns the attributes bound to a given product.  
    *
    * @param   integer  $productId  The id of the product.
+   * @param   boolean  $selected   If true, adds the selected option value to the query.
    *
-   * @return  array	    An array of attributes or an empty array.
+   * @return  array	           An array of attributes or an empty array.
    */
-  public function getProductAttributes($productId)
+  public function getProductAttributes($productId, $selected = true)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //
-    $query->select('attrib_id AS attribute_id, option_value AS selected_option, name AS attribute_name')
-	  ->from('#__ketshop_prod_attrib')
+    $query->select('attrib_id AS attribute_id, name AS attribute_name');
+
+    if($selected) {
+      $query->select('option_value AS selected_option');
+    }
+
+    $query->from('#__ketshop_prod_attrib')
 	  ->join('LEFT', '#__ketshop_attribute ON id=attrib_id')
 	  ->where('prod_id='.(int)$productId);
     $db->setQuery($query);

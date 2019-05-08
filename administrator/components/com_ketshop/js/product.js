@@ -63,26 +63,31 @@
     let task = document.getElementsByName('task');
   }
 
-  $.fn.setAttributeOptions = function(idNb, attribId, data) {
+  $.fn.setAttributeOptions = function(idNb, attribId, data, isVariant) {
     // Gets the options corresponding to the given attribute id.
     let attributeOptions = ketshop.attributeOptions[attribId].options;
     let multiselect = ketshop.attributeOptions[attribId].multiselect;
-    let options = '';
+    let options = preVarId = postVarId = '';
+
+    if(isVariant === true) {
+      preVarId = 'variant-';
+      postVarId = '-'+attribId;
+    }
 
     // Deletes all the possible previous options.
-    $('#attribute-value-'+idNb).empty();
+    $('#'+preVarId+'attribute-value-'+idNb+postVarId).empty();
     // By default use the multi select mode.
-    $('#attribute-value-'+idNb).attr('multiple', 'true');
+    $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('multiple', 'true');
 
     // Single select mode.
     if(multiselect == 0) {
-      $('#attribute-value-'+idNb).removeAttr('multiple');
+      $('#'+preVarId+'attribute-value-'+idNb+postVarId).removeAttr('multiple');
       // Creates the very first list option.
       options += '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
     }
 
     // Destroys the div structure previously created by the Chosen plugin. 
-    $('#attribute-value-'+idNb).chosen('destroy');
+    $('#'+preVarId+'attribute-value-'+idNb+postVarId).chosen('destroy');
 
     // Handles the selected options in multiselect mode.
     if(data !== undefined && multiselect == 1) {
@@ -105,9 +110,9 @@
     }
     
     // Adds the options to the select list.
-    $('#attribute-value-'+idNb).append(options);
+    $('#'+preVarId+'attribute-value-'+idNb+postVarId).append(options);
     // Recreates a new Chosen div structure.
-    $('#attribute-value-'+idNb).chosen();
+    $('#'+preVarId+'attribute-value-'+idNb+postVarId).chosen();
   }
 
   /** Callback functions **/
@@ -206,10 +211,7 @@
   populateVariantItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'var_id':0, 'variant_name':'', 'base_price':'', 'sale_price':'', 'stock':'', 'sales':'', 'published':0, 'weight':'', 'length':'', 'width':'', 'height':'', 'code':'', 'availability_delay':''};
-    }
-    else {
-      data = {'var_id':data.var_id, 'variant_name':data.variant_name, 'base_price':data.base_price, 'sale_price':data.sale_price, 'stock':data.stock, 'sales':data.sales, 'published':data.published, 'weight':data.weight, 'length':data.length, 'width':data.width, 'height':data.height, 'code':data.code, 'availability_delay':data.availability_delay};
+      data = {'id_nb':idNb, 'variant_name':'', 'base_price':'', 'sale_price':'', 'stock':'', 'sales':'', 'published':0, 'weight':'', 'length':'', 'width':'', 'height':'', 'code':'', 'availability_delay':'', 'attributes':[]};
     }
 
     let rowNb = 1;
@@ -217,15 +219,16 @@
     let attribs = null;
 
     for(let key in data) {
-      if(key == 'var_id') {
-	let value = data.var_id;
-	if(value == 0) {
-	  value = idNb;
-	}
-
-	// Input tag:
-	attribs = {'type':'hidden', 'name':'variant_'+key+'_'+idNb, 'id':'variant-'+key+'-'+idNb, 'value':value};
+      if(key == 'id_nb') {
+	// Each item has a specific id number stored in a hidden input.
+	attribs = {'type':'hidden', 'name':'variant_'+key+'_'+idNb, 'id':'variant-'+key+'-'+idNb, 'value':data.id_nb};
 	$('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('input', attribs));
+	// Skips to the next data variable.
+	continue;
+      }
+
+      if(key == 'attributes') {
+	// Skips to the next data variable.
 	continue;
       }
 
@@ -259,118 +262,34 @@
       }
     }
 
-    // Element label.
-    /*attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE'), 'class':'item-label', 'id':'variant-name-label-'+idNb};
-    $('#variant-row-1-cell-1-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-name-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
+    //
+    for(let i = 0; i < ketshop.productAttributes.length; i++) {
+      //alert(ketshop.productAttributes[i].attribute_name);
+      let attribId = ketshop.productAttributes[i].attribute_id;
+      let attribName = ketshop.productAttributes[i].attribute_name;
 
-    // Name input tag:
-    attribs = {'type':'text', 'name':'variant_name_'+idNb, 'id':'variant-name-'+idNb, 'value':data.name};
-    $('#variant-row-1-cell-1-'+idNb).append(GETTER.variant.createElement('input', attribs));
+      attribs = {'title':attribName, 'class':'item-label', 'id':'variant-attribute-'+attribId+'-label-'+idNb};
+      $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('span', attribs));
+      $('#variant-attribute-'+attribId+'-label-'+idNb).text(attribName);
 
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_BASE_PRICE_TITLE'), 'class':'item-label', 'id':'variant-baseprice-label-'+idNb};
-    $('#variant-row-1-cell-2-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-baseprice-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_BASE_PRICE_LABEL'));
+      // Select tag:
+      attribs = {'name':'variant_attribute_value_'+idNb+'_'+attribId, 'id':'variant-attribute-value-'+idNb+'-'+attribId};
+      elem = GETTER.attribute.createElement('select', attribs);
+      $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(elem);
 
-    // Base price input tag:
-    attribs = {'type':'text', 'name':'variant_base_price_'+idNb, 'class':'item-small-field', 'id':'variant-base-price-'+idNb, 'value':data.base_price};
-    $('#variant-row-1-cell-2-'+idNb).append(GETTER.variant.createElement('input', attribs));
+      for(let j = 0; j < data.attributes.length; j++) {
+	// Searches for the corresponding attribute value.
+	if(data.attributes[j].attrib_id == attribId) {
+	  $.fn.setAttributeOptions(idNb, attribId, data.attributes[j], true);
+	}
+      }
 
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_SALE_PRICE_TITLE'), 'class':'item-label', 'id':'variant-saleprice-label-'+idNb};
-    $('#variant-row-1-cell-3-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-saleprice-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_SALE_PRICE_LABEL'));
+      if(data.attributes.length == 0) {
+	$.fn.setAttributeOptions(idNb, attribId, undefined, true);
+      }
 
-    // Sale price input tag:
-    attribs = {'type':'text', 'name':'variant_sale_price_'+idNb, 'class':'item-small-field', 'id':'variant-sale-price-'+idNb, 'value':data.sale_price};
-    $('#variant-row-1-cell-3-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_STOCK_TITLE'), 'class':'item-label', 'id':'variant-stock-label-'+idNb};
-    $('#variant-row-1-cell-4-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-stock-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_STOCK_LABEL'));
-
-    // Stock input tag:
-    attribs = {'type':'text', 'name':'variant_stock_'+idNb, 'class':'item-small-field', 'id':'variant-stock-'+idNb, 'value':data.stock};
-    $('#variant-row-1-cell-4-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_SALES_TITLE'), 'class':'item-label', 'id':'variant-sales-label-'+idNb};
-    $('#variant-row-1-cell-5-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-sales-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_SALES_LABEL'));
-
-    // Sales input tag:
-    attribs = {'type':'text', 'name':'variant_sales_'+idNb, 'class':'item-small-field', 'id':'variant-sales-'+idNb, 'value':data.sales};
-    $('#variant-row-1-cell-5-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_PUBLISHED_TITLE'), 'class':'item-label', 'id':'variant-published-label-'+idNb};
-    $('#variant-row-1-cell-6-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-published-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_PUBLISHED_LABEL'));
-
-    // Published checkbox tag:
-    attribs = {'type':'checkbox', 'name':'variant_published_'+idNb, 'id':'variant-published-'+idNb, 'value':'published'};
-
-    if(data.published == 1) {
-      attribs.checked = 'checked';
+      cellNb++;
     }
-
-    $('#variant-row-1-cell-6-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_WEIGHT_TITLE'), 'class':'item-label', 'id':'variant-weight-label-'+idNb};
-    $('#variant-row-2-cell-1-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-weight-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_WEIGHT_LABEL'));
-
-    // Weight input tag:
-    attribs = {'type':'text', 'name':'variant_weight_'+idNb, 'class':'item-small-field', 'id':'variant-weight-'+idNb, 'value':data.weight};
-    $('#variant-row-2-cell-1-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_LENGTH_TITLE'), 'class':'item-label', 'id':'variant-length-label-'+idNb};
-    $('#variant-row-2-cell-2-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-length-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_LENGTH_LABEL'));
-
-    // Length input tag:
-    attribs = {'type':'text', 'name':'variant_length_'+idNb, 'class':'item-small-field', 'id':'variant-length-'+idNb, 'value':data.length};
-    $('#variant-row-2-cell-2-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_WIDTH_TITLE'), 'class':'item-label', 'id':'variant-width-label-'+idNb};
-    $('#variant-row-2-cell-3-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-width-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_WIDTH_LABEL'));
-
-    // Width input tag:
-    attribs = {'type':'text', 'name':'variant_width_'+idNb, 'class':'item-small-field', 'id':'variant-width-'+idNb, 'value':data.width};
-    $('#variant-row-2-cell-3-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_HEIGHT_TITLE'), 'class':'item-label', 'id':'variant-height-label-'+idNb};
-    $('#variant-row-2-cell-4-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-height-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_HEIGHT_LABEL'));
-
-    // Height input tag:
-    attribs = {'type':'text', 'name':'variant_height_'+idNb, 'class':'item-small-field', 'id':'variant-height-'+idNb, 'value':data.height};
-    $('#variant-row-2-cell-4-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_AVAILABILITY_DELAY_TITLE'), 'class':'item-label', 'id':'variant-availabilitydelay-label-'+idNb};
-    $('#variant-row-2-cell-5-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-availabilitydelay-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_AVAILABILITY_DELAY_LABEL'));
-
-    // Availability delay input tag:
-    attribs = {'type':'text', 'name':'variant_availability_delay_'+idNb, 'class':'item-small-field', 'id':'variant-availability-delay-'+idNb, 'value':data.availability_delay};
-    $('#variant-row-2-cell-5-'+idNb).append(GETTER.variant.createElement('input', attribs));
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_CODE_TITLE'), 'class':'item-label', 'id':'variant-code-label-'+idNb};
-    $('#variant-row-2-cell-6-'+idNb).append(GETTER.variant.createElement('span', attribs));
-    $('#variant-code-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_CODE_LABEL'));
-
-    // Code input tag:
-    attribs = {'type':'text', 'name':'variant_code_'+idNb, 'class':'item-small-field', 'id':'variant-code-'+idNb, 'value':data.code};
-    $('#variant-row-2-cell-6-'+idNb).append(GETTER.variant.createElement('input', attribs));*/
   }
 
   selectAttributeItem = function(id, name, idNb, dynamicItemType) {
