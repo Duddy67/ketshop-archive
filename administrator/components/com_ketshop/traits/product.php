@@ -214,7 +214,8 @@ trait ProductTrait
 
     $query->from('#__ketshop_prod_attrib')
 	  ->join('LEFT', '#__ketshop_attribute ON id=attrib_id')
-	  ->where('prod_id='.(int)$productId);
+	  ->where('prod_id='.(int)$productId)
+          ->order('name');
     $db->setQuery($query);
 
     return $db->loadAssocList();

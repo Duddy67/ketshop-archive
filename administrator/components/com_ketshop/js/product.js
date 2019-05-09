@@ -63,12 +63,13 @@
     let task = document.getElementsByName('task');
   }
 
-  $.fn.setAttributeOptions = function(idNb, attribId, data, isVariant) {
+  $.fn.loadAttributeOptions = function(idNb, attribId, data, isVariant) {
     // Gets the options corresponding to the given attribute id.
     let attributeOptions = ketshop.attributeOptions[attribId].options;
     let multiselect = ketshop.attributeOptions[attribId].multiselect;
     let options = preVarId = postVarId = '';
 
+    // Sets some variables to handle variant attribute.
     if(isVariant === true) {
       preVarId = 'variant-';
       postVarId = '-'+attribId;
@@ -76,14 +77,19 @@
 
     // Deletes all the possible previous options.
     $('#'+preVarId+'attribute-value-'+idNb+postVarId).empty();
-    // By default use the multi select mode.
-    $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('multiple', 'true');
 
     // Single select mode.
     if(multiselect == 0) {
       $('#'+preVarId+'attribute-value-'+idNb+postVarId).removeAttr('multiple');
       // Creates the very first list option.
       options += '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
+    }
+    // Multi select mode.
+    else {
+      $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('multiple', 'true');
+      // Adds brackets to the element name.
+      let inputName = $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('name');
+      $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('name', inputName+'[]');
     }
 
     // Destroys the div structure previously created by the Chosen plugin. 
@@ -156,7 +162,7 @@
     $('#attribute-row-1-cell-3-'+idNb).append(elem);
 
     if(data.attribute_id != '') {
-      $.fn.setAttributeOptions(idNb, data.attribute_id, data);
+      $.fn.loadAttributeOptions(idNb, data.attribute_id, data);
     }
   }
 
@@ -218,6 +224,8 @@
     let cellNb = 1;
     let attribs = null;
 
+    // Builts the variant fields.
+
     for(let key in data) {
       if(key == 'id_nb') {
 	// Each item has a specific id number stored in a hidden input.
@@ -228,17 +236,19 @@
       }
 
       if(key == 'attributes') {
-	// Skips to the next data variable.
+	// Will be treated later. Skips to the next data variable.
 	continue;
       }
 
-      // Element label.
+      // Creates the element label.
       attribs = {'title':Joomla.JText._('COM_KETSHOP_'+key.toUpperCase()+'_TITLE'), 'class':'item-label', 'id':'variant-'+key+'-label-'+idNb};
       $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('span', attribs));
       $('#variant-'+key+'-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_'+key.toUpperCase()+'_LABEL'));
 
-      // Input tag:
+      // Creates the input tag:
       attribs = {'type':'text', 'name':'variant_'+key+'_'+idNb, 'id':'variant-'+key+'-'+idNb, 'value':data[key]};
+
+      // Adjusts some attributes according to the field.
 
       if(key != 'variant_name' && key != 'published') {
 	attribs.class = 'item-small-field';
@@ -252,40 +262,55 @@
 	}
       }
 
+      if(key == 'sales') {
+	attribs.class += ' readonly';
+	attribs.readonly = 'readonly';
+      }
+
+      // Inserts the element into the item structure.
       $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('input', attribs));
 
       cellNb++;
 
+      // Resets the structure variables.
       if(cellNb > 6) {
 	cellNb = 1;
 	rowNb++;
       }
     }
 
+    // Gets the id and name of the main attributes of the product (ie: the attributes set in the
+    // "Attributes" tab.  
+    let productAttributes = ketshop.productAttributes;
+
     //
-    for(let i = 0; i < ketshop.productAttributes.length; i++) {
-      //alert(ketshop.productAttributes[i].attribute_name);
-      let attribId = ketshop.productAttributes[i].attribute_id;
-      let attribName = ketshop.productAttributes[i].attribute_name;
+    for(let i = 0; i < productAttributes.length; i++) {
+      //
+      let attribId = productAttributes[i].attribute_id;
+      let attribName = productAttributes[i].attribute_name;
 
       attribs = {'title':attribName, 'class':'item-label', 'id':'variant-attribute-'+attribId+'-label-'+idNb};
       $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('span', attribs));
       $('#variant-attribute-'+attribId+'-label-'+idNb).text(attribName);
 
-      // Select tag:
+      // Creates the select tag:
       attribs = {'name':'variant_attribute_value_'+idNb+'_'+attribId, 'id':'variant-attribute-value-'+idNb+'-'+attribId};
       elem = GETTER.attribute.createElement('select', attribs);
       $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(elem);
 
+      // Loads the corresponding options.
+
+      // Existing dynamic item, loads the options and set the selected option(s).
       for(let j = 0; j < data.attributes.length; j++) {
-	// Searches for the corresponding attribute value.
+	// Searches the given data for the matching attribute value.
 	if(data.attributes[j].attrib_id == attribId) {
-	  $.fn.setAttributeOptions(idNb, attribId, data.attributes[j], true);
+	  $.fn.loadAttributeOptions(idNb, attribId, data.attributes[j], true);
 	}
       }
 
+      // New dynamic item, just loads the options.
       if(data.attributes.length == 0) {
-	$.fn.setAttributeOptions(idNb, attribId, undefined, true);
+	$.fn.loadAttributeOptions(idNb, attribId, undefined, true);
       }
 
       cellNb++;
@@ -296,7 +321,7 @@
     // Calls the parent function from the corresponding instance.
     GETTER[dynamicItemType].selectItem(id, name, idNb, 'attribute', true);
     // Populates the attribute values with the proper options.
-    $.fn.setAttributeOptions(idNb, id);
+    $.fn.loadAttributeOptions(idNb, id);
   }
 
   browsingPages = function(pageNb, dynamicItemType) {

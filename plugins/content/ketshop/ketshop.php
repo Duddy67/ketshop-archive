@@ -121,12 +121,11 @@ class plgContentKetshop extends JPlugin
   {
     //Filter the sent event.
 
-    if($context == 'com_ketshop.product' || $context == 'com_ketshop.form') { //PRODUCT
+    // PRODUCT
+    if($context == 'com_ketshop.product' || $context == 'com_ketshop.form') { 
       //Check for product order.
       $this->setOrderByTag($context, $data, $isNew);
 
-      //Get all of the POST data.
-      $post = JFactory::getApplication()->input->post->getArray();
       $model = JModelLegacy::getInstance('Product', 'KetshopModel');
 
       // Create a new query object.
@@ -160,31 +159,32 @@ class plgContentKetshop extends JPlugin
 	$model->updateBundle('all', array($data->id));
       }
 
-      //Now bundles are set we can move on to attributes.
+      // Now bundles are set, moves on to attributes.
 
-      //Retrieve all the new set attributes from the POST array then save them as
-      //objects and put them into an array.
+      // Retrieves all the new set attributes from the POST array then save them as
+      // objects and put them into an array.
       $attributes = $attributeIds = array();
 
       foreach($this->post as $key => $val) {
-	if(preg_match('#^attribute_id_([0-9]+)$#', $key, $matches)) {
+	if(preg_match('#^attribute_attribute_id_([0-9]+)$#', $key, $matches)) {
 	  $attribNb = $matches[1];
-	  $attribId = $this->post['attribute_id_'.$attribNb];
+	  $attribId = $this->post['attribute_attribute_id_'.$attribNb];
 
-	  //Prevents duplicates.
+	  // Prevents duplicates.
 	  if(in_array($attribId, $attributeIds)) {
 	    continue;
 	  }
 
 	  $attributeIds[] = $attribId;
 
-	  //Check first for empty field (checks for empty spaces as well).
+	  // Checks first for empty field (checks for empty spaces as well).
 	  if(isset($this->post['attribute_value_'.$attribNb]) && !preg_match('#^\s*$#', $this->post['attribute_value_'.$attribNb])) { 
 	    $value = $this->post['attribute_value_'.$attribNb];
 	    $attribute = new JObject;
+	    $attribute->prod_id = $data->id;
 	    $attribute->attrib_id = $attribId;
 
-	    //Checks for multiselect.
+	    // Checks for multiselect.
 	    if(is_array($value)) {
 	      $value = json_encode($value);
 	    }
@@ -195,13 +195,12 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      //Set fields.
+      // Sets fields.
       $columns = array('prod_id','attrib_id','option_value');
-      //Update attributes.
-      KetshopHelper::updateMappingTable('#__ketshop_prod_attrib', $columns, $attributes, array($data->id));
+      KetshopHelper::updateMappingTable('#__ketshop_prod_attrib', $columns, $attributes, $data->id);
 
-      //Removes the variant attributes (if any) which don't match the product's
-      //current attributes.
+      // Removes the variant attributes (if any) which don't match the product's
+      // current attributes.
       if(!empty($attributeIds)) {
 	$db = JFactory::getDbo();
 	$query = $db->getQuery(true);
@@ -212,28 +211,31 @@ class plgContentKetshop extends JPlugin
 	$db->execute();
       }
 
-      //At last we end with images.
+      // At last ends with images.
 
       $images = array();
-      foreach($post as $key=>$val) {
+
+      foreach($this->post as $key => $val) {
 	if(preg_match('#^image_src_([0-9]+)$#', $key, $matches)) {
 	  $imageNb = $matches[1];
 
 	  if(JFactory::getApplication()->isAdmin()) {
-	    //Remove "../" from src path in case images come from the administrator area.
-	    $src = preg_replace('#^\.\.\/#', '', $post['image_src_'.$imageNb]);
+	    // Removes "../" from src path in case images come from the administrator area.
+	    $src = preg_replace('#^\.\.\/#', '', $this->post['image_src_'.$imageNb]);
 	  }
-	  else { //We're on front-end. Remove the domain url.
-	    $src = preg_replace('#^'.JURI::root().'#', '', $post['image_src_'.$imageNb]);
+	  // We're on front-end. Remove the domain url.
+	  else { 
+	    $src = preg_replace('#^'.JURI::root().'#', '', $this->post['image_src_'.$imageNb]);
 	  }
 
-	  $width = $post['image_width_'.$imageNb];
-	  $height = $post['image_height_'.$imageNb];
-	  $ordering = $post['image_ordering_'.$imageNb];
-	  $alt = trim($post['image_alt_'.$imageNb]); //Clean out the value.
+	  $width = $this->post['image_width_'.$imageNb];
+	  $height = $this->post['image_height_'.$imageNb];
+	  $ordering = $this->post['image_ordering_'.$imageNb];
+	  $alt = trim($this->post['image_alt_'.$imageNb]); 
 
-	  if(!empty($src)) { //Check for empty field.
+	  if(!empty($src)) { 
 	    $image = new JObject;
+	    $image->prod_id = $data->id;
 	    $image->src = $src;
 	    $image->width = $width;
 	    $image->height = $height;
@@ -244,10 +246,9 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      //Set fields.
+      // Sets fields.
       $columns = array('prod_id','src','width','height','ordering','alt');
-      //Update images.
-      KetshopHelper::updateMappingTable('#__ketshop_prod_image', $columns, $images, array($data->id));
+      KetshopHelper::updateMappingTable('#__ketshop_prod_image', $columns, $images, $data->id);
 
       if(!$isNew) {
 	//If the product is part of a bundle we must update some bundle attributes.
@@ -258,7 +259,7 @@ class plgContentKetshop extends JPlugin
 
 	//Checks for product variants.
 	//Note: Only existing products can set variants.
-	$model->setProductVariants($data->id, $this->post);
+	//$model->setProductVariants($data->id, $this->post);
       }
 
       return true;

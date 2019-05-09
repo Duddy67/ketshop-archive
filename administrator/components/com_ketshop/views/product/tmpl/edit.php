@@ -39,12 +39,12 @@ Joomla.submitbutton = function(task)
 {
   if(task == 'product.cancel' || document.formvalidator.isValid(document.getElementById('product-form'))) {
     //Check if the alias is unique before submiting form.
-    if(task != 'product.cancel' && !checkAlias()) {
+    /*if(task != 'product.cancel' && !checkAlias()) {
       alert('<?php echo JText::_('COM_KETSHOP_DATABASE_ERROR_PRODUCT_UNIQUE_ALIAS'); ?>');
       document.getElementById('jform_alias').style.borderColor='#fa5858';
       document.getElementById('jform_alias-lbl').style.color='#fa5858';
       return;
-    }
+    }*/
 
     Joomla.submitform(task, document.getElementById('product-form'));
   }

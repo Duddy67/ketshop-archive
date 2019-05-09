@@ -274,7 +274,7 @@ class KetshopHelper
     if(count($data)) {
       // List of the numerical fields for which no quotes must be used.
       $unquoted = array('id','prod_id','attrib_id','filter_id','shipping_id',
-	                'cost','bundle_id','quantity','ordering','published');
+	                'cost','bundle_id','quantity','ordering','published','ordering');
 
       // Builds the VALUES clause of the INSERT MySQL query.
       $values = array();
