@@ -433,7 +433,7 @@ class plgKetshoppaymentPaypal extends JPlugin
 	$detailOrder['L_PAYMENTREQUEST_0_DESC'.$id] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_INCL_TAX', $product['tax_rate']);
       }
 
-      $detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::formatNumber($product['unit_price']);
+      $detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::floatFormat($product['unit_price']);
 
       if($taxMethod == 'excl_tax') {
 	//Increment the id.
@@ -444,7 +444,7 @@ class plgKetshoppaymentPaypal extends JPlugin
 	$detailOrder['L_PAYMENTREQUEST_0_NAME'.$id] = JText::sprintf('PLG_KETSHOP_PAYMENT_PAYPAL_INCL_TAX_PRODUCT',
 	                                                              $product['tax_rate'],$product['quantity'],$product['name']);
 	$detailOrder['L_PAYMENTREQUEST_0_QTY'.$id] = 1;
-	$detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::formatNumber($inclTax);
+	$detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::floatFormat($inclTax);
       }
 
       $id++;
@@ -467,12 +467,12 @@ class plgKetshoppaymentPaypal extends JPlugin
     if($cartOperation) {
       $detailOrder['L_PAYMENTREQUEST_0_NAME'.$id] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_CART_OPERATION');
       $detailOrder['L_PAYMENTREQUEST_0_QTY'.$id] = 1; 
-      $detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::formatNumber($cartOperation);
+      $detailOrder['L_PAYMENTREQUEST_0_AMT'.$id] = UtilityHelper::floatFormat($cartOperation);
       $detailOrder['L_PAYMENTREQUEST_0_DESC'.$id] = JText::_('PLG_KETSHOP_PAYMENT_PAYPAL_CART_OPERATION_DESC');
     }
 
     //Display the cart amount.
-    $detailOrder['PAYMENTREQUEST_0_ITEMAMT'] = UtilityHelper::formatNumber($cartAmount);
+    $detailOrder['PAYMENTREQUEST_0_ITEMAMT'] = UtilityHelper::floatFormat($cartAmount);
 
     //Check for shipping.
     if(ShopHelper::isShippable()) {
@@ -486,17 +486,17 @@ class plgKetshoppaymentPaypal extends JPlugin
       //provide variable for that.
 
       if($shippingOperation) {
-	$detailOrder['PAYMENTREQUEST_0_SHIPDISCAMT'] = UtilityHelper::formatNumber($shippingOperation);
-	$detailOrder['PAYMENTREQUEST_0_SHIPPINGAMT'] = UtilityHelper::formatNumber($amounts['shipping_cost']);
+	$detailOrder['PAYMENTREQUEST_0_SHIPDISCAMT'] = UtilityHelper::floatFormat($shippingOperation);
+	$detailOrder['PAYMENTREQUEST_0_SHIPPINGAMT'] = UtilityHelper::floatFormat($amounts['shipping_cost']);
       }
       else {
-	$detailOrder['PAYMENTREQUEST_0_SHIPPINGAMT'] = UtilityHelper::formatNumber($amounts['final_shipping_cost']);
+	$detailOrder['PAYMENTREQUEST_0_SHIPPINGAMT'] = UtilityHelper::floatFormat($amounts['final_shipping_cost']);
       }
     }
 
     //Display the final total amount.
     $totalAmount = $amounts['fnl_crt_amt_incl_tax'] + $amounts['final_shipping_cost'];
-    $detailOrder['PAYMENTREQUEST_0_AMT'] = UtilityHelper::formatNumber($totalAmount);
+    $detailOrder['PAYMENTREQUEST_0_AMT'] = UtilityHelper::floatFormat($totalAmount);
 
     return $detailOrder;
   }

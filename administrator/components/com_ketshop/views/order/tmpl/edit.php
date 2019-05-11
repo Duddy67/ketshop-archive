@@ -28,7 +28,7 @@ $currency = $this->item->currency;
 
 if($this->item->cart_status != 'pending') {
   //Calculate the order total amount.
-  $orderAmount = UtilityHelper::formatNumber($this->item->fnl_crt_amt_incl_tax + $this->delivery->final_shipping_cost);
+  $orderAmount = UtilityHelper::floatFormat($this->item->fnl_crt_amt_incl_tax + $this->delivery->final_shipping_cost);
 }
 
 //Build the url used for transaction delivery and customer links.

@@ -142,11 +142,11 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 			<td><?php echo $variant['stock']; ?></td>
 			<?php $basePrice = $salePrice = '-';
 			      if($variant['base_price'] > 0) { 
-				$basePrice = UtilityHelper::formatNumber($variant['base_price']).' '.$currency;
+				$basePrice = UtilityHelper::floatFormat($variant['base_price']).' '.$currency;
 			      }
 			
 			      if($variant['sale_price'] > 0) { 
-				$salePrice = UtilityHelper::formatNumber($variant['sale_price']).' '.$currency;
+				$salePrice = UtilityHelper::floatFormat($variant['sale_price']).' '.$currency;
 			      }
 			?>
 			<td><?php echo $basePrice; ?></td><td><?php echo $salePrice; ?></td></tr>
@@ -164,10 +164,10 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 		</div>
 	      </td>
 	      <td>
-		<?php echo UtilityHelper::formatNumber($item->base_price).' '.$currency; ?>
+		<?php echo UtilityHelper::floatFormat($item->base_price).' '.$currency; ?>
 	      </td>
 	      <td>
-		<?php echo UtilityHelper::formatNumber($item->sale_price).' '.$currency; ?>
+		<?php echo UtilityHelper::floatFormat($item->sale_price).' '.$currency; ?>
 	      </td>
 	      <td class="hidden-phone">
 		<?php echo $item->stock; ?>

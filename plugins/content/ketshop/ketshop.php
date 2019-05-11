@@ -201,7 +201,7 @@ class plgContentKetshop extends JPlugin
 
       // Removes the variant attributes (if any) which don't match the product's
       // current attributes.
-      if(!empty($attributeIds)) {
+      /*if(!empty($attributeIds)) {
 	$db = JFactory::getDbo();
 	$query = $db->getQuery(true);
 	$query->delete('#__ketshop_var_attrib')
@@ -209,7 +209,7 @@ class plgContentKetshop extends JPlugin
 	      ->where('attrib_id NOT IN('.implode($attributeIds).')');
 	$db->setQuery($query);
 	$db->execute();
-      }
+      }*/
 
       // At last ends with images.
 
@@ -257,9 +257,9 @@ class plgContentKetshop extends JPlugin
 	  $model->updateBundle('all', $bundleIds);
 	}
 
-	//Checks for product variants.
-	//Note: Only existing products can set variants.
-	//$model->setProductVariants($data->id, $this->post);
+	// Checks for product variants.
+	// N.B: Only existing products can set variants.
+	$model->setProductVariants($data->id, $this->post);
       }
 
       return true;
@@ -523,6 +523,7 @@ class plgContentKetshop extends JPlugin
 	  $value = preg_replace('/(\s|[^A-Za-z0-9\-_])+/', '-', $value);
 
 	  $published = 0;
+	  // Checkbox variable is not passed through POST when unchecked.
 	  if(isset($this->post['option_published_'.$optionNb])) {
 	    $published = 1;
 	  }

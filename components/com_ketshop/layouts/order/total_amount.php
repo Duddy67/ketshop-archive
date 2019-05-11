@@ -28,7 +28,7 @@ if(!empty($shippingData)) {
   <?php //Whatever the tax method, total amount is always computed with all taxes. ?>
   <?php $totalAmount = $cartAmount['fnl_amt_incl_tax'] + $shippingFinalCost; ?>
    <span class="total-amount">
-     <?php echo UtilityHelper::formatNumber($totalAmount, $displayData['digits_precision']); ?>
+     <?php echo UtilityHelper::floatFormat($totalAmount, $displayData['digits_precision']); ?>
      <?php echo $displayData['currency']; ?>
    </span>
    <span class="incl-taxes"><?php echo JText::_('COM_KETSHOP_INCLUDING_TAXES'); ?></span> 

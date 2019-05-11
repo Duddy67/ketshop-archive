@@ -35,7 +35,7 @@ if($params->get('show_dimensions')
     <tr><td>
       <?php echo JText::_('COM_KETSHOP_PRODUCT_WEIGHT'); ?>
     </td><td>
-      <?php echo UtilityHelper::formatNumber($displayData->weight); ?>
+      <?php echo UtilityHelper::floatFormat($displayData->weight); ?>
       <?php echo $displayData->weight_unit; ?>
     </td></tr>
   <?php endif; ?>
@@ -44,19 +44,19 @@ if($params->get('show_dimensions')
     <tr><td>
       <?php echo JText::_('COM_KETSHOP_PRODUCT_LENGTH'); ?>
     </td><td>
-      <?php echo UtilityHelper::formatNumber($displayData->length); ?>
+      <?php echo UtilityHelper::floatFormat($displayData->length); ?>
       <?php echo $displayData->dimensions_unit; ?>
     </td></tr>
     <tr><td>
       <?php echo JText::_('COM_KETSHOP_PRODUCT_WIDTH'); ?>
     </td><td>
-      <?php echo UtilityHelper::formatNumber($displayData->width); ?>
+      <?php echo UtilityHelper::floatFormat($displayData->width); ?>
       <?php echo $displayData->dimensions_unit; ?>
     </td></tr>
     <tr><td>
       <?php echo JText::_('COM_KETSHOP_PRODUCT_HEIGHT'); ?>
     </td><td>
-      <?php echo UtilityHelper::formatNumber($displayData->height); ?>
+      <?php echo UtilityHelper::floatFormat($displayData->height); ?>
       <?php echo $displayData->dimensions_unit; ?>
     </td></tr>
   <?php endif; ?>

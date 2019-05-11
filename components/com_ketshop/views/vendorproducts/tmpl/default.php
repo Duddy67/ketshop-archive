@@ -84,10 +84,10 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 		  <?php echo $item->published; ?>
 		</td>
 		<td>
-		  <?php echo UtilityHelper::formatNumber($item->base_price).' '.$this->shopSettings['currency']; ?>
+		  <?php echo UtilityHelper::floatFormat($item->base_price).' '.$this->shopSettings['currency']; ?>
 		</td>
 		<td>
-		  <?php echo UtilityHelper::formatNumber($item->sale_price).' '.$this->shopSettings['currency']; ?>
+		  <?php echo UtilityHelper::floatFormat($item->sale_price).' '.$this->shopSettings['currency']; ?>
 		</td>
 		<td class="center">
 		  <?php echo $item->stock; ?>

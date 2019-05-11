@@ -34,10 +34,10 @@ class KetshopViewShipping extends JViewLegacy
 
     if($this->form->getValue('id')) { //Existing item.
       //Format numbers.
-      $this->form->setValue('min_weight', null, UtilityHelper::formatNumber($this->item->min_weight));
-      $this->form->setValue('max_weight', null, UtilityHelper::formatNumber($this->item->max_weight));
-      $this->form->setValue('global_cost', null, UtilityHelper::formatNumber($this->item->global_cost));
-      $this->form->setValue('delivpnt_cost', null, UtilityHelper::formatNumber($this->item->delivpnt_cost));
+      $this->form->setValue('min_weight', null, UtilityHelper::floatFormat($this->item->min_weight));
+      $this->form->setValue('max_weight', null, UtilityHelper::floatFormat($this->item->max_weight));
+      $this->form->setValue('global_cost', null, UtilityHelper::floatFormat($this->item->global_cost));
+      $this->form->setValue('delivpnt_cost', null, UtilityHelper::floatFormat($this->item->delivpnt_cost));
     }
 
     $this->config = JComponentHelper::getParams('com_ketshop');

@@ -166,10 +166,10 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	    <?php echo JText::_($deliveryType[$item->delivery_type]); ?>
 	  </td>
 	  <td>
-	    <?php echo UtilityHelper::formatNumber($item->min_weight).' '.$weightUnit; ?>
+	    <?php echo UtilityHelper::floatFormat($item->min_weight).' '.$weightUnit; ?>
 	  </td>
 	  <td>
-	    <?php echo UtilityHelper::formatNumber($item->max_weight).' '.$weightUnit; ?>
+	    <?php echo UtilityHelper::floatFormat($item->max_weight).' '.$weightUnit; ?>
 	  </td>
 	  <td>
 	    <?php echo $item->min_product; ?>

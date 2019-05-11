@@ -131,35 +131,64 @@ class UtilityHelper
   }
 
 
-  public static function formatNumber($float, $digits = 2)
+  /**
+   * Sanitized a given number and applies a float number pattern defined by the given digits.
+   *
+   * @param   mixed    $number          The number to format.
+   * @param   integer  $digits          The number of digits to format the number with.
+   *
+   * @return  string                    The float formated number. 
+   */
+  public static function floatFormat($number, $digits = 2)
   {
-    //In case variable passed in argument is undefined.
-    if($float == '') {
-      return 0;
+    // Removes possible spaces.
+    $number = preg_replace('#\s#', '', $number);
+
+    // Checks for empty value.
+    if($number == '') {
+      $number = 0;
     }
 
-    if(preg_match('#^-?[0-9]+\.[0-9]{'.$digits.'}#', $float, $matches)) {
-      $formatedNumber = $matches[0]; 
+    // Replaces possible comma by a point.
+    $number = preg_replace('#,#', '.', $number);
+
+    // Retrieves the part of the number matching the global pattern, (ie: possible dot, possible digits etc..).
+    if(preg_match('#^-?[0-9]+\.?[0-9]*#', $number, $matches) === 1) {
+      $number = $matches[0]; 
     }
-    else { //In case float number is truncated (for instance: 18.5 or 18).
+    else {
+      $number = 0;
+    }
+
+    // Ensures the digit value is correct.
+    if($digits < 1 || !is_int($digits)) {
+      $digits = 2;
+    }
+
+    if(preg_match('#^-?[0-9]+\.[0-9]{'.$digits.'}#', $number, $matches)) {
+      // Returns the part of the number matching the final pattern.
+      return $matches[0]; 
+    }
+    // In case the float number is truncated (eg: 18.5 or 18).
+    else {
       $dot = $padding = '';
-      //Dot is added if there's only the left part of the float. 
-      if(!preg_match('#\.#', $float)) {
+      // Dot is added if there's only the left part of the float. 
+      if(!preg_match('#\.#', $number)) {
 	$missingDigits = $digits;
 	$dot = '.';
       }
 
-      //Compute how many digits are missing.
-      if(preg_match('#^-?[0-9]+\.([0-9]+)#', $float, $matches)) {
+      // Computes how many digits are missing.
+      if(preg_match('#^-?[0-9]+\.([0-9]*)#', $number, $matches)) {
 	$missingDigits =  $digits - strlen($matches[1]);
       }
 
-      //Replace missing digits with zeros. 
+      // Replaces missing digits with zeros. 
       for($i = 0; $i < $missingDigits; $i++) {
 	$padding .= '0';
       }
 
-      $formatedNumber = $float.$dot.$padding;
+      $formatedNumber = $number.$dot.$padding;
     }
 
     return $formatedNumber;
@@ -171,7 +200,7 @@ class UtilityHelper
     //Price rule operation is expressed as a percentage (-% or +%).
     if(preg_match('#(-|\+)%$#', $operation, $matches)) {
       //Return the price rule operation well formatted, (eg: -10 %)
-      return $matches[1][0].UtilityHelper::formatNumber($value).' %';
+      return $matches[1][0].UtilityHelper::floatFormat($value).' %';
     }
 
     //Price rule operation is expressed as an absolute value.
@@ -180,7 +209,7 @@ class UtilityHelper
     //formatted, (eg: -30 USD)
     $currency = UtilityHelper::getCurrency($currencyId);
 
-    return $operation.UtilityHelper::formatNumber($value).' '.$currency;
+    return $operation.UtilityHelper::floatFormat($value).' '.$currency;
   }
 
 

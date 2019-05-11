@@ -143,7 +143,7 @@ function setLimitItem(this_)
 	      <td><?php echo JText::_($status[$order->order_status]); ?></td>
 	      <td><?php echo JText::_($status[$order->payment_status]); ?></td>
 	      <td><?php echo JText::_($status[$order->shipping_status]); ?></td>
-	      <td><?php echo UtilityHelper::formatNumber($order->total).' '.UtilityHelper::getCurrency($order->currency_code); ?></td>
+	      <td><?php echo UtilityHelper::floatFormat($order->total).' '.UtilityHelper::getCurrency($order->currency_code); ?></td>
 	      <td><?php echo JHTML::_('date',$order->created, JText::_('COM_KETSHOP_DATE_FORMAT')); ?></td></tr>
 	    <?php endforeach; ?>
 	    </table>

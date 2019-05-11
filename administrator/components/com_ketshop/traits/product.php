@@ -127,7 +127,7 @@ trait ProductTrait
     $query = $db->getQuery(true);
     // Gets the variants bound to the given product.
     // N.B: The field names must match the specific order of the dynamic item. 
-    $query->select('var_id AS id_nb, variant_name, TRUNCATE(base_price,2) AS base_price, TRUNCATE(sale_price,2) AS sale_price,'.
+    $query->select('var_id AS id_nb, variant_name AS name, TRUNCATE(base_price,2) AS base_price, TRUNCATE(sale_price,2) AS sale_price,'.
 		   'stock, sales, published, TRUNCATE(weight,2) AS weight, TRUNCATE(length,2) AS length, TRUNCATE(width,2) AS width,'.
 		   'TRUNCATE(height,2) AS height, code, availability_delay') 
 	  ->from('#__ketshop_product_variant')
@@ -276,124 +276,102 @@ trait ProductTrait
    */
   public function setProductVariants($productId, $data)
   {
-    $variants = $varIds = $varValues = $attribValues = array();
-    $isEmpty = true;
+    //$variants = $varIds = $varValues = $attribValues = array();
+    $varValues = $attribValues = array();
+    $hasVariant = 0;
+    //$isEmpty = true;
 
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
 
-    //First check if some variants have been set and store all the id of the already 
-    //existing variants (ie: which are not new).
-    foreach($data as $key => $value) {
-      if(preg_match('#^variant_id_([0-9]+)$#', $key)) {
-	if((int)$value) { //Variant already exists as an id has been set.
-	  $varIds[] = $value;
-	}
-
-        //One or more variants have been set.
-	$isEmpty = false;
-      }
-    }
-
-    //First delete all the previous variants linked to the product.
+    // First deletes all the previous variants linked to the product.
     $query->delete('#__ketshop_product_variant')
 	  ->where('prod_id='.(int)$productId);
     $db->setQuery($query);
     $db->execute();
 
-    //Same for the previous attributes linked to the variants.
+    // Same for the previous attributes linked to the variants.
     $query->clear();
     $query->delete('#__ketshop_var_attrib')
 	  ->where('prod_id='.(int)$productId);
     $db->setQuery($query);
     $db->execute();
 
-    if($isEmpty) {
-      //Resets the variant values.
-      $fields = array('has_variants=0', 'variant_name=""'); 
-      $query->clear();
-      $query->update('#__ketshop_product')
-	    ->set($fields)
-	    ->where('id='.(int)$productId);
-      $db->setQuery($query);
-      $db->execute();
-
-      //No need to go further.
-      return;
-    }
-
     foreach($data as $key => $value) {
-      if(preg_match('#^variant_id_([0-9]+)$#', $key, $matches)) {
+      if(preg_match('#^variant_id_nb_([0-9]+)$#', $key, $matches)) {
 	$varNb = $matches[1];
-	$varId = $data['variant_id_'.$varNb];
+	$varId = $data['variant_id_nb_'.$varNb];
 
-	//Variant is new. Generates a unique variant id.
-	if(!$varId) {
-	  $varId = 1;
-
-	  while(in_array($varId, $varIds)) {
-	    $varId++;
-	  }
-
-          //Store the new id.
-	  $varIds[] = $varId;
+	$published = 0;
+	// N.B: Checkbox variable is not passed through POST when unchecked.
+	if(isset($data['variant_published_'.$varNb])) {
+	  $published = 1;
 	}
 
-	//Store values to insert.
-	$varValues[] = (int)$productId.','.(int)$varId.','.$db->Quote($data['variant_name_'.$varNb]).','.(int)$data['stock_'.$varNb].
-			','.$data['base_price_'.$varNb].','.$data['sale_price_'.$varNb].','.$db->Quote($data['code_'.$varNb]).
-			','.$db->Quote($data['published_'.$varNb]).','.(int)$data['availability_delay_'.$varNb].
-			','.$data['weight_'.$varNb].','.$data['length_'.$varNb].','.$data['width_'.$varNb].
-			','.$data['height_'.$varNb].','.$data['ordering_'.$varNb];
+	// Stores variant values to insert.
+	$varValues[] = (int)$productId.','.(int)$varId.','.$db->Quote($data['variant_name_'.$varNb]).
+                        ','.(int)$data['variant_stock_'.$varNb].
+			','.UtilityHelper::floatFormat($data['variant_base_price_'.$varNb]).
+			','.UtilityHelper::floatFormat($data['variant_sale_price_'.$varNb]).
+			','.$db->Quote($data['variant_code_'.$varNb]).','.(int)$published.
+			','.(int)$data['variant_availability_delay_'.$varNb].
+			','.UtilityHelper::floatFormat($data['variant_weight_'.$varNb]).
+			','.UtilityHelper::floatFormat($data['variant_length_'.$varNb]).
+			','.UtilityHelper::floatFormat($data['variant_width_'.$varNb]).
+			','.UtilityHelper::floatFormat($data['variant_height_'.$varNb]).','.(int)$data['variant_ordering_'.$varNb];
 
-	//Now search for the attributes linked to this variant.
+	// Now searches for the attributes linked to this variant.
 	foreach($data as $k => $val) {
-	  if(preg_match('#^attribute_value_'.$varNb.'_([0-9]+)$#', $k, $matches)) {
+	  if(preg_match('#^variant_attribute_value_'.$varNb.'_([0-9]+)$#', $k, $matches)) {
 	    $attribId = $matches[1];
 
-	    //Check first for empty field.  
-	    if(isset($data['attribute_value_'.$varNb.'_'.$attribId]) &&
-	       !empty($data['attribute_value_'.$varNb.'_'.$attribId])) {
-	      $value = $data['attribute_value_'.$varNb.'_'.$attribId];
+	    // Checks for empty field.  
+	    if(!empty($data['variant_attribute_value_'.$varNb.'_'.$attribId])) {
+	      $value = $data['variant_attribute_value_'.$varNb.'_'.$attribId];
 
-	      //Checks for multiselect.
+	      // Checks for multiselect.
 	      if(is_array($value)) {
 		$value = json_encode($value);
 	      }
-	    }
 
-	    //Stores the values to insert.
-	    $attribValues[] = (int)$productId.','.(int)$varId.','.(int)$attribId.','.$db->Quote($value);
+	      // Stores the variant attribute values to insert.
+	      $attribValues[] = (int)$productId.','.(int)$varId.','.(int)$attribId.','.$db->Quote($value);
+	    }
 	  }
 	}
       }
     }
 
-    //Insert a new row for each variant linked to the product.
-    $columns = array('prod_id', 'var_id', 'variant_name', 'stock',
-		     'base_price', 'sale_price', 'code', 'published', 'availability_delay',
-		     'weight', 'length', 'width', 'height', 'ordering');
-    $query->clear();
-    $query->insert('#__ketshop_product_variant')
-	  ->columns($columns)
-	  ->values($varValues);
-    $db->setQuery($query);
-    $db->execute();
-
-    if(!empty($attribValues)) {
-      //Insert a new row for each attribute linked to the product variants.
-      $columns = array('prod_id', 'var_id', 'attrib_id', 'option_value');
+    if(!empty($varValues)) {
+      // Inserts a new row for each variant linked to the product.
+      $columns = array('prod_id', 'var_id', 'variant_name', 'stock',
+		       'base_price', 'sale_price', 'code', 'published', 'availability_delay',
+		       'weight', 'length', 'width', 'height', 'ordering');
       $query->clear();
-      $query->insert('#__ketshop_var_attrib')
+      $query->insert('#__ketshop_product_variant')
 	    ->columns($columns)
-	    ->values($attribValues);
+	    ->values($varValues);
       $db->setQuery($query);
       $db->execute();
+
+      $hasVariant = 1;
+
+      if(!empty($attribValues)) {
+	// Inserts a new row for each attribute linked to the product variants.
+	$columns = array('prod_id', 'var_id', 'attrib_id', 'option_value');
+	$query->clear();
+	$query->insert('#__ketshop_var_attrib')
+	      ->columns($columns)
+	      ->values($attribValues);
+	$db->setQuery($query);
+	$db->execute();
+      }
     }
 
+    // Updates the product variant flag.
     $query->clear();
     $query->update('#__ketshop_product')
-	  ->set('has_variants=1')
+	  ->set('has_variants='.(int)$hasVariant)
 	  ->where('id='.(int)$productId);
     $db->setQuery($query);
     $db->execute();

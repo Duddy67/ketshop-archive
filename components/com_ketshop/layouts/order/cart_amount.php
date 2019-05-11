@@ -43,27 +43,27 @@ $cartAmount = $displayData['cart_amount'];
 <?php if($cartAmount['amount'] != $cartAmount['final_amount']) : //Check if amount has been modified by rules. ?>
 
   <?php if($displayData['tax_method'] == 'excl_tax') : ?>
-     <span class="striked-amount"><?php echo UtilityHelper::formatNumber($cartAmount['amount'], $displayData['digits_precision']); ?>
+     <span class="striked-amount"><?php echo UtilityHelper::floatFormat($cartAmount['amount'], $displayData['digits_precision']); ?>
 				  <?php echo $displayData['currency']; ?></span>
   <?php else : //incl_tax ?>
      <span class="striked-amount">
-       <?php echo UtilityHelper::formatNumber($cartAmount['amt_incl_tax'], $displayData['digits_precision']); ?>
+       <?php echo UtilityHelper::floatFormat($cartAmount['amt_incl_tax'], $displayData['digits_precision']); ?>
        <?php echo $displayData['currency']; ?></span>
   <?php endif; ?>
 
 <?php endif; ?>
 
 <?php if($displayData['tax_method'] == 'excl_tax') : ?>
-   <span class="cart-amount"><?php echo UtilityHelper::formatNumber($cartAmount['final_amount'], $displayData['digits_precision']); ?>
+   <span class="cart-amount"><?php echo UtilityHelper::floatFormat($cartAmount['final_amount'], $displayData['digits_precision']); ?>
 			<?php echo $displayData['currency']; ?></span>
    <span class="tax-method"><?php echo JText::_('COM_KETSHOP_EXCLUDING_TAXES'); ?></span> 
    <span class="width-space"></span>
-   <span class="cart-amount"><?php echo UtilityHelper::formatNumber($cartAmount['fnl_amt_incl_tax'], $displayData['digits_precision']); ?>
+   <span class="cart-amount"><?php echo UtilityHelper::floatFormat($cartAmount['fnl_amt_incl_tax'], $displayData['digits_precision']); ?>
 			<?php echo $displayData['currency']; ?></span>
    <span class="tax-method"><?php echo JText::_('COM_KETSHOP_INCLUDING_TAXES'); ?></span> 
 <?php else : //incl_tax ?>
    <span class="cart-amount">
-     <?php echo UtilityHelper::formatNumber($cartAmount['fnl_amt_incl_tax'], $displayData['digits_precision']); ?>
+     <?php echo UtilityHelper::floatFormat($cartAmount['fnl_amt_incl_tax'], $displayData['digits_precision']); ?>
      <?php echo $displayData['currency']; ?></span>
    <span class="tax-method"><?php echo JText::_('COM_KETSHOP_INCLUDING_TAXES'); ?></span> 
 <?php endif; ?>

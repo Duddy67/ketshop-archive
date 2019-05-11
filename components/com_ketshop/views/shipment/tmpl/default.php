@@ -89,7 +89,7 @@ foreach($cartAmount['pricerules'] as $priceRule) {
 	      <?php echo $output; ?>
 	      <div class="shipping-row">
 	      <?php echo JText::_('COM_KETSHOP_SHIPPING_COST'); ?>
-	      <span class="striked-price"><?php echo UtilityHelper::formatNumber($shipping['cost']); ?>
+	      <span class="striked-price"><?php echo UtilityHelper::floatFormat($shipping['cost']); ?>
 					 <?php echo $settings['currency']; ?></span>
 	    <?php else : ?>
 	      <div class="shipping-row">
@@ -97,7 +97,7 @@ foreach($cartAmount['pricerules'] as $priceRule) {
 	    <?php endif; ?>
 
 
-	    <span class="shipping-cost"><?php echo UtilityHelper::formatNumber($shipping['final_cost']); ?>
+	    <span class="shipping-cost"><?php echo UtilityHelper::floatFormat($shipping['final_cost']); ?>
 					<?php echo $settings['currency']; ?></span>
 	    </div>			   
 

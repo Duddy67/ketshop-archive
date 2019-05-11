@@ -217,7 +217,7 @@
   populateVariantItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'id_nb':idNb, 'variant_name':'', 'base_price':'', 'sale_price':'', 'stock':'', 'sales':'', 'published':0, 'weight':'', 'length':'', 'width':'', 'height':'', 'code':'', 'availability_delay':'', 'attributes':[]};
+      data = {'id_nb':idNb, 'name':'', 'base_price':'', 'sale_price':'', 'stock':'', 'sales':'', 'published':0, 'weight':'', 'length':'', 'width':'', 'height':'', 'code':'', 'availability_delay':'', 'attributes':[]};
     }
 
     let rowNb = 1;
@@ -250,7 +250,7 @@
 
       // Adjusts some attributes according to the field.
 
-      if(key != 'variant_name' && key != 'published') {
+      if(key != 'name' && key != 'published') {
 	attribs.class = 'item-small-field';
       }
 

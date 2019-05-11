@@ -78,10 +78,10 @@ if($displayData->shop_settings['tax_method'] == 'excl_tax') {
 
 	    //Check for price rule.
 	    if($variant['sale_price'] != $variant['final_price'] && $variant['pricerules'][0]['show_rule']) {
-	      $html .= '<span class="striked-price small">'.UtilityHelper::formatNumber($variant['sale_price']).'</span> ';
+	      $html .= '<span class="striked-price small">'.UtilityHelper::floatFormat($variant['sale_price']).'</span> ';
 	    }
 
-	    $html .= '<span class="price small">'.UtilityHelper::formatNumber($variant['final_price']).'</span> '.
+	    $html .= '<span class="price small">'.UtilityHelper::floatFormat($variant['final_price']).'</span> '.
 		     '<span class="currency small">'.$displayData->shop_settings['currency'].'</span>';
 
 	    if(isset($variant['final_price_with_taxes'])) {

@@ -33,12 +33,12 @@ $params = $displayData->params;
     <span class="space-1"></span>
 
     <span class="striked-price">
-      <?php echo UtilityHelper::formatNumber($displayData->sale_price); ?>
+      <?php echo UtilityHelper::floatFormat($displayData->sale_price); ?>
       <?php echo $displayData->shop_settings['currency']; ?></span>
     <span class="space">&nbsp;</span>
   <?php endif; ?>
 
-    <span class="price"><?php echo UtilityHelper::formatNumber($displayData->final_price); ?></span>
+    <span class="price"><?php echo UtilityHelper::floatFormat($displayData->final_price); ?></span>
     <span class="currency"><?php echo $displayData->shop_settings['currency']; ?></span>
 
     <?php if($displayData->shop_settings['tax_method'] == 'excl_tax') : ?>
@@ -49,7 +49,7 @@ $params = $displayData->params;
 
     <?php if($displayData->shop_settings['tax_method'] == 'excl_tax' && $params->get('show_price_with_taxes')) : ?>
       <span class="space-1"></span>
-      <span class="price-incl-tax small"><?php echo UtilityHelper::formatNumber($displayData->final_price_with_taxes); ?>
+      <span class="price-incl-tax small"><?php echo UtilityHelper::floatFormat($displayData->final_price_with_taxes); ?>
       <?php echo $displayData->shop_settings['currency']; ?>
       <?php echo JText::_('COM_KETSHOP_FIELD_INCLUDING_TAXES'); ?></span>
     <?php endif; ?>

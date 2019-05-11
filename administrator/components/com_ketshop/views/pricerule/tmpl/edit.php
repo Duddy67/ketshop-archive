@@ -83,7 +83,7 @@ Joomla.submitbutton = function(task)
 		echo $this->form->getControlGroup('comparison_opr');
 		echo $this->form->getControlGroup('condition_qty');
 		if($this->item->id) {
-		  $this->form->setValue('condition_amount', null, UtilityHelper::formatNumber($this->item->condition_amount));
+		  $this->form->setValue('condition_amount', null, UtilityHelper::floatFormat($this->item->condition_amount));
 		}
 		echo $this->form->getControlGroup('condition_amount');
 	  ?>
@@ -98,7 +98,7 @@ Joomla.submitbutton = function(task)
 	  <?php
 		echo $this->form->getControlGroup('operation');
 		if($this->item->id) {
-		  $this->form->setValue('value', null, UtilityHelper::formatNumber($this->item->value));
+		  $this->form->setValue('value', null, UtilityHelper::floatFormat($this->item->value));
 		}
 		echo $this->form->getControlGroup('value');
 		echo $this->form->getControlGroup('modifier');

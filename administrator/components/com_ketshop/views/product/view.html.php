@@ -47,12 +47,12 @@ class KetshopViewProduct extends JViewLegacy
     else { //Existing item.
       //Set the digits format.
       $digits = $this->config->get('digits_precision');
-      $this->form->setValue('base_price', null, UtilityHelper::formatNumber($this->item->base_price, $digits));
-      $this->form->setValue('sale_price', null, UtilityHelper::formatNumber($this->item->sale_price, $digits));
-      $this->form->setValue('weight', null, UtilityHelper::formatNumber($this->item->weight, $digits));
-      $this->form->setValue('length', null, UtilityHelper::formatNumber($this->item->length, $digits));
-      $this->form->setValue('width', null, UtilityHelper::formatNumber($this->item->width, $digits));
-      $this->form->setValue('height', null, UtilityHelper::formatNumber($this->item->height, $digits));
+      $this->form->setValue('base_price', null, UtilityHelper::floatFormat($this->item->base_price, $digits));
+      $this->form->setValue('sale_price', null, UtilityHelper::floatFormat($this->item->sale_price, $digits));
+      $this->form->setValue('weight', null, UtilityHelper::floatFormat($this->item->weight, $digits));
+      $this->form->setValue('length', null, UtilityHelper::floatFormat($this->item->length, $digits));
+      $this->form->setValue('width', null, UtilityHelper::floatFormat($this->item->width, $digits));
+      $this->form->setValue('height', null, UtilityHelper::floatFormat($this->item->height, $digits));
     }
 
     //Display the toolbar.

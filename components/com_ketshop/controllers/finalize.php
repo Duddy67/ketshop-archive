@@ -277,19 +277,19 @@ class KetshopControllerFinalize extends JControllerForm
     $body .= "\n\n";
 
     $body .= JText::sprintf('COM_KETSHOP_EMAIL_CART_AMOUNT', 
-	              UtilityHelper::formatNumber($cartAmount['fnl_amt_incl_tax'], $digits),
+	              UtilityHelper::floatFormat($cartAmount['fnl_amt_incl_tax'], $digits),
 		      $currency, JText::_('COM_KETSHOP_INCLUDING_TAXES'));
 
     if($shippable) {
       $body .= JText::sprintf('COM_KETSHOP_EMAIL_SHIPPING_COST', 
-	                      UtilityHelper::formatNumber($shippingData['final_cost'], $digits),
+	                      UtilityHelper::floatFormat($shippingData['final_cost'], $digits),
 			      $currency, JText::_('COM_KETSHOP_INCLUDING_TAXES'));
       $body .= "\n\n";
     }
 
     $totalAmount = $cartAmount['fnl_amt_incl_tax'] + $shippingData['final_cost'];
     $body .= JText::sprintf('COM_KETSHOP_EMAIL_TOTAL_AMOUNT', 
-			    UtilityHelper::formatNumber($totalAmount, $digits),
+			    UtilityHelper::floatFormat($totalAmount, $digits),
 			    $currency, JText::_('COM_KETSHOP_INCLUDING_TAXES'));
 
     if($shippable) {

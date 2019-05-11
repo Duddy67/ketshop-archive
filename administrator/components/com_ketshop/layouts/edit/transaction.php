@@ -37,7 +37,7 @@ defined('_JEXEC') or die;
 	  </div>
 	  <div class="controls">
 	  <input type="text" name="amount" id="amount"
-		 value="<?php echo UtilityHelper::formatNumber($displayData->amount).' '.$displayData->currency; ?>"
+		 value="<?php echo UtilityHelper::floatFormat($displayData->amount).' '.$displayData->currency; ?>"
 	  class="readonly" size="25" disabled=""/>
 	</div>
       </div>

@@ -57,10 +57,10 @@ class KetshopTableShipping extends JTable
     }
 
     // Weight and cost values are set to 2 digits.
-    $this->min_weight = UtilityHelper::formatNumber($this->min_weight);
-    $this->max_weight = UtilityHelper::formatNumber($this->max_weight);
-    $this->delivpnt_cost = UtilityHelper::formatNumber($this->delivpnt_cost);
-    $this->global_cost = UtilityHelper::formatNumber($this->global_cost);
+    $this->min_weight = UtilityHelper::floatFormat($this->min_weight);
+    $this->max_weight = UtilityHelper::floatFormat($this->max_weight);
+    $this->delivpnt_cost = UtilityHelper::floatFormat($this->delivpnt_cost);
+    $this->global_cost = UtilityHelper::floatFormat($this->global_cost);
 
     // It's safer to set unused field to zero.
     if($this->delivery_type == 'at_destination') {
