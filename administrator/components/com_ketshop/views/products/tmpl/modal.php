@@ -138,7 +138,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 	      <?php foreach($item->variants as $variant) :  
 		      $prodIds = $variant['prod_id'].'_'.$variant['var_id']; ?>
 		      <tr><td>
-			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($variant['variant_name']); ?></a></td>
+			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($variant['name']); ?></a></td>
 			<td><?php echo $variant['stock']; ?></td>
 			<?php $basePrice = $salePrice = '-';
 			      if($variant['base_price'] > 0) { 

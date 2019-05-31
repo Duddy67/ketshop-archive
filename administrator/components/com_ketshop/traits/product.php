@@ -127,7 +127,8 @@ trait ProductTrait
     $query = $db->getQuery(true);
     // Gets the variants bound to the given product.
     // N.B: The field names must match the specific order of the dynamic item. 
-    $query->select('var_id AS id_nb, variant_name AS name, TRUNCATE(base_price,2) AS base_price, TRUNCATE(sale_price,2) AS sale_price,'.
+    //      The var_id field has to be named id_nb to be used with dynamic items.
+    $query->select('prod_id, var_id, var_id AS id_nb, name, TRUNCATE(base_price,2) AS base_price, TRUNCATE(sale_price,2) AS sale_price,'.
 		   'stock, sales, published, TRUNCATE(weight,2) AS weight, TRUNCATE(length,2) AS length, TRUNCATE(width,2) AS width,'.
 		   'TRUNCATE(height,2) AS height, code, availability_delay') 
 	  ->from('#__ketshop_product_variant')
@@ -152,7 +153,7 @@ trait ProductTrait
 	$variants[$key]['attributes'] = array();
 
 	foreach($attributes as $attribute) {
-	  if($attribute['var_id'] == $variant['id_nb']) {
+	  if($attribute['var_id'] == $variant['var_id']) {
 	    $variants[$key]['attributes'][] = $attribute;
 	  }
 	}
@@ -270,16 +271,14 @@ trait ProductTrait
    * Stores the product variants currently set.
    *
    * @param   integer  $productId	The id of the product which the variants are linked to.
-   * @param   array    $data		The POST array in which the variant data is stored.
+   * @param   array    $data		The POST array in which the variant data is passing.
    *
    * @return  void
    */
   public function setProductVariants($productId, $data)
   {
-    //$variants = $varIds = $varValues = $attribValues = array();
     $varValues = $attribValues = array();
     $hasVariant = 0;
-    //$isEmpty = true;
 
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
@@ -344,7 +343,7 @@ trait ProductTrait
 
     if(!empty($varValues)) {
       // Inserts a new row for each variant linked to the product.
-      $columns = array('prod_id', 'var_id', 'variant_name', 'stock',
+      $columns = array('prod_id', 'var_id', 'name', 'stock',
 		       'base_price', 'sale_price', 'code', 'published', 'availability_delay',
 		       'weight', 'length', 'width', 'height', 'ordering');
       $query->clear();

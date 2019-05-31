@@ -110,7 +110,7 @@ DROP TABLE IF EXISTS `#__ketshop_product_variant`;
 CREATE TABLE `#__ketshop_product_variant` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `variant_name` VARCHAR(225) NOT NULL ,
+  `name` VARCHAR(225) NOT NULL ,
   `base_price` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `sale_price` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `code` VARCHAR(80) NOT NULL ,

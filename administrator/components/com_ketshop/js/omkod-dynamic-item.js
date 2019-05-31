@@ -133,6 +133,8 @@ Omkod.DynamicItem = class {
       }
     }
 
+    this.setOddEven();
+
     // Concatenates the callback function name.
     let callback = 'populate'+this.itemTypeUpperCase+'Item';
     // Calls the callback function to add the specific elements to the item.
@@ -181,7 +183,7 @@ Omkod.DynamicItem = class {
   /**
    * Removes the item corresponding to the given id number.
    *
-   * @param   string   idNb   The id number of the item to remove.
+   * @param   string   idNb     The id number of the item to remove.
    * @param   string   warning  If true a confirmation window is shown before deletion.
    *
    * @return  void
@@ -218,18 +220,8 @@ Omkod.DynamicItem = class {
 	this.updatePagination(this.currentPageNb);
       }
     }
-  }
 
-  /**
-   * Removes all of the items from the container.
-   *
-   * @return  void
-  */
-  removeItems() {
-    let idNbList = this.idNbList.slice();
-    for(let i = 0; i < idNbList.length; i++) {
-      this.removeItem(idNbList[i]);
-    }
+    this.setOddEven();
   }
 
   /**
@@ -253,6 +245,18 @@ Omkod.DynamicItem = class {
     }
 
     return element;
+  }
+
+  /**
+   * Removes all of the items from the container.
+   *
+   * @return  void
+  */
+  removeItems() {
+    let idNbList = this.idNbList.slice();
+    for(let i = 0; i < idNbList.length; i++) {
+      this.removeItem(idNbList[i]);
+    }
   }
 
   /**
@@ -691,5 +695,29 @@ Omkod.DynamicItem = class {
     // Inserts the new browsing links.
     let row = document.getElementById(this.itemType+'-pagination-browser').insertRow(0)
     row.innerHTML = browser;
+  }
+
+  /**
+   * Adds the odd or even class to the items according to their position into the list.
+   *
+   * @return  void
+  */
+  setOddEven() {
+    // Loops through the id number list.
+    for(let i = 0; i < this.idNbList.length; i++) { 
+      // Gets the div item.
+      let item = document.getElementById(this.itemType+'-item-'+this.idNbList[i]);
+      // First removes the current class.
+      item.classList.remove(this.itemType+'-odd');
+      item.classList.remove(this.itemType+'-even');
+
+      // Uses the modulo operator to add the proper class.
+      if((i + 1) % 2) {
+	item.classList.add(this.itemType+'-odd');
+      }
+      else {
+	item.classList.add(this.itemType+'-even');
+      }
+    }
   }
 }

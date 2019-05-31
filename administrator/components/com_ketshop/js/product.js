@@ -235,6 +235,11 @@
 	continue;
       }
 
+      // Skips the unneeded values coming from the MySQL query.
+      if(key == 'var_id' || key == 'prod_id') {
+	continue;
+      }
+
       if(key == 'attributes') {
 	// Will be treated later. Skips to the next data variable.
 	continue;

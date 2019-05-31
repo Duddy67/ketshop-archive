@@ -36,7 +36,7 @@ class ShopHelper
     }
     else { //Get data from the product variants table.
       $query->select('pv.code,pv.base_price AS var_base_price,pv.sale_price AS var_sale_price,'.
-	             'pv.stock,pv.availability_delay,pv.variant_name,pv.weight AS var_weight,'.
+	             'pv.stock,pv.availability_delay,pv.name,pv.weight AS var_weight,'.
 		     'pv.length AS var_length, pv.width AS var_width, pv.height AS var_height')
 	    ->join('INNER', '#__ketshop_product_variant AS pv ON pv.prod_id='.(int)$productId.' AND pv.var_id='.(int)$variantId);
     }

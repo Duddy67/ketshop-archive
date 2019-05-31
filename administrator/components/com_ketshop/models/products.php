@@ -249,7 +249,7 @@ class KetshopModelProducts extends JModelList
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    $query->select('prod_id, var_id, variant_name, base_price, sale_price, code, stock')
+    $query->select('prod_id, var_id, name, base_price, sale_price, code, stock')
 	  ->from('#__ketshop_product_variant')
 	  ->where('prod_id='.(int)$id);
     $db->setQuery($query);
