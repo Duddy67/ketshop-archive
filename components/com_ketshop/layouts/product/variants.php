@@ -13,7 +13,7 @@ JHtml::_('behavior.framework');
 $variants = $displayData->variants;
 $product = $displayData;
 //For more convenience process the main product as a variant.
-$variants[] = array('id' => $product->id, 'prod_id' => $product->id, 'var_id' => 0, 'stock' => $product->stock, 
+$variants[] = array('id' => $product->id, 'prod_id' => $product->id, 'var_id' => $product->var_id, 'stock' => $product->stock, 
 		    'stock_state' => $product->stock_state, 'attributes' => $product->attributes,
 		    'sale_price' => $product->sale_price, 'base_price' => $product->base_price, 
 		    'final_price' => $product->final_price, 'pricerules' => $product->pricerules,

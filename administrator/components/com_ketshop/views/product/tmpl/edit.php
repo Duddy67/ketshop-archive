@@ -27,8 +27,12 @@ else {
   $taxMethodTitle = JText::_('COM_KETSHOP_SPAN_EXCLUDING_TAXES_TITLE');
 }
 
-//By default template is named after the product type.
-$template = $this->form->getValue('type');
+$productType = $this->form->getValue('type');
+
+if(!$this->item->id) {
+  // New item. Gets the type of the product from the current url query.
+  $productType = JFactory::getApplication()->input->get('type', '', 'string');
+}
 ?>
 
 <script type="text/javascript">
@@ -62,35 +66,84 @@ Joomla.submitbutton = function(task)
 
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'details', JText::_('COM_KETSHOP_TAB_DETAILS')); ?>
 
-      <div class="row-fluid">
+      <div class="row-fluid form-vertical">
 	<div class="span8">
-	    <div class="form-vertical">
 	    <?php
-		echo $this->form->getControlGroup('base_price');
-		echo $this->form->getControlGroup('sale_price');
-		echo $this->form->getControlGroup('tax_id');
-		echo $this->form->getControlGroup('code');
-		$this->form->setValue('default_language', null, UtilityHelper::getLanguage());
-		echo $this->form->getControlGroup('default_language');
+		//echo $this->form->getControlGroup('base_price');
+		//echo $this->form->getControlGroup('sale_price');
+		//echo $this->form->getControlGroup('tax_id');
+		//echo $this->form->getControlGroup('code');
 		echo $this->form->getControlGroup('producttext');
-		//Hidden field.
+		// Hidden field.
 		echo $this->form->getInput('type');
 	    ?>
-	    </div>
 	</div>
 	<div class="span3">
 	  <?php echo JLayoutHelper::render('joomla.edit.global', $this); ?>
 
-	  <?php if($this->item->id && !empty($this->item->tags->tags)) : //Shown only if one or more tags are already selected. ?>
-	    <div class="form-vertical">
-	      <?php echo $this->form->getControlGroup('main_tag_id'); ?>
-	    </div>
-	  <?php endif; ?>
+	  <div class="form-vertical">
+	    <?php if($this->item->id && !empty($this->item->tags->tags)) : //Shown only if one or more tags are already selected. ?>
+		<?php echo $this->form->getControlGroup('main_tag_id'); ?>
+	    <?php endif; 
+
+		   $this->form->setValue('default_language', null, UtilityHelper::getLanguage());
+		   echo $this->form->getControlGroup('default_language');
+	      ?>
+	  </div>
 
 	</div>
       </div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
+      <?php $typeName = ($productType == 'normal') ? 'PRODUCT_VARIANTS' : 'BUNDLE_PARAMETERS';
+	    echo JHtml::_('bootstrap.addTab', 'myTab', 'product-variant', JText::_('COM_KETSHOP_SUBMENU_'.$typeName, true)); ?>
+	<div class="row-fluid form-vertical">
+	  <div class="span2">
+	    <?php echo $this->form->getControlGroup('weight_unit'); ?>
+	  </div>
+	  <div class="span2">
+	    <?php echo $this->form->getControlGroup('dimensions_unit'); ?>
+	  </div>
+	  <div class="span2">
+	    <?php echo $this->form->getControlGroup('shippable'); ?>
+	  </div>
+	  <div class="span2">
+	    <?php echo $this->form->getControlGroup('tax_id'); ?>
+	  </div>
+
+	  <div class="form-vertical">
+	    <div class="span12" id="variant">
+	    </div>
+	  </div>
+
+	</div>
+      <?php echo JHtml::_('bootstrap.endTab'); ?>
+
+      <?php if($productType == 'bundle') : ?>
+	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-bundle', JText::_('COM_KETSHOP_SUBMENU_BUNDLE_PRODUCTS', true)); ?>
+	  <div class="row-fluid form-horizontal-desktop">
+	    <div class="span12" id="bundle">
+	    </div>
+	  </div>
+	<?php echo JHtml::_('bootstrap.endTab'); ?>
+      <?php endif; ?>
+
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-attribute', JText::_('COM_KETSHOP_SUBMENU_ATTRIBUTES', true)); ?>
+	<div class="row-fluid">
+	  <div class="span12 form-vertical" id="attribute">
+	  </div>
+	</div>
+      <?php echo JHtml::_('bootstrap.endTab'); ?>
+
+      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-image', JText::_('COM_KETSHOP_SUBMENU_IMAGES', true)); ?>
+	<div class="row-fluid form-horizontal-desktop">
+	  <div class="span12" id="image">
+	    <?php echo $this->form->getInput('imageurl'); //Must be loaded to call the overrided media file.
+		  echo $this->form->getControlGroup('img_reduction_rate');
+	    ?>
+	  </div>
+	</div>
+      <?php echo JHtml::_('bootstrap.endTab'); ?>
 
       <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'publishing', JText::_('JGLOBAL_FIELDSET_PUBLISHING', true)); ?>
       <div class="row-fluid form-horizontal-desktop">
@@ -101,60 +154,6 @@ Joomla.submitbutton = function(task)
 	  <?php echo JLayoutHelper::render('joomla.edit.metadata', $this); ?>
 	</div>
       </div>
-      <?php echo JHtml::_('bootstrap.endTab'); ?>
-
-      <?php if($template == 'bundle') : //Bundle ?>
-	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'bundle-product', JText::_('COM_KETSHOP_SUBMENU_BUNDLE_PRODUCT', true)); ?>
-	  <div class="row-fluid form-horizontal-desktop">
-	    <div class="span10" id="bundleproduct">
-	    </div>
-	  </div>
-	<?php echo JHtml::_('bootstrap.endTab'); ?>
-      <?php endif; ?>
-
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'stock-quantities', JText::_('COM_KETSHOP_SUBMENU_STOCK_QUANTITIES', true)); ?>
-	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span4">
-	    <?php echo JLayoutHelper::render('edit.stockquantities', $this, JPATH_COMPONENT.'/layouts/'); ?>
-	  </div>
-	</div>
-      <?php echo JHtml::_('bootstrap.endTab'); ?>
-
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'weight-dimensions', JText::_('COM_KETSHOP_SUBMENU_WEIGHT_AND_DIMENSIONS', true)); ?>
-	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span4">
-	    <?php echo JLayoutHelper::render('edit.weightdimensions', $this, JPATH_COMPONENT.'/layouts/'); ?>
-	  </div>
-	</div>
-      <?php echo JHtml::_('bootstrap.endTab'); ?>
-
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'attributes', JText::_('COM_KETSHOP_SUBMENU_ATTRIBUTES', true)); ?>
-	<div class="row-fluid">
-	  <div class="span12 form-vertical" id="attribute">
-	      <?php if($this->item->has_variants) {
-		      echo $this->form->getControlGroup('variant_name'); 
-		    } ?>
-	  </div>
-	</div>
-      <?php echo JHtml::_('bootstrap.endTab'); ?>
-
-      <?php if($this->item->id) : //Existing product  ?>
-	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'product-variants', JText::_('COM_KETSHOP_SUBMENU_PRODUCT_VARIANTS', true)); ?>
-	  <div class="row-fluid form-horizontal-desktop">
-	    <div class="span12" id="variant">
-	    </div>
-	  </div>
-	<?php echo JHtml::_('bootstrap.endTab'); ?>
-      <?php endif; ?>
-
-      <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'images', JText::_('COM_KETSHOP_SUBMENU_IMAGES', true)); ?>
-	<div class="row-fluid form-horizontal-desktop">
-	  <div class="span12" id="image">
-	    <?php echo $this->form->getInput('imageurl'); //Must be loaded to call the overrided media file.
-		  echo $this->form->getControlGroup('img_reduction_rate');
-	    ?>
-	  </div>
-	</div>
       <?php echo JHtml::_('bootstrap.endTab'); ?>
 
       <?php echo JLayoutHelper::render('joomla.edit.params', $this); ?>
@@ -168,9 +167,7 @@ Joomla.submitbutton = function(task)
   <input type="hidden" name="task" value="" />
   <input type="hidden" name="root_location" id="root-location" value="<?php echo JUri::root(); ?>" />
   <input type="hidden" id="is-admin" name="is_admin" value="1" />
-  <?php if(!$this->item->id) : //New item. Get the type of the product from the current url query.  ?>
-    <input type="hidden" id="product-type" name="product_type" value="<?php echo JFactory::getApplication()->input->get('type', '', 'string'); ?>" />
-  <?php endif; ?>
+  <input type="hidden" id="product-type" name="product_type" value="<?php echo $productType; ?>" />
   <?php echo JHtml::_('form.token', array('id' => 'token')); ?>
 </form>
 

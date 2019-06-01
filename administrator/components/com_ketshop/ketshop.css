@@ -826,6 +826,7 @@ a:link.ketshop-link {
 
 /*** DYNAMICAL ITEMS ***/
 
+.bundle-container,
 .variant-container,
 .image-container,
 .recipient-container,
@@ -841,6 +842,7 @@ a:link.ketshop-link {
   width: 100%;
 }
 
+.add-bundle-container,
 .add-variant-container,
 .add-image-container,
 .add-recipient-container,
@@ -856,6 +858,7 @@ a:link.ketshop-link {
   margin-bottom: 30px;
 }
 
+.bundle-item,
 .variant-item,
 .image-item,
 .recipient-item,
@@ -874,9 +877,11 @@ a:link.ketshop-link {
   padding-left: 8px;
 }
 
+.bundle-cells-row-1,
 .variant-cells-row-1,
 .variant-cells-row-2,
 .variant-cells-row-3,
+.variant-cells-row-4,
 .image-cells-row-1,
 .recipient-cells-row-1,
 .condition-cells-row-1,
@@ -929,8 +934,17 @@ a:link.ketshop-link {
   display: block;
 }
 
+.item-large-field {
+  width: 300px !important;
+}
+
 .item-small-field {
   width: 103px !important;
+}
+
+.item-tiny-field {
+  width: 30px !important;
+  text-align: center;
 }
 
 .variant-cell-6-row-1,
@@ -938,6 +952,7 @@ a:link.ketshop-link {
   text-align: center;
 }
 
+.bundle-pagination-inactive,
 .variant-pagination-inactive,
 .image-pagination-inactive,
 .recipient-pagination-inactive,
@@ -953,6 +968,7 @@ a:link.ketshop-link {
   display: none;
 }
 
+.bundle-pagination-browser,
 .variant-pagination-browser,
 .image-pagination-browser,
 .recipient-pagination-browser,
@@ -970,6 +986,7 @@ a:link.ketshop-link {
   margin-right: auto;
 }
 
+.bundle-pagination-browser .current-page-number,
 .variant-pagination-browser .current-page-number,
 .image-pagination-browser .current-page-number,
 .recipient-pagination-browser .current-page-number,
@@ -990,6 +1007,7 @@ a:link.ketshop-link {
   border: 1px solid #ddd;
 }
 
+.bundle-pagination-browser td,
 .variant-pagination-browser td,
 .image-pagination-browser td,
 .recipient-pagination-browser td,
@@ -1006,12 +1024,42 @@ a:link.ketshop-link {
   margin: 5px;
 }
 
+.radio-label {
+  font-weight: bold;
+  font-size: 10px;
+  color: #777;
+  margin-right: 4px;
+  margin-bottom: 8px;
+}
+
+.radio-item {
+  margin-right: 12px !important;
+  margin-top: 0 !important;
+}
+
+.variant-attribute-container {
+  float: left;
+  margin-right: 15px;
+}
+
+#variant {
+  margin-top: 15px !important;
+}
+
+div[id^='variant_attribute_value_'] {
+  width: 180px !important;
+}
+
 div[class$='-odd'] {
   background-color: #f1f7ff;
 }
 
 div[class$='-even'] {
   background-color: #fff;
+}
+
+.alinea {
+  margin-left: 25px;
 }
 /****   ****/
 

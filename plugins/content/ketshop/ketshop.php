@@ -119,8 +119,6 @@ class plgContentKetshop extends JPlugin
 
   public function onContentAfterSave($context, $data, $isNew)
   {
-    //Filter the sent event.
-
     // PRODUCT
     if($context == 'com_ketshop.product' || $context == 'com_ketshop.form') { 
       //Check for product order.
@@ -134,29 +132,29 @@ class plgContentKetshop extends JPlugin
 
       //
       if($data->type == 'bundle') {
-	//Retrieve all the new set bundle products from the POST array.
+	// Retrieves all the new set bundle products from the POST array.
 	$bundleProducts = array();
 	foreach($this->post as $key=> $val) {
-	  if(preg_match('#^bundleproduct_id_([0-9]+)$#', $key, $matches)) {
+	  if(preg_match('#^bundle_product_id_([0-9]+)$#', $key, $matches)) {
 	    $bundleProductNb = $matches[1];
-	    $bundleProductId = $this->post['bundleproduct_id_'.$bundleProductNb];
-	    $bundleProductQty = $this->post['bundleproduct_quantity_'.$bundleProductNb];
 
 	    $bundleProduct = new JObject;
-	    $bundleProduct->id = $bundleProductId;
-	    $bundleProduct->quantity = $bundleProductQty;
+	    $bundleProduct->bundle_id = $data->id;
+	    $bundleProduct->prod_id = $this->post['bundle_product_id_'.$bundleProductNb];
+	    $bundleProduct->var_id = $this->post['bundle_var_id_'.$bundleProductNb];
+	    $bundleProduct->quantity = $this->post['bundle_quantity_'.$bundleProductNb];
 	    $bundleProducts[] = $bundleProduct; //
 	  }
 	}
 
-	//Set fields.
-	$columns = array('bundle_id','prod_id','quantity');
+	// Sets fields.
+	$columns = array('bundle_id','prod_id','var_id','quantity');
 
-	//Set or update the products of the bundle.
-	KetshopHelper::updateMappingTable('#__ketshop_prod_bundle', $columns, $bundleProducts, array($data->id), 'bundle_id');
+	// Sets or updates the products of the bundle.
+	KetshopHelper::updateMappingTable('#__ketshop_prod_bundle', $columns, $bundleProducts, $data->id);
 
-	//Set or update the attributes of the bundle which require a specific treatment.
-	$model->updateBundle('all', array($data->id));
+	// Sets or updates the attributes of the bundle which require a specific treatment.
+	$model->updateBundle($data->id);
       }
 
       // Now bundles are set, moves on to attributes.
@@ -177,39 +175,16 @@ class plgContentKetshop extends JPlugin
 
 	  $attributeIds[] = $attribId;
 
-	  // Checks first for empty field (checks for empty spaces as well).
-	  if(isset($this->post['attribute_value_'.$attribNb]) && !preg_match('#^\s*$#', $this->post['attribute_value_'.$attribNb])) { 
-	    $value = $this->post['attribute_value_'.$attribNb];
-	    $attribute = new JObject;
-	    $attribute->prod_id = $data->id;
-	    $attribute->attrib_id = $attribId;
-
-	    // Checks for multiselect.
-	    if(is_array($value)) {
-	      $value = json_encode($value);
-	    }
-
-	    $attribute->option_value = $value;
-	    $attributes[] = $attribute;
-	  }
+	  $attribute = new JObject;
+	  $attribute->prod_id = $data->id;
+	  $attribute->attrib_id = $attribId;
+	  $attributes[] = $attribute;
 	}
       }
 
       // Sets fields.
-      $columns = array('prod_id','attrib_id','option_value');
+      $columns = array('prod_id','attrib_id');
       KetshopHelper::updateMappingTable('#__ketshop_prod_attrib', $columns, $attributes, $data->id);
-
-      // Removes the variant attributes (if any) which don't match the product's
-      // current attributes.
-      /*if(!empty($attributeIds)) {
-	$db = JFactory::getDbo();
-	$query = $db->getQuery(true);
-	$query->delete('#__ketshop_var_attrib')
-	      ->where('prod_id='.(int)$data->id)
-	      ->where('attrib_id NOT IN('.implode($attributeIds).')');
-	$db->setQuery($query);
-	$db->execute();
-      }*/
 
       // At last ends with images.
 
@@ -250,16 +225,18 @@ class plgContentKetshop extends JPlugin
       $columns = array('prod_id','src','width','height','ordering','alt');
       KetshopHelper::updateMappingTable('#__ketshop_prod_image', $columns, $images, $data->id);
 
-      if(!$isNew) {
-	//If the product is part of a bundle we must update some bundle attributes.
+      // Checks for product variants.
+      // N.B: Only existing products can set variants.
+      $model->setProductVariants($data->id, $this->post);
+
+      if(!$isNew && $data->type != 'bundle') {
 	$bundleIds = $model->isBundleProduct((int)$data->id); 
+
+	// If the product is part of a bundle some of the bundle attributes must have be updated.
 	if(!empty($bundleIds)) {
-	  $model->updateBundle('all', $bundleIds);
+	  $model->updateBundles($bundleIds);
 	}
 
-	// Checks for product variants.
-	// N.B: Only existing products can set variants.
-	$model->setProductVariants($data->id, $this->post);
       }
 
       return true;
@@ -285,6 +262,7 @@ class plgContentKetshop extends JPlugin
 	    $condition = new JObject;
 	    $condition->prule_id = $data->id;
 	    $condition->item_id = $conditionId;
+	    $condition->var_id = $this->post['condition_var_id_'.$conditionNb];
 	    $condition->operator = $this->post['condition_comparison_opr_'.$conditionNb];
 	    $condition->item_amount = 0;
 	    $condition->item_qty = 0;
@@ -316,6 +294,7 @@ class plgContentKetshop extends JPlugin
 	      $target = new JObject;
 	      $target->prule_id = $data->id;
 	      $target->item_id = $targetId;
+	      $target->var_id = $this->post['target_var_id_'.$targetNb];
 	      $targets[] = $target;
 	      //
 	      $targetIds[] = $targetId;
@@ -344,11 +323,12 @@ class plgContentKetshop extends JPlugin
 	}
       }
 
-      $columns = array('prule_id', 'item_id', 'operator', 'item_amount', 'item_qty');
+      $columns = array('prule_id', 'item_id', 'var_id', 'operator', 'item_amount', 'item_qty');
       KetshopHelper::updateMappingTable('#__ketshop_prule_condition', $columns, $conditions, $data->id);
 
-      $columns = array('prule_id', 'item_id');
+      $columns = array('prule_id', 'item_id', 'var_id');
       KetshopHelper::updateMappingTable('#__ketshop_prule_target', $columns, $targets, $data->id);
+      $columns = array('prule_id', 'item_id');
       KetshopHelper::updateMappingTable('#__ketshop_prule_recipient', $columns, $recipients, $data->id);
 
       return;

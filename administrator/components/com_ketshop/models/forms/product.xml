@@ -11,12 +11,12 @@
 	<field name="base_price" type="text"
 		label="COM_KETSHOP_FIELD_BASE_PRICE_LABEL"
 		description="COM_KETSHOP_FIELD_BASE_PRICE_DESC"
-		size="10" required="true" />
+		size="10" />
 
 	<field name="sale_price" type="text"
 		label="COM_KETSHOP_FIELD_SALE_PRICE_LABEL"
 		description="COM_KETSHOP_FIELD_SALE_PRICE_DESC"
-		size="10" required="true" />
+		size="10" />
 
 	<field name="min_quantity" type="text"
 		label="COM_KETSHOP_FIELD_MINIMAL_QUANTITY_LABEL"

@@ -2,17 +2,18 @@
   // A global variable to store then access the dynamical item objects. 
   const GETTER = {};
   // The dynamic items to create. {item name:nb of cells}
-  const items = {'attribute':4, 'image':[4,1]};
+  const items = {'attribute':3, 'image':[4,1], 'variant':[8,6,6,1]};
 
   // Run a function when the page is fully loaded including graphics.
   $(window).load(function() {
     // The input element containing the root location.
     let rootLocation = $('#root-location').val();
     let productId = $('#jform_id').val();
+    let productType = $('#product-type').val();
     let isAdmin = $('#is-admin').val();
 
-    if(productId != 0) {
-      items.variant = [8,6,6];
+    if(productType == 'bundle') {
+      items.bundle = 4;
     }
 
     // Loops through the item array to instanciate all of the dynamic item objects.
@@ -23,14 +24,22 @@
       props.rowsCells = items[key];
       props.ordering = true;
 
-      if(key == 'attribute') {
-	// Some properties are different for attributes.
+      if(key == 'attribute' || key == 'bundle') {
+	// Some properties are different for both attribute and bundle items.
 	props.rowsCells = [items[key]];
 	props.ordering = false;
       }
 
       // Stores the newly created object.
       GETTER[key] = new Omkod.DynamicItem(props);
+    }
+
+    if(productId == 0 || productType == 'bundle') {
+      // Uses only the basic variant.
+      $('#variant-add-button-container').remove();
+
+      if(productType == 'bundle') {
+      }
     }
 
     // Sets the validating function.
@@ -53,6 +62,10 @@
       for(let key in items) {
 	$.each(result.data[key], function(i, item) { GETTER[key].createItem(item); });
       }
+
+      if(GETTER.variant.idNbList.length == 0) {
+	GETTER.variant.createItem();
+      }
     }
     else {
       alert('Error: '+result.message);
@@ -61,39 +74,131 @@
 
   validateFields = function(e) {
     let task = document.getElementsByName('task');
+    let productType = $('#product-type').val();
+
+    for(let key in items) {
+      let fields = null; 
+      if(key == 'attribute') {
+	fields = {'attribute-name':''};
+      }
+      else if(key == 'variant') {
+	fields = {'base_price':'unsigned_float', 'sale_price':'unsigned_float', 'min_stock_threshold':'unsigned_int', 'max_stock_threshold':'unsigned_int', 'min_quantity':'unsigned_int', 'max_quantity':'unsigned_int'};
+
+	if($('#product-type').val() == 'normal') {
+	  fields.stock = 'unsigned_int';
+	  fields.availability_delay = 'unsigned_int';
+	}
+
+	if($('#jform_shippable').val() == 1) {
+	  // Weight and dimensions are mandatory for shippable products.
+	  fields.weight = 'unsigned_float';
+	  fields.length = 'unsigned_float';
+	  fields.width = 'unsigned_float';
+	  fields.height = 'unsigned_float';
+	}
+
+	if(GETTER.variant.idNbList.length > 1) {
+	  // Name field is mandatory if the product has more than one variant.
+	  fields.name = '';
+	}
+
+	// Gets all the attributes from all of the variant items.
+	let attributes = $('*[id^="variant-attribute-value-"]');
+
+	// Loops through the variant list.
+	for(let i = 0; i < GETTER.variant.idNbList.length; i++) {
+	  let regex = new RegExp('-'+GETTER.variant.idNbList[i]+'$');
+
+	  attributes.each(function() {
+	    // Checks that this attribute is linked to this variant item.
+	    if(regex.test($(this).attr('id'))) {
+	      // Removes the "variant-" characters from the beginning of the string.
+	      let selectId = $(this).attr('id').substr(8);
+	      // Removes the hyphen and the id number from the end of the string.
+	      selectId = selectId.replace(regex, '');
+	      // Adds the field for check.
+	      fields[selectId] = '';
+	    }
+	  });
+	}
+      }
+      // image
+      else {
+	fields = {'src':''};
+      }
+
+      if(task[0].value != 'product.cancel' && !GETTER[key].validateFields(fields)) {
+	// Shows the dynamic item tab.
+	$('.nav-tabs a[href="#product-'+key+'"]').tab('show');
+
+	e.preventDefault();
+	e.stopPropagation();
+	return false;
+      }
+    }
   }
 
-  $.fn.loadAttributeOptions = function(idNb, attribId, data, isVariant) {
+
+  setStockValue = function(idNb) {
+    if($('input[name=variant_stock_subtract_'+idNb+']:checked', '#product-form').val() == 1) {
+      $('#variant-stock-'+idNb).val(0);
+      $('#variant-stock-'+idNb).removeAttr('disabled');
+      $('#variant-stock-'+idNb).removeAttr('readonly');
+      $('#variant-stock-'+idNb).removeClass('readonly');
+    }
+    else {
+      $('#variant-stock-'+idNb).val('∞');
+      $('#variant-stock-'+idNb).attr('disabled', 'disabled');
+      $('#variant-stock-'+idNb).attr('readonly', 'readonly');
+      $('#variant-stock-'+idNb).addClass('readonly');
+    }
+  }
+
+  $.fn.setDefaultVariant = function() {
+      // Hides the "Remove" button from the very first variant item. 
+      $('#variant-row-1-cell-8-'+GETTER.variant.idNbList[0]).css({'visibility':'hidden'});
+      // Checks then disables the publishing option.
+      $('#variant-published-'+GETTER.variant.idNbList[0]).attr('checked', true);
+      $('#variant-published-'+GETTER.variant.idNbList[0]).attr('disabled', 'disabled');
+
+      if(GETTER.variant.idNbList.length > 1) {
+	// In case of reversing order between the first two items, the publishing option
+	// of the second item must me enabled again. 
+	$('#variant-row-1-cell-8-'+GETTER.variant.idNbList[1]).css({'visibility':'visible'});
+	$('#variant-published-'+GETTER.variant.idNbList[1]).removeAttr('disabled');
+	//
+	$('#variant-name-'+GETTER.variant.idNbList[0]).removeAttr('disabled');
+      }
+      else {
+	$('#variant-name-'+GETTER.variant.idNbList[0]).attr('disabled', 'disabled');
+      }
+  }
+
+  $.fn.loadAttributeOptions = function(idNb, attribId, data) {
     // Gets the options corresponding to the given attribute id.
     let attributeOptions = ketshop.attributeOptions[attribId].options;
     let multiselect = ketshop.attributeOptions[attribId].multiselect;
-    let options = preVarId = postVarId = '';
-
-    // Sets some variables to handle variant attribute.
-    if(isVariant === true) {
-      preVarId = 'variant-';
-      postVarId = '-'+attribId;
-    }
+    let options = '';
 
     // Deletes all the possible previous options.
-    $('#'+preVarId+'attribute-value-'+idNb+postVarId).empty();
+    $('#variant-attribute-value-'+attribId+'-'+idNb).empty();
 
     // Single select mode.
     if(multiselect == 0) {
-      $('#'+preVarId+'attribute-value-'+idNb+postVarId).removeAttr('multiple');
+      $('#variant-attribute-value-'+attribId+'-'+idNb).removeAttr('multiple');
       // Creates the very first list option.
       options += '<option value="">'+Joomla.JText._('COM_KETSHOP_OPTION_SELECT')+'</option>';
     }
     // Multi select mode.
     else {
-      $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('multiple', 'true');
+      $('#variant-attribute-value-'+attribId+'-'+idNb).attr('multiple', 'true');
       // Adds brackets to the element name.
-      let inputName = $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('name');
-      $('#'+preVarId+'attribute-value-'+idNb+postVarId).attr('name', inputName+'[]');
+      let inputName = $('#variant-attribute-value-'+attribId+'-'+idNb).attr('name');
+      $('#variant-attribute-value-'+attribId+'-'+idNb).attr('name', inputName+'[]');
     }
 
     // Destroys the div structure previously created by the Chosen plugin. 
-    $('#'+preVarId+'attribute-value-'+idNb+postVarId).chosen('destroy');
+    $('#variant-attribute-value-'+attribId+'-'+idNb).chosen('destroy');
 
     // Handles the selected options in multiselect mode.
     if(data !== undefined && multiselect == 1) {
@@ -116,17 +221,33 @@
     }
     
     // Adds the options to the select list.
-    $('#'+preVarId+'attribute-value-'+idNb+postVarId).append(options);
+    $('#variant-attribute-value-'+attribId+'-'+idNb).append(options);
     // Recreates a new Chosen div structure.
-    $('#'+preVarId+'attribute-value-'+idNb+postVarId).chosen();
+    $('#variant-attribute-value-'+attribId+'-'+idNb).chosen();
   }
+
+  $.fn.addVariantAttribute = function(idNb, attribId, attribName) {
+    let rowNb = items.variant.length;
+    let attribs = {'class':'variant-attribute-container', 'id':'variant-attribute-container-'+attribId+'-'+idNb};
+    $('#variant-row-'+rowNb+'-cell-1-'+idNb).append(GETTER.variant.createElement('div', attribs));
+
+    attribs = {'title':attribName, 'class':'item-label', 'id':'variant-attribute-'+attribId+'-label-'+idNb};
+    $('#variant-attribute-container-'+attribId+'-'+idNb).append(GETTER.variant.createElement('span', attribs));
+    $('#variant-attribute-'+attribId+'-label-'+idNb).text(attribName);
+
+    // Creates the select tag:
+    attribs = {'name':'variant_attribute_value_'+attribId+'_'+idNb, 'id':'variant-attribute-value-'+attribId+'-'+idNb};
+    elem = GETTER.attribute.createElement('select', attribs);
+    $('#variant-attribute-container-'+attribId+'-'+idNb).append(elem);
+  }
+
 
   /** Callback functions **/
 
   populateAttributeItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'attribute_id':'', 'attribute_name':'', 'selected_option':''};
+      data = {'attribute_id':'', 'attribute_name':''};
     }
 
     // Element label.
@@ -150,20 +271,6 @@
     attribs = {'type':'text', 'disabled':'disabled', 'id':'attribute-attribute-name-'+idNb, 'value':data.attribute_name};
     elem = GETTER.attribute.createElement('input', attribs);
     $('#attribute-row-1-cell-2-'+idNb).append(elem);
-
-    // Element label.
-    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_VALUE_TITLE'), 'class':'item-label', 'id':'attribute-valuename-label-'+idNb};
-    $('#attribute-row-1-cell-3-'+idNb).append(GETTER.attribute.createElement('span', attribs));
-    $('#attribute-valuename-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_VALUE_LABEL'));
-
-    // Select tag:
-    attribs = {'name':'attribute_value_'+idNb, 'id':'attribute-value-'+idNb};
-    elem = GETTER.attribute.createElement('select', attribs);
-    $('#attribute-row-1-cell-3-'+idNb).append(elem);
-
-    if(data.attribute_id != '') {
-      $.fn.loadAttributeOptions(idNb, data.attribute_id, data);
-    }
   }
 
   populateImageItem = function(idNb, data) {
@@ -217,12 +324,13 @@
   populateVariantItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'id_nb':idNb, 'name':'', 'base_price':'', 'sale_price':'', 'stock':'', 'sales':'', 'published':0, 'weight':'', 'length':'', 'width':'', 'height':'', 'code':'', 'availability_delay':'', 'attributes':[]};
+      data = {'id_nb':idNb, 'name':'', 'base_price':'', 'sale_price':'', 'stock':'', 'sales':'', 'published':0, 'stock_subtract':1, 'allow_order':1, 'min_stock_threshold':5, 'max_stock_threshold':20, 'min_quantity':1, 'max_quantity':20, 'weight':'', 'length':'', 'width':'', 'height':'', 'code':'', 'availability_delay':'', 'attributes':[]};
     }
 
     let rowNb = 1;
     let cellNb = 1;
     let attribs = null;
+    let productType = $('#product-type').val();
 
     // Builts the variant fields.
 
@@ -267,13 +375,59 @@
 	}
       }
 
-      if(key == 'sales') {
+      if(key == 'sales' || (productType == 'bundle' && (key == 'stock' || key == 'availability_delay'))) {
 	attribs.class += ' readonly';
 	attribs.readonly = 'readonly';
       }
 
+      // Yes/no radio buttons.
+      if(key == 'stock_subtract' || key == 'allow_order') {
+	let radioLabel = {'class':'radio-label', 'id':'variant-'+key+'-yes-label-'+idNb};
+	$('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('span', radioLabel));
+	$('#variant-'+key+'-yes-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_YESNO_1'));
+
+	attribs.type = 'radio';
+	attribs.class = 'radio-item';
+	attribs.value = 1;
+	attribs.id = 'variant-'+key+'-1-'+idNb;
+
+	if(key == 'stock_subtract') {
+	  attribs.onchange = 'setStockValue('+idNb+');';
+
+	  if(productType == 'bundle') {
+	    attribs.disabled = 'disabled';
+	  }
+	}
+	else {
+	  delete attribs.onchange;
+	}
+
+	if(data[key] == 1) {
+	  attribs.checked = 'checked';
+	}
+
+	$('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('input', attribs));
+
+	radioLabel = {'class':'radio-label', 'id':'variant-'+key+'-no-label-'+idNb};
+	$('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('span', radioLabel));
+	$('#variant-'+key+'-no-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_YESNO_0'));
+
+	attribs.value = 0;
+	attribs.id = 'variant-'+key+'-0-'+idNb;
+	delete attribs.checked;
+
+	if(data[key] == 0) {
+	  attribs.checked = 'checked';
+	}
+      }
+
       // Inserts the element into the item structure.
       $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('input', attribs));
+
+      // Sets the stock value to 'infinite'.
+      if(key == 'stock_subtract' && data[key] == 0) {
+	setStockValue(idNb);
+      }
 
       cellNb++;
 
@@ -284,9 +438,22 @@
       }
     }
 
-    // Gets the id and name of the main attributes of the product (ie: the attributes set in the
-    // "Attributes" tab.  
+    // Gets the id and name of the attributes of the product coming from the database.
     let productAttributes = ketshop.productAttributes;
+
+    // In case of a new dynamic item the product attributes are taken from the current
+    // attribute dynamic items. 
+    if(data.attributes.length == 0) {
+      // Initializes the attribute array.
+      productAttributes = [];
+      // Loops through the current product attribute list.
+      for(let i = 0; i < GETTER.attribute.idNbList.length; i++) {
+	// Gets the name and id of each attribute then store them.
+	let attribId = $('#attribute-attribute-id-'+GETTER.attribute.idNbList[i]).val();
+	let attribName = $('#attribute-attribute-name-'+GETTER.attribute.idNbList[i]).val();
+	productAttributes.push({'attribute_id':attribId, 'attribute_name':attribName});
+      }
+    }
 
     //
     for(let i = 0; i < productAttributes.length; i++) {
@@ -294,14 +461,7 @@
       let attribId = productAttributes[i].attribute_id;
       let attribName = productAttributes[i].attribute_name;
 
-      attribs = {'title':attribName, 'class':'item-label', 'id':'variant-attribute-'+attribId+'-label-'+idNb};
-      $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(GETTER.variant.createElement('span', attribs));
-      $('#variant-attribute-'+attribId+'-label-'+idNb).text(attribName);
-
-      // Creates the select tag:
-      attribs = {'name':'variant_attribute_value_'+idNb+'_'+attribId, 'id':'variant-attribute-value-'+idNb+'-'+attribId};
-      elem = GETTER.attribute.createElement('select', attribs);
-      $('#variant-row-'+rowNb+'-cell-'+cellNb+'-'+idNb).append(elem);
+      $.fn.addVariantAttribute(idNb, attribId, attribName);
 
       // Loads the corresponding options.
 
@@ -309,24 +469,95 @@
       for(let j = 0; j < data.attributes.length; j++) {
 	// Searches the given data for the matching attribute value.
 	if(data.attributes[j].attrib_id == attribId) {
-	  $.fn.loadAttributeOptions(idNb, attribId, data.attributes[j], true);
+	  $.fn.loadAttributeOptions(idNb, attribId, data.attributes[j]);
 	}
       }
 
       // New dynamic item, just loads the options.
       if(data.attributes.length == 0) {
-	$.fn.loadAttributeOptions(idNb, attribId, undefined, true);
+	$.fn.loadAttributeOptions(idNb, attribId, undefined);
       }
 
       cellNb++;
     }
+
+    $.fn.setDefaultVariant(); 
+  }
+
+  populateBundleItem = function(idNb, data) {
+    // Defines the default field values.
+    if(data === undefined) {
+      data = {'product_id':'', 'var_id':'', 'product_name':'', 'quantity':1};
+    }
+
+    // Element label.
+    let attribs = {'class':'item-space', 'id':'bundle-label-'+idNb};
+    $('#bundle-row-1-cell-1-'+idNb).append(GETTER.bundle.createElement('span', attribs));
+    $('#bundle-label-'+idNb).html('&nbsp;');
+
+    // Creates the hidden input element to store the selected product id and its variant id.
+    attribs = {'type':'hidden', 'name':'bundle_product_id_'+idNb, 'id':'bundle-product-id-'+idNb, 'value':data.product_id};
+    let elem = GETTER.bundle.createElement('input', attribs);
+    $('#bundle-row-1-cell-1-'+idNb).append(elem);
+
+    attribs = {'type':'hidden', 'name':'bundle_var_id_'+idNb, 'id':'bundle-var-id-'+idNb, 'value':data.var_id};
+    elem = GETTER.bundle.createElement('input', attribs);
+    $('#bundle-row-1-cell-1-'+idNb).append(elem);
+
+    let url = $('#root-location').val()+'administrator/index.php?option=com_ketshop&view=products&layout=modal&tmpl=component&function=selectBundleItem&dynamic_item_type=bundle&product_type=normal&id_nb='+idNb;
+    let button = GETTER.attribute.createButton('select', idNb, url);
+    $('#bundle-row-1-cell-1-'+idNb).append(button);
+
+    // Element label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_NAME_TITLE'), 'class':'item-label', 'id':'bundle-name-label-'+idNb};
+    $('#bundle-row-1-cell-2-'+idNb).append(GETTER.bundle.createElement('span', attribs));
+    $('#bundle-name-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
+
+    attribs = {'type':'text', 'disabled':'disabled', 'id':'bundle-product-name-'+idNb, 'class':'item-large-field', 'value':data.product_name};
+    elem = GETTER.bundle.createElement('input', attribs);
+    $('#bundle-row-1-cell-2-'+idNb).append(elem);
+
+    // Element label.
+    attribs = {'title':Joomla.JText._('COM_KETSHOP_ITEM_QUANTITY_TITLE'), 'class':'item-label', 'id':'bundle-quantity-label-'+idNb};
+    $('#bundle-row-1-cell-3-'+idNb).append(GETTER.bundle.createElement('span', attribs));
+    $('#bundle-quantity-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_QUANTITY_LABEL'));
+
+    // Text input tag:
+    attribs = {'type':'text', 'name':'bundle_quantity_'+idNb, 'id':'bundle-quantity-'+idNb, 'class':'item-tiny-field', 'value':data.quantity};
+    $('#bundle-row-1-cell-3-'+idNb).append(GETTER.bundle.createElement('input', attribs));
   }
 
   selectAttributeItem = function(id, name, idNb, dynamicItemType) {
+    // First loops through the current variant list.
+    for(let i = 0; i < GETTER.attribute.idNbList.length; i++) {
+      // Checks for possible duplicate product attribute.
+      if($('#attribute-attribute-id-'+GETTER.attribute.idNbList[i]).val() == id) {
+	alert(Joomla.JText._('COM_KETSHOP_WARNING_DUPLICATE_PRODUCT_ATTRIBUTE'));
+	return;
+      }
+    }
+
     // Calls the parent function from the corresponding instance.
-    GETTER[dynamicItemType].selectItem(id, name, idNb, 'attribute', true);
+    GETTER[dynamicItemType].selectItem(id, name, idNb, dynamicItemType, true);
     // Populates the attribute values with the proper options.
-    $.fn.loadAttributeOptions(idNb, id);
+    let attribId = id;
+    let attribName = name;
+
+    // Loops through the current variant list.
+    for(let i = 0; i < GETTER.variant.idNbList.length; i++) {
+      let idNb = GETTER.variant.idNbList[i];
+      $.fn.addVariantAttribute(idNb, attribId, attribName);
+      //
+      $.fn.loadAttributeOptions(idNb, attribId);
+    }
+  }
+
+  selectBundleItem = function(id, name, idNb, dynamicItemType, var_id) {
+    // Calls the parent function from the corresponding instance.
+    GETTER[dynamicItemType].selectItem(id, name, idNb, 'product', true);
+
+    // Sets the variant id of the selected bundle product.
+    document.getElementById('bundle-var-id-'+idNb).value = var_id;
   }
 
   browsingPages = function(pageNb, dynamicItemType) {
@@ -337,6 +568,35 @@
   reverseOrder = function(direction, idNb, dynamicItemType) {
     // Calls the parent function from the corresponding instance.
     GETTER[dynamicItemType].reverseOrder(direction, idNb);
+
+    $.fn.setDefaultVariant(); 
+  }
+
+  beforeRemoveItem = function(idNb, dynamicItemType) {
+    // Execute here possible tasks before the item deletion.
+    if(dynamicItemType == 'attribute') {
+      // Gets the id of the attribute which is about to be deleted.
+      let attribId = $('#attribute-attribute-id-'+idNb).val();
+
+      if(attribId != '') {
+	// Loops through the current variant list.
+	for(let i = 0; i < GETTER.variant.idNbList.length; i++) {
+	  // Removes the attribute from each variant item. 
+	  $('#variant-attribute-container-'+attribId+'-'+GETTER.variant.idNbList[i]).remove();
+	}
+      }
+    }
+  }
+
+  afterRemoveItem = function(idNb, dynamicItemType) {
+    // Execute here possible tasks after the item deletion.
+    if(dynamicItemType == 'variant') {
+      $.fn.setDefaultVariant(); 
+
+      if(GETTER.variant.idNbList.length == 1) {
+	$('#variant-name-'+GETTER.variant.idNbList[0]).val('');
+      }
+    }
   }
 
 })(jQuery);

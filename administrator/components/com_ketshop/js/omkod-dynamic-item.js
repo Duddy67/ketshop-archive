@@ -197,6 +197,9 @@ Omkod.DynamicItem = class {
       }
     }
 
+    // Calls a callback function to execute possible tasks before the item deletion.
+    window['beforeRemoveItem'](idNb, this.itemType);
+
     // Removes the item from its div id.
     this.container.removeChild(document.getElementById(this.itemType+'-item-'+idNb));
     // Stores the removed id number.
@@ -222,6 +225,9 @@ Omkod.DynamicItem = class {
     }
 
     this.setOddEven();
+
+    // Calls a callback function to execute possible tasks after the item deletion.
+    window['afterRemoveItem'](idNb, this.itemType);
   }
 
   /**
@@ -436,6 +442,8 @@ Omkod.DynamicItem = class {
     }
 
     this.itemReordering();
+    // The "odd" and "even" classes need to be reset.
+    this.setOddEven();
   }
 
   /**
@@ -458,11 +466,19 @@ Omkod.DynamicItem = class {
       for(let key in fields) {
 	let field = document.getElementById(this.itemType+'-'+key+'-'+this.idNbList[i]);
 
+	if(field.hasAttribute('disabled')) {
+	  // Skips the disabled fields as their values are not taken in account when
+	  // sending the form.
+	  continue;
+	}
+
 	// Checks the select tags when the Chosen plugin is used.
 	let Chosen = null;
 	if(this.Chosen && (field.type == 'select-one' || field.type == 'select-multiple')) {
+	  // Replaces possible hyphens as Chosen uses underscores to separate words. 
+	  let chzn = key.replace(/-/g, '_');
 	  // Gets the Chosen div.
-	  Chosen = document.getElementById(this.itemType+'_'+key+'_'+this.idNbList[i]+'_chzn');
+	  Chosen = document.getElementById(this.itemType+'_'+chzn+'_'+this.idNbList[i]+'_chzn');
 	}
 
 	// In case the field was previously not valid.

@@ -111,7 +111,7 @@ class KetshopModelPricerule extends JModelAdmin
       $table = '#__categories';
     }
 
-    $query->select('item_id,'.$name)
+    $query->select('item_id, var_id, '.$name)
 	  ->from('#__ketshop_prule_target')
 	  ->join('INNER', $table.' ON id=item_id')
 	  ->where('prule_id='.(int)$pk);
@@ -139,7 +139,7 @@ class KetshopModelPricerule extends JModelAdmin
       $join = '#__categories ON id=item_id';
     }
     else {
-      $select = 'item_id, name AS item_name, operator, item_qty';
+      $select = 'item_id, var_id, name AS item_name, operator, item_qty';
       $join = '#__ketshop_product ON id=item_id';
     }
 

@@ -27,7 +27,7 @@ $params = $this->item->params;
         echo JLayoutHelper::render('product.price', $this->item);
   ?>
 
-  <?php if($this->item->has_variants) : //Check for product variants. ?>
+  <?php if($this->item->nb_variants > 1) : //Check for multiple product variants. ?>
     <span class="space-2"></span>
     <a href="<?php echo JRoute::_(KetshopHelperRoute::getProductRoute($this->item->slug, $this->item->tagid, $this->item->language)); ?>">
       <span class="label btn-info">

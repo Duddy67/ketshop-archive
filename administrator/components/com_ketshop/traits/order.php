@@ -108,10 +108,10 @@ trait OrderTrait
     //Get the products from the order.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    $query->select('p.id, p.catid, p.name, p.alias, p.code, p.stock_subtract, p.published, p.min_quantity, p.max_quantity,'.
-		   'p.type, p.has_variants, p.min_stock_threshold, p.allow_order, p.stock, op.unit_price, op.unit_sale_price,'.
-		   'op.tax_rate, op.var_id, op.quantity, op.prod_id, p.variant_name, op.cart_rules_impact,'.
-		   'pv.published AS var_published, pv.stock AS var_stock')
+    $query->select('p.id, p.catid, p.name, p.alias, pv.code, pv.stock_subtract, p.published, pv.min_quantity, pv.max_quantity,'.
+		   'p.type, p.nb_variants, pv.min_stock_threshold, pv.allow_order, pv.stock, op.unit_price, op.unit_sale_price,'.
+		   'op.tax_rate, op.var_id, op.quantity, op.prod_id, pv.name AS variant_name, op.cart_rules_impact,'.
+		   'pv.published AS var_published')
 	  ->from('#__ketshop_order_prod AS op')
 	  ->join('LEFT', '#__ketshop_product AS p ON p.id=op.prod_id')
 	  ->join('LEFT', '#__ketshop_product_variant AS pv ON pv.prod_id=op.prod_id AND pv.var_id=op.var_id')
@@ -122,7 +122,7 @@ trait OrderTrait
     $products = $db->loadAssocList();
 
     //Check for product variants.
-    foreach($products as $key => $product) {
+    /*foreach($products as $key => $product) {
       if($product['var_id']) {
 	//Replace the values of the main product with those of the variant.
 	$products[$key]['published'] = $product['var_published']; 
@@ -132,7 +132,7 @@ trait OrderTrait
       //Remove unnecessary variables.
       unset($products[$key]['var_published']);
       unset($products[$key]['var_stock']);
-    }
+    }*/
 
     return $products;
   }

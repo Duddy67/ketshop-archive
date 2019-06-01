@@ -9,29 +9,30 @@ CREATE TABLE `#__ketshop_product` (
   `intro_text` MEDIUMTEXT NULL ,
   `full_text` MEDIUMTEXT NULL ,
   `type` CHAR(10) NOT NULL ,
-  `code` VARCHAR(80) NOT NULL ,
-  `base_price` DECIMAL(14,5) UNSIGNED NOT NULL ,
-  `sale_price` DECIMAL(14,5) UNSIGNED NOT NULL ,
-  `min_quantity` SMALLINT UNSIGNED NOT NULL DEFAULT 1 ,
-  `max_quantity` SMALLINT UNSIGNED NOT NULL DEFAULT 10 ,
-  `stock` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
-  `min_stock_threshold` SMALLINT UNSIGNED NULL DEFAULT 0 ,
-  `max_stock_threshold` SMALLINT UNSIGNED NULL DEFAULT 10 ,
-  `stock_subtract` TINYINT(1) NOT NULL ,
-  `allow_order` TINYINT(1) NOT NULL ,
-  `availability_delay` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
+  --`code` VARCHAR(80) NOT NULL ,
+  --`base_price` DECIMAL(14,5) UNSIGNED NOT NULL ,
+  --`sale_price` DECIMAL(14,5) UNSIGNED NOT NULL ,
+  --`min_quantity` SMALLINT UNSIGNED NOT NULL DEFAULT 1 ,
+  --`max_quantity` SMALLINT UNSIGNED NOT NULL DEFAULT 10 ,
+  --`stock` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
+  --`min_stock_threshold` SMALLINT UNSIGNED NULL DEFAULT 0 ,
+  --`max_stock_threshold` SMALLINT UNSIGNED NULL DEFAULT 10 ,
+  --`stock_subtract` TINYINT(1) NOT NULL ,
+  --`allow_order` TINYINT(1) NOT NULL ,
+  --`availability_delay` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
   `shippable` TINYINT(1) NOT NULL ,
   `weight_unit` CHAR(2) NOT NULL , 
-  `weight` DECIMAL(14,5) UNSIGNED NULL ,  
+  --`weight` DECIMAL(14,5) UNSIGNED NULL ,  
   `dimensions_unit` CHAR(2) NOT NULL , 
-  `length` DECIMAL(14,5) UNSIGNED NULL ,  
-  `width` DECIMAL(14,5) UNSIGNED NULL ,  
-  `height` DECIMAL(14,5) UNSIGNED NULL ,  
+  --`length` DECIMAL(14,5) UNSIGNED NULL ,  
+  --`width` DECIMAL(14,5) UNSIGNED NULL ,  
+  --`height` DECIMAL(14,5) UNSIGNED NULL ,  
   `img_reduction_rate` CHAR(3) NOT NULL , 
   `tax_id` SMALLINT UNSIGNED NOT NULL ,
   `new_until` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
-  `has_variants` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
-  `variant_name` VARCHAR(225) NOT NULL ,
+  --`has_variants` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
+  `nb_variants` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  --`variant_name` VARCHAR(225) NOT NULL ,
   `stock_locked` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 ,
   `published` TINYINT NOT NULL DEFAULT 0 ,
   `catid` INT UNSIGNED NOT NULL ,
@@ -47,7 +48,7 @@ CREATE TABLE `#__ketshop_product` (
   `metadata` TEXT NOT NULL ,
   `xreference` VARCHAR(50) NOT NULL ,
   `hits` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `sales` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  --`sales` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `publish_up` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `publish_down` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
@@ -97,7 +98,6 @@ DROP TABLE IF EXISTS `#__ketshop_prod_attrib`;
 CREATE TABLE `#__ketshop_prod_attrib` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `option_value` TINYTEXT NOT NULL ,
   INDEX `idx_prod_id` (`prod_id` ASC) ,
   INDEX `idx_attrib_id` (`attrib_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;
@@ -109,7 +109,7 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 DROP TABLE IF EXISTS `#__ketshop_product_variant`;
 CREATE TABLE `#__ketshop_product_variant` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `var_id` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
   `name` VARCHAR(225) NOT NULL ,
   `base_price` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `sale_price` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -122,6 +122,12 @@ CREATE TABLE `#__ketshop_product_variant` (
   `length` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `width` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
   `height` DECIMAL(14,5) UNSIGNED NOT NULL DEFAULT 0 ,
+  `stock_subtract` TINYINT(1) NOT NULL ,
+  `allow_order` TINYINT(1) NOT NULL ,
+  `min_quantity` SMALLINT UNSIGNED NOT NULL DEFAULT 1 ,
+  `max_quantity` SMALLINT UNSIGNED NOT NULL DEFAULT 10 ,
+  `min_stock_threshold` SMALLINT UNSIGNED NULL DEFAULT 0 ,
+  `max_stock_threshold` SMALLINT UNSIGNED NULL DEFAULT 10 ,
   `ordering` INT NOT NULL DEFAULT 0 ,
   INDEX `idx_prod_id` (`prod_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;
@@ -133,7 +139,7 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 DROP TABLE IF EXISTS `#__ketshop_var_attrib`;
 CREATE TABLE `#__ketshop_var_attrib` (
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `var_id` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
   `attrib_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `option_value` TINYTEXT NOT NULL ,
   INDEX `idx_prod_id` (`prod_id` ASC) )
@@ -145,8 +151,9 @@ ENGINE = MyISAM DEFAULT CHARSET=utf8;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `#__ketshop_prod_bundle`;
 CREATE TABLE `#__ketshop_prod_bundle` (
-  `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `bundle_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `bundle_id` INT UNSIGNED NOT NULL ,
+  `prod_id` INT UNSIGNED NOT NULL ,
+  `var_id` SMALLINT UNSIGNED NOT NULL ,
   `quantity` SMALLINT UNSIGNED NOT NULL ,
   INDEX `idx_bundle_id` (`bundle_id` ASC) ,
   INDEX `idx_prod_id` (`prod_id` ASC) )
@@ -206,7 +213,7 @@ DROP TABLE IF EXISTS `#__ketshop_order_prod`;
 CREATE TABLE `#__ketshop_order_prod` (
   `order_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `prod_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `var_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `var_id` SMALLINT UNSIGNED NOT NULL ,
   `name` VARCHAR(80) NULL ,
   `variant_name` VARCHAR(80) NOT NULL ,
   `code` VARCHAR(80) NOT NULL ,
@@ -228,7 +235,8 @@ DROP TABLE IF EXISTS `#__ketshop_order_prule`;
 CREATE TABLE `#__ketshop_order_prule` (
   `order_id` INT UNSIGNED NOT NULL ,
   `prule_id` INT UNSIGNED NOT NULL ,
-  `prod_id` INT UNSIGNED ,
+  `prod_id` INT UNSIGNED NOT NULL ,
+  `var_id` SMALLINT UNSIGNED NOT NULL ,
   `name` VARCHAR(80) NOT NULL ,
   `type` VARCHAR(20) NOT NULL ,
   `target` VARCHAR(20) NOT NULL ,
@@ -586,7 +594,8 @@ ENGINE = MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 DROP TABLE IF EXISTS `#__ketshop_prule_condition`;
 CREATE TABLE `#__ketshop_prule_condition` (
   `prule_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `item_id` INT UNSIGNED NULL ,
+  `item_id` INT UNSIGNED ,
+  `var_id` SMALLINT UNSIGNED ,
   `operator` CHAR(5) NOT NULL ,
   `item_amount` DECIMAL(14,5) UNSIGNED NULL ,
   `item_qty` SMALLINT UNSIGNED NULL ,
@@ -602,6 +611,7 @@ DROP TABLE IF EXISTS `#__ketshop_prule_target`;
 CREATE TABLE `#__ketshop_prule_target` (
   `prule_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `item_id` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `var_id` SMALLINT UNSIGNED ,
   INDEX `idx_prule_id` (`prule_id` ASC) ,
   INDEX `idx_item_id` (`item_id` ASC) )
 ENGINE = MyISAM DEFAULT CHARSET=utf8;

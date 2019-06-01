@@ -16,7 +16,7 @@ JLoader::register('KetshopHelperRoute', JPATH_ROOT.'/components/com_ketshop/help
 $jinput = JFactory::getApplication()->input;
 
 $idNb = $jinput->get->get('id_nb', 0, 'int');
-$function = $jinput->get('function', 'selectItem');
+$function = $jinput->get('function', 'selectItem', 'string');
 $dynamicItemType = $jinput->get->get('dynamic_item_type', '', 'string');
 $productType = $jinput->get->get('product_type', '', 'string');
 // Builds the needed query variable. 
@@ -96,7 +96,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 	<th width="10%" class="nowrap hidden-phone">
 	  <?php echo JHtml::_('grid.sort', 'JDATE', 'p.created', $listDirn, $listOrder); ?>
 	</th>
-	<th width="1%" class="nowrap hidden-phone">
+	<th width="8%" class="nowrap hidden-phone">
 	  <?php echo JHtml::_('grid.sort', 'JGRID_HEADING_ID', 'p.id', $listDirn, $listOrder); ?>
 	</th>
       </tr>
@@ -113,54 +113,34 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
       <tr class="row<?php echo $i % 2; ?>">
 	      <td class="has-context">
 		<div class="pull-left">
+	   <?php
+	         $itemName = $item->name;
+		 if(!empty($item->variant_name)) {
+	           $itemName = $item->name.' - '.$item->variant_name;
+                 }
 
-	    <?php if($dynamicItemType == 'bundleproduct') : // A bundle is created, (we need stock quantity). ?>
+		 $basicVariant = false;
+		 $alinea = '<span class="alinea"></span>';
+		 // It's the product with its basic variant.
+		 if($i == 0 || $this->items[$i]->id != $this->items[$i - 1]->id) {
+		   $basicVariant = true;
+		   $alinea = '';
+		 }
+                 // Shifts the product name to the right.
+		 echo $alinea;
+           ?>
 	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo
-		  $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($dynamicItemType); ?>','<?php echo $item->stock; ?>');">
-	    <?php else : ?>
-	      <a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $item->id; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($dynamicItemType); ?>');">
-	    <?php endif; ?>
+		  $item->id; ?>', '<?php echo $this->escape(addslashes($itemName)); ?>', '<?php echo $this->escape($idNb); ?>', '<?php echo $this->escape($dynamicItemType); ?>','<?php echo $item->var_id; ?>');">
 		  <?php echo $this->escape($item->name); ?>
-	    <?php if($dynamicItemType == 'order' && !empty($item->variant_name)) : //. ?>
-	      <span class="small">&nbsp;<?php echo $this->escape($item->variant_name); ?></span>
+	    <?php if(!empty($item->variant_name)) : //. ?>
+	      <span class="small"><?php echo ' - '.$this->escape($item->variant_name); ?></span>
 	    <?php endif; ?></a>
 
-	    <?php if($dynamicItemType == 'order' && !empty($item->variants)) : //. ?>
-	      <div class="small">
-	      <table>
-		<thead><tr>
-		  <th><?php echo JText::_('COM_KETSHOP_HEADING_OPTIONS'); ?></th>
-		  <th><?php echo JText::_('COM_KETSHOP_HEADING_STOCK'); ?></th>
-		  <th><?php echo JText::_('COM_KETSHOP_HEADING_BASE_PRICE'); ?></th>
-		  <th><?php echo JText::_('COM_KETSHOP_HEADING_SALE_PRICE'); ?></th>
-		</tr></thead>
-	      
-	      <?php foreach($item->variants as $variant) :  
-		      $prodIds = $variant['prod_id'].'_'.$variant['var_id']; ?>
-		      <tr><td>
-			<a href="javascript:void(0)" onclick="if(window.parent) window.parent.<?php echo $this->escape($function);?>('<?php echo $prodIds; ?>', '<?php echo $this->escape(addslashes($item->name)); ?>');"><?php echo $this->escape($variant['name']); ?></a></td>
-			<td><?php echo $variant['stock']; ?></td>
-			<?php $basePrice = $salePrice = '-';
-			      if($variant['base_price'] > 0) { 
-				$basePrice = UtilityHelper::floatFormat($variant['base_price']).' '.$currency;
-			      }
-			
-			      if($variant['sale_price'] > 0) { 
-				$salePrice = UtilityHelper::floatFormat($variant['sale_price']).' '.$currency;
-			      }
-			?>
-			<td><?php echo $basePrice; ?></td><td><?php echo $salePrice; ?></td></tr>
-	      <?php endforeach; ?> 
-	      </table>
-	      </div>
-	    <?php endif; ?>
-
-		  <span class="small break-word">
-		    <?php echo JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias)); ?>
-		  </span>
+	    <?php if($basicVariant) : ?>
 		  <div class="small">
 		    <?php echo JText::_('JCATEGORY') . ": ".$this->escape($item->category_title); ?>
 		  </div>
+	    <?php endif; ?>
 		</div>
 	      </td>
 	      <td>
@@ -170,7 +150,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 		<?php echo UtilityHelper::floatFormat($item->sale_price).' '.$currency; ?>
 	      </td>
 	      <td class="hidden-phone">
-		<?php echo $item->stock; ?>
+		<?php echo ((int)$item->stock_subtract) ? $item->stock : '∞'; ?>
 	      </td>
 	      <td  class="small hidden-phone">
 		<?php echo $this->escape($item->access_level); ?>
@@ -178,8 +158,8 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 	      <td  class="small hidden-phone">
 		<?php echo JHtml::_('date', $item->created, JText::_('DATE_FORMAT_LC4')); ?>
 	      </td>
-	      <td class="center">
-		<?php echo (int) $item->id; ?>
+	      <td class="small hidden-phone center">
+		<?php echo (int) $item->id.' / '.(int) $item->var_id; ?>
 	      </td>
       </tr>
     <?php endforeach; ?>

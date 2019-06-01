@@ -31,7 +31,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
       $rulesInfo = $product['pricerules']; 
       $variantName = '';
 
-      if($product['has_variants']) {
+      if($product['nb_variants'] > 1) {
 	$variantName = '<span class="small">'.$product['variant_name'].'</span>';
       }
       //Compute the class name according to $key value (ie: odd or even number).

@@ -26,7 +26,7 @@ class KetshopModelProducts extends JModelList
 			               'access', 'p.access', 'access_level',
 				       'type', 'p.type', 'product_type', 'product_prop',
 				       'user', 'user_id',
-				       'stock', 'p.stock',
+				       'stock', 'pv.stock',
 				       'ordering', 'p.ordering', 'tm.ordering', 'tm_ordering',
 				       'hits', 'p.hits',
 				       'catid', 'p.catid', 'category_id',
@@ -102,12 +102,25 @@ class KetshopModelProducts extends JModelList
     $db = $this->getDbo();
     $query = $db->getQuery(true);
     $user = JFactory::getUser();
+    // Variable sent from price rule or bundle dynamic items in order to display only 
+    // the selected product type in the product modal window (ie: normal or bundle).
+    $dynamicItemType = JFactory::getApplication()->input->get->get('dynamic_item_type', '', 'string');
+    $layout = JFactory::getApplication()->input->get->get('layout', '', 'string');
+    $and = '';
+
 
     // Select the required fields from the table.
-    $query->select($this->getState('list.select', 'p.id,p.name,p.alias,p.created,p.published,p.catid,p.hits,'.
-				   'p.main_tag_id,p.base_price,p.sale_price,p.type,p.stock,p.variant_name,'. 
-				   'p.access,p.ordering,p.created_by,p.checked_out,p.checked_out_time'))
+    $query->select($this->getState('list.select', 'p.id,p.name,p.alias,p.created,p.published,p.catid,p.hits,p.nb_variants,'.
+				   'p.main_tag_id,pv.var_id,pv.base_price,pv.sale_price,p.type,pv.stock,pv.name AS variant_name,'. 
+				   'pv.ordering AS var_ordering,pv.stock_subtract,p.access,p.ordering,p.created_by,p.checked_out,p.checked_out_time'))
 	  ->from('#__ketshop_product AS p');
+
+    if($layout != 'modal') {
+      // Gets only the basic variant of the product.
+      $and = 'AND pv.ordering=1';
+    }
+
+    $query->join('LEFT', '#__ketshop_product_variant AS pv ON pv.prod_id=p.id '.$and);
 
     //Get the user name.
     $query->select('us.name AS user')
@@ -199,25 +212,13 @@ class KetshopModelProducts extends JModelList
       $query->where('p.main_tag_id= '.(int)$mainTagId);
     }
 
-    //Variable sent from both price rule and bundle views in order to display only 
-    //the selected product type in the product modal window (ie: normal or bundle).
-    $productTypeModal = JFactory::getApplication()->input->get->get('product_type', '', 'string');
+    if($dynamicItemType) {
+      // Shows only the published products.
+      $query->where('p.published=1'); 
 
-    //Set the SQL WHERE clause according to the defined variable.
-    //Note: If both variables are defined, it's $productTypeModal that will be
-    //treated. 
-    if($productTypeModal || ($productType = $this->getState('filter.product_type'))) {
-      if($productTypeModal) {
-	$query->where('p.type='.$db->Quote($productTypeModal));
-	$query->where('p.published=1'); //Display only published products.
-
-	//Check for bundle product calling.
-        if(JFactory::getApplication()->input->get->get('type', '', 'string') == 'bundleproduct') {
-	  $query->where('p.has_variants=0'); //We don't use products with variants as bundle products.
-	}
-      }
-      else { //Filter by type.
-	$query->where('p.type='.$db->Quote($productType));
+      if($dynamicItemType == 'bundle') {
+	// Rules out the bundle type products from the list.
+	$query->where('p.type="normal"');
       }
     }
 
@@ -238,6 +239,11 @@ class KetshopModelProducts extends JModelList
     }
 
     $query->order($db->escape($orderCol.' '.$orderDirn));
+
+    if($dynamicItemType) {
+      // Displays the product variants in order.
+      $query->order('p.id, pv.ordering');
+    }
 
     return $query;
   }

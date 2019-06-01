@@ -177,9 +177,15 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 		  <?php echo JHtml::_('jgrid.checkedout', $i, $item->editor, $item->checked_out_time, 'products.', $canCheckin); ?>
 	      <?php endif; ?>
 	      <?php if($canEdit || $canEditOwn) : ?>
-		<a href="<?php echo JRoute::_('index.php?option=com_ketshop&task=product.edit&id='.$item->id);?>" title="<?php echo JText::_('JACTION_EDIT'); ?>"><?php echo $this->escape($item->name); ?></a>
+		<a href="<?php echo JRoute::_('index.php?option=com_ketshop&task=product.edit&id='.$item->id);?>" title="<?php echo JText::_('JACTION_EDIT'); ?>"><?php echo $this->escape($item->name); ?>
+			<span class="small break-word">
+			  <?php echo ($item->nb_variants > 1) ? ' - '.$this->escape($item->variant_name) : ''; ?>
+			</span></a>
 	      <?php else : ?>
 		<?php echo $this->escape($item->name); ?>
+		      <span class="small break-word">
+			<?php echo ($item->nb_variants > 1) ? ' - '.$this->escape($item->variant_name) : ''; ?>
+		      </span>
 	      <?php endif; ?>
 		<span class="small break-word">
 		  <?php echo JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias)); ?>
@@ -195,7 +201,7 @@ echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this))
 	    </div>
 	  </td>
 	  <td class="hidden-phone">
-	    <?php echo $item->stock; ?>
+	    <?php echo ((int)$item->stock_subtract) ? $item->stock : '∞'; ?>
 	  </td>
 	  <td class="small hidden-phone">
 	    <?php echo $this->escape($item->access_level); ?>

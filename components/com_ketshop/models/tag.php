@@ -335,12 +335,14 @@ class KetshopModelTag extends JModelList
 	                           'tm.tag_id,p.published,p.checked_out,p.checked_out_time,p.created,'.
 				   'p.created_by,p.access,p.params,p.metadata,p.metakey,p.metadesc,p.hits,'.
 				   'p.main_tag_id,p.publish_up,p.publish_down,p.modified,p.modified_by,'.
-	                           'p.type,p.base_price,p.sale_price,p.min_quantity,p.max_quantity,p.stock,p.stock_subtract,'.
-				   'p.shippable,p.min_stock_threshold,p.max_stock_threshold,p.weight_unit,p.weight,'.
-				   'p.code,p.allow_order,p.dimensions_unit,p.length,p.width,p.height,p.img_reduction_rate,'.
-				   'p.has_variants,p.variant_name,IF(p.new_until > NOW(),1,0) AS is_new'))
+	                           'p.type,pv.base_price,pv.sale_price,pv.min_quantity,pv.max_quantity,pv.stock,pv.stock_subtract,'.
+				   'pv.var_id,p.shippable,pv.min_stock_threshold,pv.max_stock_threshold,p.weight_unit,pv.weight,'.
+				   'pv.code,pv.allow_order,p.dimensions_unit,pv.length,pv.width,pv.height,p.img_reduction_rate,'.
+				   'p.nb_variants,pv.name AS variant_name,IF(p.new_until > NOW(),1,0) AS is_new'))
 	  ->from($db->quoteName('#__ketshop_product').' AS p')
 	  ->join('LEFT', '#__ketshop_product_tag_map AS tm ON p.id=tm.product_id')
+	  // Gets only the basic variant of the product.
+	  ->join('LEFT', '#__ketshop_product_variant AS pv ON pv.prod_id=p.id AND pv.ordering=1')
 	  //Display products labeled with the current tag.
 	  ->where('tm.tag_id='.(int)$this->getState('tag.id'));
 
@@ -518,7 +520,7 @@ class KetshopModelTag extends JModelList
     }
 
     $query->order($orderBy);
-
+echo $query;
     return $query;
   }
 

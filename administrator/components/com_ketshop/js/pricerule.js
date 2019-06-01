@@ -385,7 +385,7 @@
   populateTargetItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'item_id':'', 'item_name':''};
+      data = {'item_id':'', 'item_name':'', 'var_id':0};
     }
 
     // Element label.
@@ -397,6 +397,13 @@
     attribs = {'type':'hidden', 'name':'target_item_id_'+idNb, 'id':'target-item-id-'+idNb, 'value':data.item_id};
     let elem = GETTER.target.createElement('input', attribs);
     $('#target-row-1-cell-1-'+idNb).append(elem);
+
+    // Creates the hidden input element to store the product variant id used in case of
+    // a product or bundle target
+    attribs = {'type':'hidden', 'name':'target_var_id_'+idNb, 'id':'target-var-id-'+idNb, 'value':data.var_id};
+    elem = GETTER.target.createElement('input', attribs);
+    $('#target-row-1-cell-1-'+idNb).append(elem);
+
     // Builds the link to the modal window.
     let url = $('#root-location').val()+'administrator/'+$.fn.createLinkToModal('target', idNb);
     let button = GETTER.target.createButton('select', idNb, url);
@@ -407,7 +414,7 @@
     $('#target-row-1-cell-2-'+idNb).append(GETTER.target.createElement('span', attribs));
     $('#target-itemname-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
 
-    attribs = {'type':'text', 'disabled':'disabled', 'id':'target-item-name-'+idNb, 'value':data.item_name};
+    attribs = {'type':'text', 'disabled':'disabled', 'class':'item-large-field', 'id':'target-item-name-'+idNb, 'value':data.item_name};
     elem = GETTER.target.createElement('input', attribs);
     $('#target-row-1-cell-2-'+idNb).append(elem);
   }
@@ -415,7 +422,7 @@
   populateConditionItem = function(idNb, data) {
     // Defines the default field values.
     if(data === undefined) {
-      data = {'item_id':'', 'item_name':'', 'operator':'', 'item_qty':'', 'item_amount':''};
+      data = {'item_id':'', 'var_id':0, 'item_name':'', 'operator':'', 'item_qty':'', 'item_amount':''};
     }
 
     let conditionType = $('#jform_condition').val();
@@ -436,6 +443,13 @@
       attribs = {'type':'hidden', 'name':'condition_item_id_'+idNb, 'id':'condition-item-id-'+idNb, 'value':data.item_id};
       let elem = GETTER.condition.createElement('input', attribs);
       $('#condition-row-1-cell-1-'+idNb).append(elem);
+
+      // Creates the hidden input element to store the product variant id used in case 
+      // condition is applied on a product or a bundle. 
+      attribs = {'type':'hidden', 'name':'condition_var_id_'+idNb, 'id':'condition-var-id-'+idNb, 'value':data.var_id};
+      elem = GETTER.condition.createElement('input', attribs);
+      $('#condition-row-1-cell-1-'+idNb).append(elem);
+
       // Builds the link to the modal window.
       let url = $('#root-location').val()+'administrator/'+$.fn.createLinkToModal('condition', idNb);
       let button = GETTER.condition.createButton('select', idNb, url);
@@ -446,7 +460,7 @@
       $('#condition-row-1-cell-2-'+idNb).append(GETTER.condition.createElement('span', attribs));
       $('#condition-itemname-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_NAME_LABEL'));
 
-      attribs = {'type':'text', 'disabled':'disabled', 'id':'condition-item-name-'+idNb, 'value':data.item_name};
+      attribs = {'type':'text', 'disabled':'disabled', 'class':'item-large-field', 'id':'condition-item-name-'+idNb, 'value':data.item_name};
       elem = GETTER.condition.createElement('input', attribs);
       $('#condition-row-1-cell-2-'+idNb).append(elem);
 
@@ -456,7 +470,7 @@
       $('#condition-operator-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_COMPARISON_OPERATOR_LABEL'));
 
       // Select tag:
-      attribs = {'name':'condition_comparison_opr_'+idNb, 'id':'condition-comparison-opr-'+idNb};
+      attribs = {'name':'condition_comparison_opr_'+idNb, 'class':'item-small-field', 'id':'condition-comparison-opr-'+idNb};
       elem = GETTER.condition.createElement('select', attribs);
       let optionValues = {'e':'=', 'gt':'&gt;', 'lt':'&lt;', 'gtoet':'&gt;=', 'ltoet':'&lt;='};
       let options = '';
@@ -490,20 +504,33 @@
       $('#condition-item'+valueType+'-label-'+idNb).text(Joomla.JText._('COM_KETSHOP_ITEM_'+valueType.toUpperCase()+'_LABEL'));
 
       // Text input tag:
-      attribs = {'type':'text', 'name':'condition_item_'+valueType+'_'+idNb, 'id':'condition-item-'+valueType+'-'+idNb, 'value':itemValue};
+      attribs = {'type':'text', 'name':'condition_item_'+valueType+'_'+idNb, 'class':'item-small-field', 'id':'condition-item-'+valueType+'-'+idNb, 'value':itemValue};
       $('#condition-row-1-cell-4-'+idNb).append(GETTER.condition.createElement('input', attribs));
     }
 
   }
 
-  selectItem = function(id, name, idNb, dynamicItemType) {
+  selectItem = function(id, name, idNb, dynamicItemType, var_id) {
     // Calls the parent function from the corresponding instance.
     GETTER[dynamicItemType].selectItem(id, name, idNb, 'item', true);
+
+    // Sets the variant id in case of product or bundle selecting.
+    if(var_id !== undefined) {
+      document.getElementById(dynamicItemType+'-var-id-'+idNb).value = var_id;
+    }
   }
 
   browsingPages = function(pageNb, dynamicItemType) {
     // Calls the parent function from the corresponding instance.
     GETTER[dynamicItemType].updatePagination(pageNb);
+  }
+
+  beforeRemoveItem = function(idNb, dynamicItemType) {
+    // Execute here possible tasks before the item deletion.
+  }
+
+  afterRemoveItem = function(idNb, dynamicItemType) {
+    // Execute here possible tasks after the item deletion.
   }
 
 })(jQuery);

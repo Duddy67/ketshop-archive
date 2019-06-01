@@ -358,5 +358,13 @@
     GETTER[dynamicItemType].updatePagination(pageNb);
   }
 
+  beforeRemoveItem = function(idNb, dynamicItemType) {
+    // Execute here possible tasks before the item deletion.
+  }
+
+  afterRemoveItem = function(idNb, dynamicItemType) {
+    // Execute here possible tasks after the item deletion.
+  }
+
 })(jQuery);
 

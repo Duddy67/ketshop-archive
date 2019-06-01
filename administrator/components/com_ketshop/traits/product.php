@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die; //No direct access to this file.
 
+JLoader::register('BundleTrait', JPATH_ADMINISTRATOR.'/components/com_ketshop/traits/bundle.php');
+
 /**
  * Provides some utility functions relating to items linked to a product as attributes,
  * images and so on. 
@@ -15,6 +17,7 @@ defined('_JEXEC') or die; //No direct access to this file.
 
 trait ProductTrait
 {
+  use BundleTrait;
 
   /**
    * Returns the attributes bound to a given product.  
@@ -28,10 +31,11 @@ trait ProductTrait
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //Fetches the option values of the attributes linked to this product.
-    $query->select('attrib_id, option_value')
-	  ->from('#__ketshop_prod_attrib')
-	  ->where('prod_id='.(int)$productId)
-	  ->order('attrib_id');
+    $query->select('pa.attrib_id, ao.option_value')
+	  ->from('#__ketshop_prod_attrib AS pa')
+	  ->join('INNER', '#__ketshop_attrib_option AS ao ON ao.attrib_id=pa.attrib_id')
+	  ->where('pa.prod_id='.(int)$productId)
+	  ->order('pa.attrib_id');
     $db->setQuery($query);
     $results = $db->loadAssocList();
 
@@ -127,9 +131,10 @@ trait ProductTrait
     $query = $db->getQuery(true);
     // Gets the variants bound to the given product.
     // N.B: The field names must match the specific order of the dynamic item. 
-    //      The var_id field has to be named id_nb to be used with dynamic items.
+    //      The var_id field has to be named id_nb in order to be used with dynamic items.
     $query->select('prod_id, var_id, var_id AS id_nb, name, TRUNCATE(base_price,2) AS base_price, TRUNCATE(sale_price,2) AS sale_price,'.
-		   'stock, sales, published, TRUNCATE(weight,2) AS weight, TRUNCATE(length,2) AS length, TRUNCATE(width,2) AS width,'.
+                   'stock, sales, published, stock_subtract, allow_order, min_stock_threshold, max_stock_threshold, min_quantity,'.
+                   'max_quantity, TRUNCATE(weight,2) AS weight, TRUNCATE(length,2) AS length, TRUNCATE(width,2) AS width,'.
 		   'TRUNCATE(height,2) AS height, code, availability_delay') 
 	  ->from('#__ketshop_product_variant')
 	  ->where('prod_id='.$productId)
@@ -198,22 +203,16 @@ trait ProductTrait
    * Returns the attributes bound to a given product.  
    *
    * @param   integer  $productId  The id of the product.
-   * @param   boolean  $selected   If true, adds the selected option value to the query.
    *
    * @return  array	           An array of attributes or an empty array.
    */
-  public function getProductAttributes($productId, $selected = true)
+  public function getProductAttributes($productId)
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //
-    $query->select('attrib_id AS attribute_id, name AS attribute_name');
-
-    if($selected) {
-      $query->select('option_value AS selected_option');
-    }
-
-    $query->from('#__ketshop_prod_attrib')
+    $query->select('attrib_id AS attribute_id, name AS attribute_name')
+	  ->from('#__ketshop_prod_attrib')
 	  ->join('LEFT', '#__ketshop_attribute ON id=attrib_id')
 	  ->where('prod_id='.(int)$productId)
           ->order('name');
@@ -303,8 +302,26 @@ trait ProductTrait
 
 	$published = 0;
 	// N.B: Checkbox variable is not passed through POST when unchecked.
-	if(isset($data['variant_published_'.$varNb])) {
+	//      The basic variant (ie: the first on the list) cannot be unpublished.
+	if(isset($data['variant_published_'.$varNb]) || $data['variant_ordering_'.$varNb] == 1) {
 	  $published = 1;
+	}
+
+	if($data['jform']['type'] == 'bundle') {
+	  // Relies on the bundle functions to set the stock and availability_delay values.
+	  $data['variant_stock_'.$varNb] = $this->getBundleStock($productId);
+	  $data['variant_availability_delay_'.$varNb] = $this->getBundleDelay($productId);
+	  // stock_subtract field is disabled for bundle and thus its value is not sent through the form. 
+	  $stockSubtract = $this->getReadOnlyYesNoValues($productId, 'stock_subtract');
+	}
+	// normal
+	else {
+	  $stockSubtract = $data['variant_stock_subtract_'.$varNb];
+	}
+
+	if(!(int)$stockSubtract) {
+	  // Stock is infinite. Replaces the infinite sign '∞' with zero.
+	  $data['variant_stock_'.$varNb] = 0;
 	}
 
 	// Stores variant values to insert.
@@ -314,6 +331,12 @@ trait ProductTrait
 			','.UtilityHelper::floatFormat($data['variant_sale_price_'.$varNb]).
 			','.$db->Quote($data['variant_code_'.$varNb]).','.(int)$published.
 			','.(int)$data['variant_availability_delay_'.$varNb].
+			','.(int)$stockSubtract.
+			','.(int)$data['variant_allow_order_'.$varNb].
+			','.(int)$data['variant_min_stock_threshold_'.$varNb].
+			','.(int)$data['variant_max_stock_threshold_'.$varNb].
+			','.(int)$data['variant_min_quantity_'.$varNb].
+			','.(int)$data['variant_max_quantity_'.$varNb].
 			','.UtilityHelper::floatFormat($data['variant_weight_'.$varNb]).
 			','.UtilityHelper::floatFormat($data['variant_length_'.$varNb]).
 			','.UtilityHelper::floatFormat($data['variant_width_'.$varNb]).
@@ -321,12 +344,12 @@ trait ProductTrait
 
 	// Now searches for the attributes linked to this variant.
 	foreach($data as $k => $val) {
-	  if(preg_match('#^variant_attribute_value_'.$varNb.'_([0-9]+)$#', $k, $matches)) {
+	  if(preg_match('#^variant_attribute_value_([0-9]+)_'.$varNb.'$#', $k, $matches)) {
 	    $attribId = $matches[1];
 
 	    // Checks for empty field.  
-	    if(!empty($data['variant_attribute_value_'.$varNb.'_'.$attribId])) {
-	      $value = $data['variant_attribute_value_'.$varNb.'_'.$attribId];
+	    if(!empty($data['variant_attribute_value_'.$attribId.'_'.$varNb])) {
+	      $value = $data['variant_attribute_value_'.$attribId.'_'.$varNb];
 
 	      // Checks for multiselect.
 	      if(is_array($value)) {
@@ -345,7 +368,8 @@ trait ProductTrait
       // Inserts a new row for each variant linked to the product.
       $columns = array('prod_id', 'var_id', 'name', 'stock',
 		       'base_price', 'sale_price', 'code', 'published', 'availability_delay',
-		       'weight', 'length', 'width', 'height', 'ordering');
+		       'stock_subtract', 'allow_order', 'min_stock_threshold', 'max_stock_threshold', 
+		       'min_quantity', 'max_quantity', 'weight', 'length', 'width', 'height', 'ordering');
       $query->clear();
       $query->insert('#__ketshop_product_variant')
 	    ->columns($columns)
@@ -367,10 +391,10 @@ trait ProductTrait
       }
     }
 
-    // Updates the product variant flag.
+    // Updates the number of variants.
     $query->clear();
     $query->update('#__ketshop_product')
-	  ->set('has_variants='.(int)$hasVariant)
+	  ->set('nb_variants='.(int)count($varValues))
 	  ->where('id='.(int)$productId);
     $db->setQuery($query);
     $db->execute();

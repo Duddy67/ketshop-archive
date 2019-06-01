@@ -589,7 +589,7 @@ class ShopHelper
     //Now the stock of the bundles themself must be updated.
     //Note: This condition must be checked before the recursive call or weird things occure.
     if(isset($products[$key]['bundle_ids'])) {
-      $model->updateBundle('stock', $products[$key]['bundle_ids']);
+      $model->updateBundles($products[$key]['bundle_ids']);
     }
 
     if(!empty($bundleData)) {

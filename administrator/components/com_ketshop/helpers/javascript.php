@@ -315,7 +315,7 @@ class JavascriptHelper
     // Invokes the model's function.
     $model = JModelLegacy::getInstance('Product', 'KetshopModel');
     //
-    $attributes = $model->getProductAttributes($productId, false);
+    $attributes = $model->getProductAttributes($productId);
 
     return json_encode($attributes);
   }
