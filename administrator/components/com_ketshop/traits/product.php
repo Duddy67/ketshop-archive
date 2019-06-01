@@ -26,27 +26,58 @@ trait ProductTrait
    *
    * @return  array    An array of attributes or an empty array.
    */
-  public function getAttributeData($productId) 
+  public function getAttributeData($productId, $variantId) 
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     //Fetches the option values of the attributes linked to this product.
-    $query->select('pa.attrib_id, ao.option_value')
-	  ->from('#__ketshop_prod_attrib AS pa')
-	  ->join('INNER', '#__ketshop_attrib_option AS ao ON ao.attrib_id=pa.attrib_id')
-	  ->where('pa.prod_id='.(int)$productId)
-	  ->order('pa.attrib_id');
+    $query->select('a.name, a.multiselect, va.attrib_id, va.option_value AS selected_value, ao.option_value, ao.option_text')
+	  //->from('#__ketshop_prod_attrib AS pa')
+	  ->from('#__ketshop_var_attrib AS va')
+	  ->join('INNER', '#__ketshop_attrib_option AS ao ON ao.attrib_id=va.attrib_id')
+	  ->join('INNER', '#__ketshop_attribute AS a ON a.id=va.attrib_id')
+	  //->join('INNER', '#__ketshop_var_attrib AS va ON va.prod_id=pa.prod_id AND va.attrib_id=pa.attrib_id')
+	  ->where('va.prod_id='.(int)$productId)
+	  ->where('va.var_id='.(int)$variantId)
+	  //->group('va.attrib_id')
+	  ->order('va.attrib_id');
     $db->setQuery($query);
-    $results = $db->loadAssocList();
+    $data = $db->loadAssocList();
 
     $attributes = array();
+    $nbData = count($data);
 
-    foreach($results as $data) {
-      //Gets and sets the attribute.
-      $attribute = $this->getAttribute($data['attrib_id']);
+    for($i = 0; $i < $nbData; $i++) {
+      if($data[$i]['option_value'] == $data[$i]['selected_value']) {
+	$attributes[] = array('attrib_id' => $data[$i]['attrib_id'], 
+	                      'name' => $data[$i]['name'],
+			      'multiselect' => $data[$i]['multiselect'],
+			      'option_value' => $data[$i]['selected_value'],
+			      'option_text' => $data[$i]['option_text']);
+      }
 
-      $attribute = $this->setAttribute($attribute, $data);
-      $attributes[] = $attribute;
+      if($data[$i]['multiselect'] == 1) {
+	$attributes[] = array('attrib_id' => $data[$i]['attrib_id'], 
+	                      'name' => $data[$i]['name'],
+			      'multiselect' => $data[$i]['multiselect'],
+			      'options' => array());
+
+	$lastElement = count($attributes) - 1;
+	$selectedValues = json_decode($data[$i]['selected_value']);
+	$attribId = $data[$i]['attrib_id'];
+//file_put_contents('debog_file.txt', print_r($selectedValues, true)); 
+	for($j = $i; $j < $nbData ; $j++) {
+	  if($data[$j]['attrib_id'] == $attribId && in_array($data[$j]['option_value'], $selectedValues)) {
+	    $attributes[$lastElement]['options'][] = array('option_value' => $data[$j]['option_value'],
+							   'option_text' => $data[$j]['option_text']);
+	  }
+	  elseif($data[$j]['attrib_id'] != $attribId) {
+	    break;
+	  }
+
+	  $i++;
+	}
+      }
     }
 
     return $attributes;

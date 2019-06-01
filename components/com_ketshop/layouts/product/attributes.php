@@ -11,7 +11,9 @@ JHtml::_('behavior.framework');
 
 // Create a shortcut for params.
 $params = $displayData->params;
-
+echo '<pre>';
+//var_dump($displayData->attributes);
+echo '</pre>';
 //If the product has multiple variants or no attributes and we're in the tag view, attributes are not displayed.
 $displayAttribs = true;
 if((empty($displayData->attributes) || $displayData->nb_variants > 1) && $displayData->attributes_location == 'summary') {
@@ -25,25 +27,17 @@ if((empty($displayData->attributes) || $displayData->nb_variants > 1) && $displa
 
   <?php foreach($displayData->attributes as $key => $attribute) : ?>
 	  <tr><td>
-	    <?php //Checks if we're dealing with the same attribute then the previous one (multiselect). If we
-		  //do the attribute name is not displayed. 
-		  if($key == 0 || $displayData->attributes[$key - 1]['id'] != $attribute['id']) {
-		    echo $attribute['name'];
-		  }      
-	    ?>
+	    <?php echo $attribute['name']; ?>
 	  </td><td>  
 	    <?php
-	          $multi = false;
-	          foreach($attribute['options'] as $option) {
-		    if(!empty($option['selected'])) {
-
-		      if($multi) {
-			echo '<br />';
-		      }
-
+                  if($attribute['multiselect'] == 1) {
+		    foreach($attribute['options'] as $option) {
 		      echo $option['option_text'];
-		      $multi = true;
+		      echo '<br />';
 		    }
+		  }
+		  else {
+		    echo $attribute['option_text'];
 		  }
 	    ?>
 	  </td></tr>

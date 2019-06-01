@@ -298,7 +298,7 @@ class KetshopModelTag extends JModelList
       $item->tags = new JHelperTags;
       $item->tags->getItemTags('com_ketshop.product', $item->id);
 
-      $item->attributes = $model->getAttributeData($item->id);
+      $item->attributes = $model->getAttributeData($item->id, $item->var_id);
     }
 
     return $items;
