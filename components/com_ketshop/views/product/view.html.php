@@ -47,7 +47,7 @@ class KetshopViewProduct extends JViewLegacy
     $this->uri = JUri::getInstance();
 
     //Get the attributes of the product.
-    $this->item->attributes = $model->getAttributeData($this->item->id);
+    $this->item->attributes = $model->getAttributeData($this->item->id, $this->item->var_id);
 
     //Needed for the product properties layouts.
     $this->item->attributes_location = $this->item->weight_location = $this->item->dimensions_location = 'page';

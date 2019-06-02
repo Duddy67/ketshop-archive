@@ -80,13 +80,14 @@ class KetshopModelProduct extends JModelItem
 
       //Select required fields from the products.
       //During the selection we check if product is new and set its is_new flag.
-      $query->select($this->getState('list.select', 'p.id,p.type,'.$translatedFields.'p.code,p.allow_order,p.catid,p.access,'.
-				     'p.base_price,p.sale_price,p.min_quantity,p.max_quantity,p.stock,p.stock_subtract,p.main_tag_id,'.
-				     'p.checked_out,p.checked_out_time,p.shippable,p.min_stock_threshold,p.max_stock_threshold,'.
-				     'p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height,p.img_reduction_rate,'.
-				     'p.published,p.publish_up,p.publish_down,p.hits,p.params,p.has_variants,p.variant_name,'.
-				     'p.created_by, IF(p.new_until > NOW(),1,0) AS is_new'))
+      $query->select($this->getState('list.select', 'p.id,pv.var_id,p.type,'.$translatedFields.'p.code,p.allow_order,p.catid,p.access,'.
+				     'pv.base_price,pv.sale_price,pv.min_quantity,pv.max_quantity,pv.stock,pv.stock_subtract,'.
+				     'p.checked_out,p.checked_out_time,p.shippable,pv.min_stock_threshold,pv.max_stock_threshold,'.
+				     'p.weight_unit,pv.weight,p.dimensions_unit,pv.length,pv.width,p.height,p.img_reduction_rate,'.
+				     'p.published,p.publish_up,p.publish_down,p.hits,p.params,p.nb_variants,pv.name AS variant_name,'.
+				     'p.main_tag_id,p.created_by, IF(p.new_until > NOW(),1,0) AS is_new'))
 	    ->from($db->quoteName('#__ketshop_product').' AS p')
+	    ->join('INNER', $db->quoteName('#__ketshop_product_variant').' AS pv ON pv.prod_id=p.id AND pv.ordering=1')
 	    ->where('p.id='.$pk);
 
       // Join over the tags to get the main tag title.

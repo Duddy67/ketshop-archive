@@ -11,9 +11,6 @@ JHtml::_('behavior.framework');
 
 // Create a shortcut for params.
 $params = $displayData->params;
-echo '<pre>';
-//var_dump($displayData->attributes);
-echo '</pre>';
 //If the product has multiple variants or no attributes and we're in the tag view, attributes are not displayed.
 $displayAttribs = true;
 if((empty($displayData->attributes) || $displayData->nb_variants > 1) && $displayData->attributes_location == 'summary') {

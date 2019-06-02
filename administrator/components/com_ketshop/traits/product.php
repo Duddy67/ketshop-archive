@@ -19,99 +19,81 @@ trait ProductTrait
 {
   use BundleTrait;
 
+
   /**
-   * Returns the attributes bound to a given product.  
+   * Returns the selected values of the attributes bound to a given product.  
    *
    * @param   integer  $productId  The id of the product.
    *
-   * @return  array    An array of attributes or an empty array.
+   * @return  array    An array of attribute data or an empty array.
    */
   public function getAttributeData($productId, $variantId) 
   {
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
-    //Fetches the option values of the attributes linked to this product.
+    // Gets all the attribute option values/texts as well as the selected option(s). 
     $query->select('a.name, a.multiselect, va.attrib_id, va.option_value AS selected_value, ao.option_value, ao.option_text')
-	  //->from('#__ketshop_prod_attrib AS pa')
 	  ->from('#__ketshop_var_attrib AS va')
 	  ->join('INNER', '#__ketshop_attrib_option AS ao ON ao.attrib_id=va.attrib_id')
 	  ->join('INNER', '#__ketshop_attribute AS a ON a.id=va.attrib_id')
-	  //->join('INNER', '#__ketshop_var_attrib AS va ON va.prod_id=pa.prod_id AND va.attrib_id=pa.attrib_id')
 	  ->where('va.prod_id='.(int)$productId)
 	  ->where('va.var_id='.(int)$variantId)
-	  //->group('va.attrib_id')
+	  //
 	  ->order('va.attrib_id');
     $db->setQuery($query);
     $data = $db->loadAssocList();
 
+    // Restructures data.
+
     $attributes = array();
     $nbData = count($data);
 
+    // Loops through the data.
     for($i = 0; $i < $nbData; $i++) {
+      // Checks for regular attribute values (ie: single select drop down list).
       if($data[$i]['option_value'] == $data[$i]['selected_value']) {
+	// Stores the needed attribute data.
 	$attributes[] = array('attrib_id' => $data[$i]['attrib_id'], 
 	                      'name' => $data[$i]['name'],
-			      'multiselect' => $data[$i]['multiselect'],
+			      'multiselect' => 0,
 			      'option_value' => $data[$i]['selected_value'],
 			      'option_text' => $data[$i]['option_text']);
       }
 
+      // Handles the multi data (ie: multiselect drop down list).
       if($data[$i]['multiselect'] == 1) {
+	// For starters stores the global attribute data.
 	$attributes[] = array('attrib_id' => $data[$i]['attrib_id'], 
 	                      'name' => $data[$i]['name'],
 			      'multiselect' => $data[$i]['multiselect'],
 			      'options' => array());
 
 	$lastElement = count($attributes) - 1;
+	// Converts the Json data into an array of values.
 	$selectedValues = json_decode($data[$i]['selected_value']);
+	// Gets the multiselect attribute id.
 	$attribId = $data[$i]['attrib_id'];
-//file_put_contents('debog_file.txt', print_r($selectedValues, true)); 
+
+	// Runs a nested loop which starts from the first index of the multiselect attribute.
 	for($j = $i; $j < $nbData ; $j++) {
+	  // Stores each value/text for this attribute.
 	  if($data[$j]['attrib_id'] == $attribId && in_array($data[$j]['option_value'], $selectedValues)) {
 	    $attributes[$lastElement]['options'][] = array('option_value' => $data[$j]['option_value'],
 							   'option_text' => $data[$j]['option_text']);
 	  }
+	  // It's no longer the same attribute.
 	  elseif($data[$j]['attrib_id'] != $attribId) {
+	    // Stops the nested loop and lets the parent loop taking over.
 	    break;
 	  }
 
+	  // Increments the parent loop index.
 	  $i++;
 	}
       }
     }
 
     return $attributes;
-  }
-
-
-  /**
-   * Sets the options of a given attribute.
-   *
-   * @param   array	The attribute to set.
-   * @param   array	The attribute data.
-   *
-   * @return  array	The set attribute.
-   */
-  protected function setAttribute($attribute, $data) 
-  {
-    //Checks for multiselect values.
-    if(substr($data['option_value'], 0, 1) === '[') {
-      //Gets the multiselect array.
-      $values = json_decode($data['option_value'], true);
-    }
-    else {
-      //Single values are put into an array for more convenience.
-      $values = array($data['option_value']);
-    }
-
-    foreach($attribute['options'] as $key => $option) {
-      //Sets the selected option(s).
-      if(in_array($option['option_value'], $values)) {
-	$attribute['options'][$key]['selected'] = ' selected="selected"';
-      }
-    }
-
-    return $attribute;
   }
 
 
@@ -197,36 +179,6 @@ trait ProductTrait
     }
 
     return $variants;
-  }
-
-
-  //The aim of this Ajax function is to simulate the checking for an unique alias in the table file. 
-  //This avoid the users to loose the attributes and images they've just set in case of
-  //error (handle in tables/product.php).
-  public function checkAlias($productId, $name, $alias) 
-  {
-    $return = 1;
-
-    //Create a sanitized alias, (see stringURLSafe function for details).
-    $alias = JFilterOutput::stringURLSafe($alias);
-    //In case no alias has been defined, create a sanitized alias from the name field.
-    if(empty($alias)) {
-      $alias = JFilterOutput::stringURLSafe($name);
-    }
-
-    $db = JFactory::getDbo();
-    $query = $db->getQuery(true);
-    //Check for unique alias.
-    $query->select('COUNT(*)')
-	  ->from('#__ketshop_product')
-	  ->where('alias='.$db->Quote($alias).' AND id!='.(int)$productId);
-    $db->setQuery($query);
-
-    if($db->loadResult()) {
-      $return = 0;
-    }
-
-    return $return;
   }
 
 
@@ -431,6 +383,36 @@ trait ProductTrait
     $db->execute();
 
     return;
+  }
+
+
+  //The aim of this Ajax function is to simulate the checking for an unique alias in the table file. 
+  //This avoid the users to loose the attributes and images they've just set in case of
+  //error (handle in tables/product.php).
+  public function checkAlias($productId, $name, $alias) 
+  {
+    $return = 1;
+
+    //Create a sanitized alias, (see stringURLSafe function for details).
+    $alias = JFilterOutput::stringURLSafe($alias);
+    //In case no alias has been defined, create a sanitized alias from the name field.
+    if(empty($alias)) {
+      $alias = JFilterOutput::stringURLSafe($name);
+    }
+
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+    //Check for unique alias.
+    $query->select('COUNT(*)')
+	  ->from('#__ketshop_product')
+	  ->where('alias='.$db->Quote($alias).' AND id!='.(int)$productId);
+    $db->setQuery($query);
+
+    if($db->loadResult()) {
+      $return = 0;
+    }
+
+    return $return;
   }
 }
 
