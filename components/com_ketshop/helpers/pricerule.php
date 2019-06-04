@@ -207,18 +207,28 @@ class PriceruleHelper
   }
 
 
+  /**
+   * Checks then applies catalog price rule(s) to a given product.
+   *
+   * @param   array	$product	The product data. 
+   * @param   array	$settings	The shop setting data.
+   *
+   * @return  JObject	A catalog price object.
+   */
   public static function getCatalogPrice($product, $settings)
   {
-    //Create the catalog price object.
+    // Creates the catalog price object.
     $catalogPrice = new JObject;
     $catalogPrice->pricerules = array();
 
+    // No price rules. 
     if(empty($product['pricerules'])) {
+      // Simply returns the sale price as final price.
       $catalogPrice->final_price = $product['sale_price'];
       return $catalogPrice;
     }
 
-    //Initialize some needed variables.
+    // Initializes some needed variables.
     $priceRules = $product['pricerules'];
     $basePrice = $product['base_price'];
     $salePrice = $product['sale_price'];
@@ -227,93 +237,96 @@ class PriceruleHelper
     $digits = $settings['digits_precision'];
     $taxMethod = $settings['tax_method'];
 
-    //Set the variables we need for price calculation.
+    // Sets the variables needed for price calculation.
     $finalPrice = $salePrice;
     $showRule = 0;
     $i = 0;
 
-    //List the price rules and apply them according to their modifier type.
+    // Loops through the price rules and apply them according to their modifier type.
     foreach($priceRules as $key => $priceRule) {
-      //The highest rule on the stack defines the show_rule flag for all the 
-      //following price rules. 
+      // The highest rule on the stack defines the show_rule flag for all the 
+      // following price rules. 
       if($i == 0 && $priceRule['show_rule']) {
 	$showRule = 1;
       }
 
-      //Get the type (percent or absolute) and the operator (+ or -) of the
-      //operation.
+      // Gets the type (percent or absolute) and the operator (+ or -) of the operation.
       $operation = self::getOperationAttributes($priceRule['operation']);
 
       if($priceRule['modifier'] == 'profit_margin_modifier') {
-	//Compute the profit margin of this product.
+	// Computes the profit margin of this product.
 	$profitMargin = $salePrice - $basePrice;
 
-	//Note: With profit margin, rules are always applied before taxes.
+	//N.B: With profit margin, rules are always applied before taxes.
 
 	if($operation->type == 'percent') {
 	  $result = $profitMargin * ($priceRule['value'] / 100);
 	}
-	else { //absolute
+	// absolute
+	else { 
 	  $result = $priceRule['value'];
 	}
 
-	//Apply rule to profit margin then round the result.
+	// Applies rule to profit margin then round the result.
 	$finalProfitMargin = self::applyRule($operation->operator, $result, $profitMargin);
 
-        //Check the modified profit margin is still above zero.
+        // Checks if the modified profit margin is still above zero.
 	if($finalProfitMargin <= 0) {
 	  ShopHelper::logEvent($codeLocation, 'pricerule_error', 0, 101, 'getCatalogPrice: final profit margin is zero or under zero');
-	  //Reset to the original value.
+	  // Resets to the original value.
 	  $catalogPrice->final_price = $salePrice;
 
 	  return $catalogPrice;
 	}
 
-	//Compute the product price with the modified profit margin.
+	// Computes the product price with the modified profit margin.
 	$finalPrice = $basePrice + $finalProfitMargin;
       }
-      else { //sale_price_modifier
-	//With percentages, before and after taxes applications are not
-	//taking in account cause they give the same final price value in the end.
+      // sale_price_modifier
+      else { 
+	// When it comes to percentages, before and after taxes applications are not
+	// taking in account cause they give the same final price value in the end.
 	if($operation->type == 'percent') {
 	  $result = $finalPrice * ($priceRule['value'] / 100);
-	  //Apply rule to final price then round the result.
+	  // Applies rule to final price then round the result.
 	  $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
 	}
-	else { //With absolute values, before and after taxes applications must be computed differently.
+	// When it comes to absolute values, before and after taxes applications must be computed differently.
+	else { 
 	  $result = $priceRule['value'];
 
-	  //Check when the rule must be applied (ie: after or before taxes).
-	  //Note: We have to keep in mind that unit price is expressed excluding taxes
-	  //with excl_tax method and including taxes with incl_tax method.
-	  //So we must compute rules accordingly.
+	  // Checks when the rule must be applied (ie: after or before taxes).
+	  // N.B: We have to keep in mind that unit price is expressed excluding taxes
+	  // with excl_tax method and including taxes with incl_tax method.
+	  // So we must compute rules accordingly.
 
 	  if($priceRule['application'] == 'after_taxes' && $taxMethod == 'excl_tax') {
-	    //Rule must be applied to product unit price with taxes.
+	    // Rules must be applied to product unit price with taxes.
 	    $finalPrice = UtilityHelper::getPriceWithTaxes($finalPrice, $taxRate);
 	    $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
-	    //Do the opposite operation (ie: retrieve product price without taxes). 
+	    // Does the opposite operation (ie: retrieve product price without taxes). 
 	    $finalPrice = UtilityHelper::getPriceWithoutTaxes($finalPrice, $taxRate);
 	  }
 	  elseif($priceRule['application'] == 'before_taxes' && $taxMethod == 'incl_tax') {
-	    //Rule must be applied to product unit price without taxes.
+	    // Rules must be applied to product unit price without taxes.
 	    $finalPrice = UtilityHelper::getPriceWithoutTaxes($finalPrice, $taxRate);
 	    $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
-	    //Do the opposite operation (ie: retrieve product price with taxes). 
+	    // Does the opposite operation (ie: retrieve product price with taxes). 
 	    $finalPrice = UtilityHelper::getPriceWithTaxes($finalPrice, $taxRate);
 	  }
-	  else { //For the other cases we just apply the rule as it is.
+	  // For the other cases the rule is just applied as it is.
+	  else { 
 	    $finalPrice = self::applyRule($operation->operator, $result, $finalPrice);
 	  }
 	}
 
-	//Round the result.
+	// Rounds the result.
 	$finalPrice = UtilityHelper::roundNumber($finalPrice, $rounding, $digits);
 
-	//Check the modified final price is still above zero.
+	// Checks the modified final price is still above zero.
 	if($finalPrice <= 0) {
 	  ShopHelper::logEvent($codeLocation, 'pricerule_error', 0, 102, 'getCatalogPrice: final price is zero or under zero');
-	  //Reset to the original value.
+	  // Resets to the original value.
 	  $catalogPrice->final_price = $salePrice;
 
 	  return $catalogPrice;
@@ -332,85 +345,116 @@ class PriceruleHelper
   }
 
 
+  /**
+   * Fetches all the catalog price rules bound to a given product.
+   *
+   * @param   array	$product	The product data. 
+   *
+   * @return  array	The catalog price rules bound to the given product.
+   */
   public static function getCatalogPriceRules($product)
   {
-    //Used as first argument of the logEvent function.
+    // Used as first argument of the logEvent function.
     $codeLocation = 'helpers/pricerule.php';
 
-    //Gets current date and time (UTC).
+    // Gets current date and time (UTC).
     $now = JFactory::getDate()->toSql();
 
-    //Get the user data.
+    // Gets the user data.
     $user = JFactory::getUser();
-    //Get user group ids to which the user belongs to. 
+    // Gets user group ids to which the user belongs to. 
     $groups = JAccess::getGroupsByUser($user->id);
     $INcustGroups = implode(',', $groups);
 
-    //The translated fields of a price rule.
+    // The translated fields of a price rule.
     $translatedFields = 'pr.name,pr.description,';
     $leftJoinTranslation = '';
-    //Check if a translation is needed.
+
+    // Checks if a translation is needed.
     if(ShopHelper::switchLanguage()) {
-      //Get the SQL query parts needed for the translation of the price rules.
+      // Gets the SQL query parts needed for the translation of the price rules.
       $pruleTranslation = ShopHelper::getTranslation('price_rule', 'id', 'pr', 'pr');
-      //Translation fields are now defined by the SQL conditions.
+      // Translation fields are now defined by the SQL conditions.
       $translatedFields = $pruleTranslation->translated_fields.',';
-      //Build the left join SQL clause.
+      // Build the left join SQL clause.
       //$leftJoinTranslation = 'LEFT OUTER JOIN '.$pruleTranslation->left_join;
       $leftJoinTranslation = $pruleTranslation->left_join;
     }
 
-    //Check for possible coupon price rule.
+    // Checks for possible coupon price rule.
     $couponQuery = self::setCouponQuery();
 
-    //Get all the rules concerning the product (or the group/category it's in) and the
-    //current user (or the group he's in).
-    //The list of result is ordered to determine their level.
-    //Only catalog rules are selected.
+    // Gets all the rules concerning the product (or its group/category) and the
+    // current user (or the group he's in).
+    // The list of result is ordered to determine their level.
+    // Only catalog rules are selected.
     $db = JFactory::getDbo();
     $query = $db->getQuery(true);
     $query->select('pr.id, pr.type, pr.operation, pr.value, pr.behavior, pr.ordering, pr.show_rule,'. 
-		   'pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application')
+		   'pr.target, pr.recipient, pr.ordering,'.$translatedFields.'pr.modifier, pr.application, prt.var_id')
 	  ->from('#__ketshop_price_rule AS pr')
 	  ->join('LEFT', '#__ketshop_prule_recipient AS prr ON (pr.recipient="customer" '.
 			 'AND prr.item_id='.$user->id.') OR (pr.recipient="customer_group" '.
 			 'AND prr.item_id IN ('.$INcustGroups.')) ')
-	  ->join('LEFT', '#__ketshop_prule_target AS prt ON (pr.target="product" '.
-			 'AND prt.item_id='.(int)$product['id'].') OR (pr.target="bundle" AND prt.item_id='.(int)$product['id'].') '.
+	  ->join('LEFT', '#__ketshop_prule_target AS prt ON ((pr.target="product" OR pr.target="bundle") '.
+			 'AND prt.item_id='.(int)$product['id'].') '.
 			 'OR (pr.target="product_cat" AND prt.item_id='.(int)$product['catid'].')')
 	  ->join('LEFT', '#__ketshop_coupon AS cp ON cp.prule_id=pr.id');
 
-    //Check for translation.
+    // Checks for translation.
     if(!empty($leftJoinTranslation)) {
       $query->join('LEFT', $leftJoinTranslation);
     }
 
     $query->where('pr.id = prt.prule_id AND pr.id = prr.prule_id AND pr.published = 1 AND pr.type = "catalog"')
 	  ->where($couponQuery)
-	  //Check against publication dates (start and stop).
+	  // Checks against publication dates (start and stop).
 	  ->where('('.$db->quote($now).' < pr.publish_down OR pr.publish_down = "0000-00-00 00:00:00")')
 	  ->where('('.$db->quote($now).' > pr.publish_up OR pr.publish_up = "0000-00-00 00:00:00")')
 	  ->order('ordering');
     $db->setQuery($query);
     $catalogPriceRules = $db->loadAssocList();
 
-    //Check for errors.
+    // Checks for errors.
     if($db->getErrorNum()) {
       ShopHelper::logEvent($codeLocation, 'sql_error', 1, $db->getErrorNum(), $db->getErrorMsg());
       return false;
     }
 
-    //Check for an possible exclusive rule. 
-    $delete = false;
+    // Restructures the price rule array in case of several product variant are linked to
+    // the same price rule.
     foreach($catalogPriceRules as $key => $catalogPriceRule) {
-      //An exclusive rule has been found. 
+      // Adds a var_ids attribute to the price rule.
+      $catalogPriceRules[$key]['var_ids'] = array();
+
+      // The current price rule is a duplicate of the previous one. It means that several
+      // product variants are linked to this price rule.
+      if($key != 0 && $catalogPriceRule['id'] == $catalogPriceRules[$key - 1]['id']) {
+	// Stores the product variant id in the previous price rule.
+	$catalogPriceRules[$key - 1]['var_ids'][] = $catalogPriceRule['var_id'];
+	// Delete the current price rule as it's a duplicate.
+	unset($catalogPriceRules[$key]);
+      }
+      else {
+	// Stores the product variant id in the price rule.
+	$catalogPriceRules[$key]['var_ids'][] = $catalogPriceRule['var_id'];
+	// Removes the var_id attribute from the price rule as it's useless now.
+	unset($catalogPriceRules[$key]['var_id']);
+      }
+    }
+
+    // Checks for a possible exclusive rule. 
+    $delete = false;
+
+    foreach($catalogPriceRules as $key => $catalogPriceRule) {
+      // An exclusive rule has been found. 
       if($delete) {
-	//Delete the rest of the price rule array.
+	// Deletes the rest of the price rule array.
 	unset($catalogPriceRules[$key]);
 	continue;
       }
 
-      //In case of exclusive rule, the rest of the price rule array has to be deleted.
+      // In case of exclusive rule, the rest of the price rule array has to be deleted.
       if($catalogPriceRule['behavior'] == 'XOR') {
 	$delete = true;
       }

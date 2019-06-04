@@ -57,16 +57,19 @@ class KetshopViewProduct extends JViewLegacy
     //Add the settings to the item (for the layout).
     $this->item->shop_settings = $this->shopSettings;
 
-    //Convert item object into associative array by just casttype it.
+    // Converts item object into associative array by just casttype it.
     $product = (array)$this->item;
-    //Get the possible price rules linked to the product.
+
+    // Gets the possible price rules linked to the product.
     $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
-    //Get the catalog price of the product.
+    // Gets the catalog price of the product.
     $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 
+    // Sets the final price of the product.
     $this->item->final_price = $catalogPrice->final_price;
     $this->item->pricerules = $catalogPrice->pricerules;
 
+    // The global tax method is set to excluding taxes.
     if($this->shopSettings['tax_method'] == 'excl_tax') {
       $this->item->final_price_with_taxes = UtilityHelper::getPriceWithTaxes($this->item->final_price, $this->item->tax_rate);
       $this->item->final_price_with_taxes = UtilityHelper::roundNumber($this->item->final_price_with_taxes,
@@ -74,16 +77,16 @@ class KetshopViewProduct extends JViewLegacy
 								       $this->shopSettings['digits_precision']);
     }
 
-    //Get possible product variants.
-    $this->item->variants = $model->getVariantData($this->item->id);
+    // Checks for extra product variants.
+    if($this->item->nb_variants > 1) { 
+      // Gets product variants.
+      $this->item->variants = $model->getVariantData($this->item->id);
 
-    //Check for product variants.
-    if(!empty($this->item->variants)) { 
       foreach($this->item->variants as $key => $variant) {
 	//Check for variants with a price different from the one of the main product. If a
 	//price rule is applied on the main product price, the same price rule must be
 	//applied on the product variant price as well.
-	if($variant['sale_price'] > 0 && $variant['base_price'] > 0 && $this->item->sale_price != $this->item->final_price) {
+	/*if($variant['sale_price'] > 0 && $variant['base_price'] > 0 && $this->item->sale_price != $this->item->final_price) {
 	  $product = array('id' => $this->item->id, 
 			   'base_price' => $variant['base_price'], 
 			   'sale_price' => $variant['sale_price'], 
@@ -93,6 +96,12 @@ class KetshopViewProduct extends JViewLegacy
 	  $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 	  $this->item->variants[$key]['final_price'] = $catalogPrice->final_price;
 	  $this->item->variants[$key]['pricerules'] = $catalogPrice->pricerules;
+          }*/
+
+
+	if($key == 0) {
+	  $this->item->variants[$key]['final_price'] = $this->item->final_price;
+	  $this->item->variants[$key]['pricerules'] = $product['pricerules'];
 	}
 	else {
 	  $this->item->variants[$key]['final_price'] = $variant['sale_price'];

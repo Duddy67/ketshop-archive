@@ -136,7 +136,7 @@ trait ProductTrait
    *
    * @param   integer  $productId  The id of the product.
    *
-   * @return  array    An array of variants or an empty array.
+   * @return  array    An array of variants.
    */
   public function getVariantData($productId) 
   {

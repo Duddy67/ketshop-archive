@@ -103,18 +103,25 @@ class KetshopModelPricerule extends JModelAdmin
     $db = $this->getDbo();
     $query = $db->getQuery(true);
 
-    //Sets attribute and table names according to the target type. 
-    $name = 'name AS item_name';
-    $table = '#__ketshop_product';
+    // Sets attribute and table names according to the target type. 
+    $name = 'CONCAT_WS(" ", p.name, pv.name) AS item_name';
+    $table = '#__ketshop_product AS p';
+
     if($targetType == 'product_cat') {
-      $name = 'title AS item_name';
-      $table = '#__categories';
+      $name = 'c.title AS item_name';
+      $table = '#__categories AS c';
     }
 
-    $query->select('item_id, var_id, '.$name)
-	  ->from('#__ketshop_prule_target')
-	  ->join('INNER', $table.' ON id=item_id')
-	  ->where('prule_id='.(int)$pk);
+    $query->select('pt.item_id, pt.var_id, '.$name)
+	  ->from('#__ketshop_prule_target AS pt')
+	  ->join('INNER', $table.' ON id=pt.item_id');
+
+    if($targetType == 'product') {
+      // Gets the variant name from the variant table.
+      $query->join('INNER', '#__ketshop_product_variant AS pv ON pv.prod_id=pt.item_id AND pv.var_id=pt.var_id');
+    }
+
+    $query->where('pt.prule_id='.(int)$pk);
     $db->setQuery($query);
 
     return $db->loadAssocList();

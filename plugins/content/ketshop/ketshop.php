@@ -281,23 +281,27 @@ class plgContentKetshop extends JPlugin
 
       // N.B: There is no item dynamicaly added in target when cart rule is selected. 
       //      So there's no need to store anything into database.
-      $targets = $targetIds = array();
+      $targets = $targetIds = $duplicates = array();
 
       if($ruleType == 'catalog') {
 	foreach($this->post as $key => $val) {
 	  if(preg_match('#^target_item_id_([0-9]+)$#', $key, $matches)) {
 	    $targetNb = $matches[1];
 	    $targetId = (int)$this->post['target_item_id_'.$targetNb];
+	    $varId = (int)$this->post['target_var_id_'.$targetNb];
 
-	    // Prevents duplicate or empty target id.
-	    if($targetId && !in_array($targetId, $targetIds)) {
+	    // Prevents duplicate or empty target id from being stored.
+	    if($targetId && !in_array($targetId.'_'.$varId, $duplicates)) {
 	      $target = new JObject;
 	      $target->prule_id = $data->id;
 	      $target->item_id = $targetId;
-	      $target->var_id = $this->post['target_var_id_'.$targetNb];
+	      $target->var_id = $varId;
 	      $targets[] = $target;
-	      //
+	      // Stores the target.
 	      $targetIds[] = $targetId;
+
+	      // Saves the item and var ids as a pair separated by an underscore.
+	      $duplicates[] = $target->item_id.'_'.$target->var_id;
 	    }
 	  }
 	}

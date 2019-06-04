@@ -14,6 +14,7 @@ $params = $displayData->params;
 
 //Computes the tabs rendering.
 $tabs = array('details' => '', 'weight_dimensions' => '', 'attributes' => '');
+
 foreach($tabs as $key => $tab) {
   //Gets the tab rendering.
   $rendering = JLayoutHelper::render('product.'.$key, $displayData);
