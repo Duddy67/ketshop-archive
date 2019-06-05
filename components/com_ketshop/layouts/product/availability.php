@@ -14,16 +14,16 @@ $item = $displayData['item'];
 $params = $displayData['params'];
 $view = $displayData['view'];
 
-//In case product has variants as we're in tag view, we don't display the cart icon 
-//as the customer has to choose between variants on the product page. 
-//The cart icon is no needed in the vendor product view neither.
+// In case product has variants as we're in tag view, we don't display the cart icon 
+// as the customer has to choose between variants on the product page. 
+// The cart icon is no needed in the vendor product view neither.
 $displayCartIcon = true;
 if($view == 'vendorproduct' || ($view == 'tag' && $item->nb_variants > 1)) {
   $displayCartIcon = false;
 }
 ?>
 
-<?php if($params->get('show_stock_state') && $item->nb_variants == 1) : //Note: Don't display stock state when product has more than one  variants. ?>
+<?php if($params->get('show_stock_state') && (($item->nb_variants == 1 && $view == 'tag') || $view == 'product')) : ?>
   <span class="label label-default">
     <?php echo JText::_('COM_KETSHOP_STOCK_STATE_'.strtoupper($item->stock_state)); ?>
   </span>

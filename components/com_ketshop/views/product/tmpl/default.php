@@ -50,10 +50,17 @@ $session->set('location', $location, 'ketshop');
     <?php echo $item->full_text; ?>
   <?php endif; ?>
 
-  <?php echo JLayoutHelper::render('product.availability', array('item' => $this->item, 'params' => $params, 'view' => 'product')); 
-        echo JLayoutHelper::render('product.price', $this->item); 
-        echo JLayoutHelper::render('product.variants', $this->item); 
-        echo JLayoutHelper::render('product.tabs', $this->item);
+<?php
+	if($this->item->nb_variants > 1) {
+	  // Each product variant is diplayed in a dedicated tab.
+	  echo JLayoutHelper::render('product.variants', $this->item); 
+	}
+	// The product has just one basic variant.
+	else {
+	  echo JLayoutHelper::render('product.availability', array('item' => $this->item, 'params' => $params, 'view' => 'product')); 
+	  echo JLayoutHelper::render('product.price', $this->item); 
+	  echo JLayoutHelper::render('product.tabs', $this->item);
+	}
   ?>
 </div>
 

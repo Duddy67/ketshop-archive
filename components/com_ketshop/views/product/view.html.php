@@ -42,103 +42,101 @@ class KetshopViewProduct extends JViewLegacy
     //Get the possible extra class name.
     $this->pageclass_sfx = htmlspecialchars($this->item->params->get('pageclass_sfx'));
 
-    //Get the user object and the current url, (needed in the product edit layout).
+    // Gets the user object and the current url, (needed in the product edit layout).
     $this->user = JFactory::getUser();
     $this->uri = JUri::getInstance();
 
-    //Get the attributes of the product.
+    // Gets the attributes of the product (ie: of the basic product variant).
     $this->item->attributes = $model->getAttributeData($this->item->id, $this->item->var_id);
 
-    //Needed for the product properties layouts.
+    // Needed for the product properties layouts.
     $this->item->attributes_location = $this->item->weight_location = $this->item->dimensions_location = 'page';
 
-    //Get the global settings of the shop.
+    // Gets the global settings of the shop.
     $this->shopSettings = ShopHelper::getShopSettings();
-    //Add the settings to the item (for the layout).
+    // Adds the settings to the item (for the layout).
     $this->item->shop_settings = $this->shopSettings;
 
     // Converts item object into associative array by just casttype it.
     $product = (array)$this->item;
 
-    // Gets the possible price rules linked to the product.
-    $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
-    // Gets the catalog price of the product.
-    $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
-
-    // Sets the final price of the product.
-    $this->item->final_price = $catalogPrice->final_price;
-    $this->item->pricerules = $catalogPrice->pricerules;
-
-    // The global tax method is set to excluding taxes.
-    if($this->shopSettings['tax_method'] == 'excl_tax') {
-      $this->item->final_price_with_taxes = UtilityHelper::getPriceWithTaxes($this->item->final_price, $this->item->tax_rate);
-      $this->item->final_price_with_taxes = UtilityHelper::roundNumber($this->item->final_price_with_taxes,
-								       $this->shopSettings['rounding_rule'], 
-								       $this->shopSettings['digits_precision']);
-    }
+    // Gets the price rules linked to the product including all its variants.
+    $priceRules = PriceruleHelper::getCatalogPriceRules($product);
 
     // Checks for extra product variants.
     if($this->item->nb_variants > 1) { 
-      // Gets product variants.
+      // Gets the product variants.
       $this->item->variants = $model->getVariantData($this->item->id);
 
       foreach($this->item->variants as $key => $variant) {
-	//Check for variants with a price different from the one of the main product. If a
-	//price rule is applied on the main product price, the same price rule must be
-	//applied on the product variant price as well.
-	/*if($variant['sale_price'] > 0 && $variant['base_price'] > 0 && $this->item->sale_price != $this->item->final_price) {
-	  $product = array('id' => $this->item->id, 
-			   'base_price' => $variant['base_price'], 
-			   'sale_price' => $variant['sale_price'], 
-			   'tax_rate' => $this->item->tax_rate, 
-			   'type' => $this->item->type);
-	  //Compute the catalog price for this product variant.
-	  $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
-	  $this->item->variants[$key]['final_price'] = $catalogPrice->final_price;
-	  $this->item->variants[$key]['pricerules'] = $catalogPrice->pricerules;
-          }*/
+        // Adds some required attributes to the variant.
+	$this->item->variants[$key]['pricerules'] = array();
+	$this->item->variants[$key]['tax_rate'] = $this->item->tax_rate;
+	$this->item->variants[$key]['type'] = $this->item->type;
+	$this->item->variants[$key]['nb_variants'] = $this->item->nb_variants;
+	$this->item->variants[$key]['shippable'] = $this->item->shippable;
+	$this->item->variants[$key]['id'] = $this->item->id;
+	$this->item->variants[$key]['slug'] = $this->item->slug;
+	$this->item->variants[$key]['catid'] = $this->item->slug;
 
+	// The product is linked to some price rules.
+	if(!empty($priceRules)) {
+	  // Loops through the price rules. 
+	  foreach($priceRules as $priceRule) {
+	    // Checks if the product variant is bound to the price rule.
+	    if(in_array($variant['var_id'], $priceRule['var_ids'])) {
+	      $this->item->variants[$key]['pricerules'][] = $priceRule;
+	    }
+	  }
+	}
 
-	if($key == 0) {
-	  $this->item->variants[$key]['final_price'] = $this->item->final_price;
-	  $this->item->variants[$key]['pricerules'] = $product['pricerules'];
-	}
-	else {
-	  $this->item->variants[$key]['final_price'] = $variant['sale_price'];
-	}
+	// Gets the final price for this product variant.
+	$catalogPrice = PriceruleHelper::getCatalogPrice($this->item->variants[$key], $this->shopSettings);
+	$this->item->variants[$key]['final_price'] = $catalogPrice->final_price;
 
 	if($this->shopSettings['tax_method'] == 'excl_tax') {
-	  $this->item->variants[$key]['final_price_with_taxes'] = UtilityHelper::getPriceWithTaxes($this->item->variants[$key]['final_price'],
-												  $this->item->tax_rate);
-	  $this->item->variants[$key]['final_price_with_taxes'] = UtilityHelper::roundNumber($this->item->variants[$key]['final_price_with_taxes'],
-											    $this->shopSettings['rounding_rule'],
-											    $this->shopSettings['digits_precision']);
+	  $this->item->variants[$key]['final_price_with_taxes'] = UtilityHelper::getPriceWithTaxes($this->item->variants[$key]['final_price'], $this->item->tax_rate);
+	  $this->item->variants[$key]['final_price_with_taxes'] = UtilityHelper::roundNumber($this->item->variants[$key]['final_price_with_taxes'], $this->shopSettings['rounding_rule'], $this->shopSettings['digits_precision']);
 	}
-      }
-    }
 
-    //Get the stock state.
-    if($this->item->stock_subtract) {
-      $this->item->stock_state = ShopHelper::getStockState($this->item->min_stock_threshold,
-							   $this->item->max_stock_threshold,
-							   $this->item->stock, $this->item->allow_order);
-
-      if(!empty($this->item->variants)) { //
-        foreach($this->item->variants as $key => $variant) {
-	  $this->item->variants[$key]['stock_state'] = ShopHelper::getStockState($this->item->min_stock_threshold,
-										$this->item->max_stock_threshold,
-										$variant['stock'], $this->item->allow_order);
+	// Computes the stock state.
+	if($this->item->variants[$key]['stock_subtract']) {
+	  $this->item->variants[$key]['stock_state'] = ShopHelper::getStockState($variant['min_stock_threshold'],
+										 $variant['max_stock_threshold'],
+										 $variant['stock'], $variant['allow_order']);
 	}
-      }
-    }
-    else { //If product is not subtracted from stock, we assume that the stock is always full.
-      if(empty($this->item->variants)) { //Regular product.
-	$this->item->stock_state = 'maximum'; 
-      }
-      else { //Product with variants.      
-        foreach($this->item->variants as $key => $variant) {
+	// Stock is infinite.
+	else {
 	  $this->item->variants[$key]['stock_state'] = 'maximum';
 	}
+      }
+    }
+    // The product has just one basic variant.
+    else {
+      $this->item->pricerules = $priceRules;
+      // Gets the catalog price of the product.
+      $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
+
+      // Sets the final price of the product.
+      $this->item->final_price = $catalogPrice->final_price;
+
+      // The global tax method is set to excluding taxes.
+      if($this->shopSettings['tax_method'] == 'excl_tax') {
+	$this->item->final_price_with_taxes = UtilityHelper::getPriceWithTaxes($this->item->final_price, $this->item->tax_rate);
+	$this->item->final_price_with_taxes = UtilityHelper::roundNumber($this->item->final_price_with_taxes,
+									 $this->shopSettings['rounding_rule'], 
+									 $this->shopSettings['digits_precision']);
+      }
+
+      //Get the stock state.
+      if($this->item->stock_subtract) {
+	$this->item->stock_state = ShopHelper::getStockState($this->item->min_stock_threshold,
+							     $this->item->max_stock_threshold,
+							     $this->item->stock, $this->item->allow_order);
+      }
+      // Stock is infinite.
+      else {
+	$this->item->stock_state = 'maximum'; 
       }
     }
 
