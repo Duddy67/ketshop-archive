@@ -257,7 +257,7 @@ class PriceruleHelper
 	// Computes the profit margin of this product.
 	$profitMargin = $salePrice - $basePrice;
 
-	//N.B: With profit margin, rules are always applied before taxes.
+	// N.B: With profit margin, rules are always applied before taxes.
 
 	if($operation->type == 'percent') {
 	  $result = $profitMargin * ($priceRule['value'] / 100);

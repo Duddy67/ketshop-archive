@@ -241,15 +241,30 @@ class KetshopViewTag extends JViewLegacy
     for($i = 0; $i < $nbItems; $i++) {
       $item = $this->items[$i];
 
-      //Convert item object into associative array by just casttype it.
+      //FIX IT: the convertion makes the code messy. 
+      // Converts item object into associative array by just casttype it.
       $product = (array)$item;
-      //Get the possible price rules linked to the product.
-      $product['pricerules'] = PriceruleHelper::getCatalogPriceRules($product);
+      // Gets the price rules linked to the product including all its variants.
+      $priceRules = PriceruleHelper::getCatalogPriceRules($product);
+      $product['pricerules'] = array();
+
+      foreach($priceRules as $priceRule) {
+	// Checks if the product basic variant matches the price rule (product/bundle) target.
+	if($priceRule['target'] != 'product_cat' && in_array($product['var_id'], $priceRule['var_ids'])) {
+	  $product['pricerules'][] = $priceRule;
+	}
+	// If the product is in the category targeted by the price rule, all of the
+	// product variants are impacted by this rule.
+	elseif($priceRule['target'] == 'product_cat') {
+	  $product['pricerules'][] = $priceRule;
+	}
+      }
+
       //Get the catalog price of the product.
       $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 
       $item->final_price = $catalogPrice->final_price;
-      $item->pricerules = $catalogPrice->pricerules;
+      $item->pricerules = $product['pricerules'];
       $item->tax_method_label = $taxMethodLabel;
       
       if($this->shopSettings['tax_method'] == 'excl_tax') {

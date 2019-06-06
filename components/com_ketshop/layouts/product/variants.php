@@ -25,6 +25,7 @@ if($product->nb_variants > 1) :
     $obj->shop_settings = $product->shop_settings;
     $rendering = JLayoutHelper::render('product.price', $obj);
     $rendering .= JLayoutHelper::render('product.availability', array('item' => $obj, 'params' => $obj->params, 'view' => 'product')); 
+    $rendering .= JLayoutHelper::render('product.tabs', $obj);
     $rendering = trim($rendering);
     $tabs[] = $rendering;
   }

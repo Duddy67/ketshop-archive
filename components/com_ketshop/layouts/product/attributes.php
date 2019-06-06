@@ -13,7 +13,7 @@ JHtml::_('behavior.framework');
 $params = $displayData->params;
 //If the product has multiple variants or no attributes and we're in the tag view, attributes are not displayed.
 $displayAttribs = true;
-if(empty($displayData->attributes) || $displayData->nb_variants > 1) {
+if(empty($displayData->attributes)) {
   $displayAttribs = false;
 }
 ?>

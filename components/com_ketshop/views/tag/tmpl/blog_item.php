@@ -49,7 +49,10 @@ $params = $this->item->params;
 	  endif; ?>
 
   <?php echo JLayoutHelper::render('product.product_page', array('item' => $this->item, 'params' => $params, 'link' => $link)); 
-        echo JLayoutHelper::render('product.tabs', $this->item);
+        // Dispays details only for unique products (ie: with one basic variant).
+	if($this->item->nb_variants == 1) {
+	  echo JLayoutHelper::render('product.tabs', $this->item);
+	}
 
    endif; ?>
 </div>

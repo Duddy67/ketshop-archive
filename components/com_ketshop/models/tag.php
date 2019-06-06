@@ -520,7 +520,7 @@ class KetshopModelTag extends JModelList
     }
 
     $query->order($orderBy);
-echo $query;
+//echo $query;
     return $query;
   }
 

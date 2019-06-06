@@ -17,6 +17,7 @@ $params = $displayData->params;
 <?php if($params->get('show_price') && !empty($displayData->base_price) && !empty($displayData->sale_price)) : ?>
 
   <?php if(!empty($displayData->pricerules) && $displayData->pricerules[0]['show_rule']) : //Display rules info if any. ?>
+    <span class="space-1"></span>
     <?php foreach($displayData->pricerules as $ruleInfo) : ?>
       <?php if($params->get('show_rule_name')) : ?>
 	<span class="rule-name"><?php echo $ruleInfo['name']; ?></span>
@@ -36,6 +37,8 @@ $params = $displayData->params;
       <?php echo UtilityHelper::floatFormat($displayData->sale_price); ?>
       <?php echo $displayData->shop_settings['currency']; ?></span>
     <span class="space">&nbsp;</span>
+  <?php else : ?>
+    <span class="space-1"></span>
   <?php endif; ?>
 
     <span class="price"><?php echo UtilityHelper::floatFormat($displayData->final_price); ?></span>

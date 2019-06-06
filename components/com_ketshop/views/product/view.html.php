@@ -63,28 +63,36 @@ class KetshopViewProduct extends JViewLegacy
     // Gets the price rules linked to the product including all its variants.
     $priceRules = PriceruleHelper::getCatalogPriceRules($product);
 
-    // Checks for extra product variants.
+    // The product has several variants.
     if($this->item->nb_variants > 1) { 
       // Gets the product variants.
       $this->item->variants = $model->getVariantData($this->item->id);
 
       foreach($this->item->variants as $key => $variant) {
-        // Adds some required attributes to the variant.
+        // Adds some required variables to the variant.
 	$this->item->variants[$key]['pricerules'] = array();
-	$this->item->variants[$key]['tax_rate'] = $this->item->tax_rate;
-	$this->item->variants[$key]['type'] = $this->item->type;
-	$this->item->variants[$key]['nb_variants'] = $this->item->nb_variants;
-	$this->item->variants[$key]['shippable'] = $this->item->shippable;
-	$this->item->variants[$key]['id'] = $this->item->id;
-	$this->item->variants[$key]['slug'] = $this->item->slug;
-	$this->item->variants[$key]['catid'] = $this->item->slug;
+	$this->item->variants[$key]['attributes'] = $model->getAttributeData($variant['prod_id'], $variant['var_id']);
+
+	// Some global product variables are needed in the layouts.
+	$globalVars = array('tax_rate', 'tax_name', 'type', 'id', 'nb_variants', 'shippable', 'slug', 'catid', 'hits',
+			    'category_title', 'weight_unit', 'weight_location', 'dimensions_unit', 
+			    'dimensions_location', 'attributes_location');
+
+	foreach($globalVars as $varName) {
+	  $this->item->variants[$key][$varName] = $this->item->$varName;
+	}
 
 	// The product is linked to some price rules.
 	if(!empty($priceRules)) {
 	  // Loops through the price rules. 
 	  foreach($priceRules as $priceRule) {
-	    // Checks if the product variant is bound to the price rule.
-	    if(in_array($variant['var_id'], $priceRule['var_ids'])) {
+	    // Checks if the product variant matches the price rule (product/bundle) target.
+	    if($priceRule['target'] != 'product_cat' && in_array($variant['var_id'], $priceRule['var_ids'])) {
+	      $this->item->variants[$key]['pricerules'][] = $priceRule;
+	    }
+	    // If the product is in the category targeted by the price rule, all of the
+	    // product variants are impacted by this rule.
+	    elseif($priceRule['target'] == 'product_cat') {
 	      $this->item->variants[$key]['pricerules'][] = $priceRule;
 	    }
 	  }
@@ -111,9 +119,11 @@ class KetshopViewProduct extends JViewLegacy
 	}
       }
     }
-    // The product has just one basic variant.
+    // The product has just a basic variant.
     else {
+      //FIX IT: the convertion makes the code messy. 
       $this->item->pricerules = $priceRules;
+      $product['pricerules'] = $priceRules;
       // Gets the catalog price of the product.
       $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 

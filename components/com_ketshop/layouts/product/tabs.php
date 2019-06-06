@@ -40,7 +40,7 @@ if(!empty($tabs)) :
   <ul class="nav nav-tabs">
 <?php foreach($tabs as $key => $tab) : ?>
     <li <?php echo $active; ?>>
-    <a data-toggle="tab" href="#<?php echo $key.'-'.$displayData->id; ?>"><?php echo JText::_('COM_KETSHOP_PRODUCT_'.strtoupper($key)); ?></a></li>
+    <a data-toggle="tab" href="#<?php echo $key.'-'.$displayData->id.'-'.$displayData->var_id; ?>"><?php echo JText::_('COM_KETSHOP_PRODUCT_'.strtoupper($key)); ?></a></li>
 <?php
   //Only the first tab can be active.
   $active = '';
@@ -53,7 +53,7 @@ if(!empty($tabs)) :
 
   <div class="tab-content">
 <?php foreach($tabs as $key => $tab) : ?>
-    <div id="<?php echo $key.'-'.$displayData->id; ?>" class="tab-pane fade<?php echo $active; ?>">
+    <div id="<?php echo $key.'-'.$displayData->id.'-'.$displayData->var_id; ?>" class="tab-pane fade<?php echo $active; ?>">
     <?php echo $tab; ?>
     </div>
 <?php
