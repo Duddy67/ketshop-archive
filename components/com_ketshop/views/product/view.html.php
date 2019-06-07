@@ -121,9 +121,9 @@ class KetshopViewProduct extends JViewLegacy
     }
     // The product has just a basic variant.
     else {
-      //FIX IT: the convertion makes the code messy. 
       $this->item->pricerules = $priceRules;
-      $product['pricerules'] = $priceRules;
+      //FIXME: the convertion makes the code messy. 
+      $product = (array)$this->item;
       // Gets the catalog price of the product.
       $catalogPrice = PriceruleHelper::getCatalogPrice($product, $this->shopSettings);
 

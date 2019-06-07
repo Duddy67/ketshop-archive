@@ -23,13 +23,10 @@ class KetshopControllerTranslation extends JControllerForm
     //Set some jform fields.
 
     if($data['item_type'] == 'product') {
-      //product_description tag is used with product item instead of description
-      //tag, so we must delete description tag to avoid having an empty
-      //description field in database.
+      // product_description tag is used with product item instead of description
+      // tag, so we must delete description tag to avoid having an empty
+      // description field in database.
       unset($data['description']);
-
-      //Use the product sanitized name for the alias, (see stringURLSafe function for details).
-      $data['alias'] = JFilterOutput::stringURLSafe($data['name']);
     }
 
     //Saves the modified jform data array 

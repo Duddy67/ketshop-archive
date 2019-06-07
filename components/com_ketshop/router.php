@@ -8,6 +8,7 @@
 defined('_JEXEC') or die;
 
 JLoader::register('KetshopHelperRoute', JPATH_SITE.'/components/com_ketshop/helpers/route.php');
+JLoader::register('ShopHelper', JPATH_SITE.'/components/com_ketshop/helpers/shop.php');
 
 
 /**
@@ -124,12 +125,29 @@ class KetshopRouter extends JComponentRouterView
     if(!strpos($id, ':')) {
       $db = JFactory::getDbo();
       $dbquery = $db->getQuery(true);
-      $dbquery->select($dbquery->qn('alias'))
-	      ->from($dbquery->qn('#__ketshop_product'))
-	      ->where('id='.$dbquery->q((int) $id));
-      $db->setQuery($dbquery);
+      // Checks if an alias translation is needed.
+      $switchLanguage = ShopHelper::switchLanguage();
 
-      $id .= ':'.$db->loadResult();
+      $dbquery->select($dbquery->qn('p.alias'))
+	      ->from($dbquery->qn('#__ketshop_product AS p'));
+
+      if($switchLanguage) {
+	// Finds out if a translated alias is available for this item in the given language.
+	$dbquery->select('t.alias AS t_alias')
+		->join('LEFT', '#__ketshop_translation AS t ON t.item_id=p.id AND t.item_type='.$db->Quote('product').
+							       ' AND t.language='.$db->Quote(ShopHelper::switchLanguage(true)));
+      }
+
+      $dbquery->where('p.id='.$dbquery->q((int) $id));
+      $db->setQuery($dbquery);
+      $aliases = $db->loadAssoc();
+
+      if($switchLanguage && !empty($aliases['t_alias'])) {
+	$id .= ':'.$aliases['t_alias'];
+      }
+      else {
+	$id .= ':'.$aliases['alias'];
+      }
     }
 
     if($this->noIDs) {
@@ -220,11 +238,27 @@ class KetshopRouter extends JComponentRouterView
     if($this->noIDs) {
       $db = JFactory::getDbo();
       $dbquery = $db->getQuery(true);
+
+      if(ShopHelper::switchLanguage()) {
+	// Finds out the item id for the given translated alias (if any).
+	$dbquery->select('item_id')
+		->from($dbquery->qn('#__ketshop_translation'))
+		// N.B: Alias is unique for each translated item.
+		->where('alias='.$db->Quote($segment))
+		->where('language='.$db->Quote(ShopHelper::switchLanguage(true)))
+		->where('item_type='.$db->Quote('product'));
+	$db->setQuery($dbquery);
+
+	if((int)$db->loadResult()) {
+	  return (int)$db->loadResult();
+	}
+      }
+
+      $dbquery->clear();
       $dbquery->select('id')
 	      ->from($dbquery->qn('#__ketshop_product'))
-              //Note: Alias is unique for each item.
+              // N.B: Alias is unique for each item.
 	      ->where('alias='.$dbquery->q($segment));
-
       $db->setQuery($dbquery);
 
       return (int)$db->loadResult();

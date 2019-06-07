@@ -331,7 +331,8 @@ class KetshopModelTag extends JModelList
     }
 
     // Select required fields from the categories.
-    $query->select($this->getState('list.select', 'p.id,'.$translatedFields.'p.catid,'.
+    // N.B: DISTINCT is used to prevent duplicates when attribute filters are used with product variants.
+    $query->select($this->getState('list.select', 'DISTINCT p.id,'.$translatedFields.'p.catid,'.
 	                           'tm.tag_id,p.published,p.checked_out,p.checked_out_time,p.created,'.
 				   'p.created_by,p.access,p.params,p.metadata,p.metakey,p.metadesc,p.hits,'.
 				   'p.main_tag_id,p.publish_up,p.publish_down,p.modified,p.modified_by,'.
@@ -462,32 +463,32 @@ class KetshopModelTag extends JModelList
       }
     }
 
-    //Filters by product attributes.
+    // Filters by product (variant) attributes.
     if($this->getState('params')->get('filter_ids') !== null) {
       $attribIds = $this->getFilterAttributes($this->getState('params')->get('filter_ids'), true);
 
-      //Builds a join query for each attribute.
+      // Builds a join query for each attribute.
       foreach($attribIds as $key => $attribId) {
 	$optionValue = $this->getState('list.filter_attrib_'.$attribId);
 
 	if(!empty($optionValue)) {
-	  //Checks for multi select.
+	  // Checks for multi select.
 	  if(is_array($optionValue)) {
 	    $option = '(';
-	    //Creates a LIKE clause for each option value.
+	    // Creates a LIKE clause for each option value.
 	    foreach($optionValue as $value) {
-	      $option .= 'pa'.$key.'.option_value LIKE '.$db->Quote('%'.$value.'%').' AND ';
+	      $option .= 'pva'.$key.'.option_value LIKE '.$db->Quote('%'.$value.'%').' AND ';
 	    }
 
 	    $option = substr($option, 0, -5);
 	    $option .= ')';
 	  }
-	  else { //Single select.
-	    $option = 'pa'.$key.'.option_value='.$db->Quote($optionValue);
+	  else { // Single select.
+	    $option = 'pva'.$key.'.option_value='.$db->Quote($optionValue);
 	  }
 
-	  $query->join('INNER', '(SELECT * FROM #__ketshop_prod_attrib) AS pa'.$key.' ON pa'.$key.'.prod_id=p.id '.
-	                        'AND pa'.$key.'.attrib_id='.$attribId.' AND '.$option);
+	  $query->join('INNER', '(SELECT * FROM #__ketshop_var_attrib) AS pva'.$key.' ON pva'.$key.'.prod_id=p.id '.
+	                        'AND pva'.$key.'.attrib_id='.$attribId.' AND '.$option);
 	}
       }
     }
@@ -520,7 +521,7 @@ class KetshopModelTag extends JModelList
     }
 
     $query->order($orderBy);
-//echo $query;
+
     return $query;
   }
 

@@ -123,6 +123,23 @@ class KetshopTableTranslation extends JTable
       }
     }
 
+    if($this->item_type == 'product') {
+      // Creates a sanitized alias, (see stringURLSafe function for details).
+      $this->alias = JFilterOutput::stringURLSafe($this->alias);
+      // In case no alias has been defined, create a sanitized alias from the name field.
+      if(empty($this->alias)) {
+	$this->alias = JFilterOutput::stringURLSafe($this->name);
+      }
+
+      // Verifies that the alias is unique.
+      $table = JTable::getInstance('Translation', 'KetshopTable', array('dbo', $this->getDbo()));
+
+      if($table->load(array('alias' => $this->alias)) && ($table->id != $this->id || $this->id == 0)) {
+	$this->setError(JText::_('COM_KETSHOP_DATABASE_ERROR_PRODUCT_UNIQUE_ALIAS'));
+	return false;
+      }
+    }
+
     return parent::store($updateNulls);
   }
 }
