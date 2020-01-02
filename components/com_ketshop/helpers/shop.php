@@ -27,7 +27,7 @@ class ShopHelper
     //Get the required product data.
     $query->select('p.name,p.id,p.catid,p.type,p.base_price,p.sale_price,p.sale_price AS unit_sale_price,t.rate AS tax_rate,p.type,'.
 	           'p.shippable,p.min_stock_threshold,p.allow_order,p.stock_subtract,p.min_quantity,p.max_quantity,'.
-		   'p.alias,p.has_variants,p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height');
+		   'p.nb_variants,p.alias,p.weight_unit,p.weight,p.dimensions_unit,p.length,p.width,p.height');
 
 
     //Get some data according to the variant id.

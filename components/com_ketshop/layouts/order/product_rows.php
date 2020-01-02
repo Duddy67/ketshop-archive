@@ -40,7 +40,7 @@ if($layout == 'order_admin' && $displayData['can_edit']) {
 
       <?php /////////////////////// PRODUCT ROW //////////////////////////// ?>
       <tr class="<?php echo $class; ?>"><td>
-	<a href="<?php echo $product['url']; ?>" class="font-bold" target="_blank"><?php echo $product['name']; ?></a>
+	<a href="<?php echo $product['url']; ?>" class="font-bold" target="_blank">Fake Product<?php echo $product['name']; ?></a>
 	<?php echo $variantName; ?>
 
 	    <?php /////////////////////// UNIT PRICE //////////////////////////// ?>
